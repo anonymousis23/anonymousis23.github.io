@@ -103,9 +103,7 @@ pre code {
 <tr>
 <td>
 <h1>Decoupling segmental and prosodic cues of non-native speech through vector quantization</h1>
-<!-- <h2>Waris Quamer<sup>1</sup>, Anurag Das<sup>1</sup>, John Levis<sup>2</sup>, Evgeny Chukharev-Hudilainen<sup>2</sup>, Ricardo Gutierrez-Osuna<sup>1</sup></h2>
-<h2><sup>1</sup>Department of Computer Science and Engineering, Texas A&M University, USA</h2>
-<h2><sup>2</sup>Department of English, Iowa State University, USA</h2> -->
+<h2>Anonymous submission to INTERSPEECH 2023</h2>
 </td>
 </tbody>
 </table>
@@ -113,157 +111,155 @@ pre code {
 
 <h2>Notes</h2>
 
-<!-- <ul>
+<ul>
 <li>The L1 speaker speaks the General American Accent</li>
-<li>YKWK's native language is Korean</li>
-<li>TXHC's native language is Chinese</li>
+<li>NJS's native language is Spanish</li>
+<li>ZHAA's native language is Arabic</li>
 <li>Dataset (L2-ARCTIC corpus [1]): <a href="https://psi.engr.tamu.edu/l2-arctic-corpus/">https://psi.engr.tamu.edu/l2-arctic-corpus/</a></li>
-</ul> -->
+</ul>
 
-<!-- <h2>Experiment : Evaluating the reference-free golden speakers</h2>
-
+<h2>Audio Samples</h2>
 <ul>
     <li><b>Input speech</b>: original unmodified L2 speech recordings</li>
-    <li><b>Baseline</b>: the reference-free FAC system of Zhao et al. [2]; samples provided through the courtesy of G. Zhao (TAMU)</li>
-    <li><b>Proposed</b>: the proposed reference-free accent conversion model</li>
-</ul> -->
+    <li><b>Baseline</b>: VQ-inf accent conversion model</li>
+    <li><b>Proposed</b>: the proposed VQ-128 accent conversion model</li>
+</ul>
 
-<!-- <table width="100%" class="samples">
+<table width="100%" class="samples">
 <tbody>
     <tr>
         <th>L2 speaker</th>
         <th>Text</th>
         <th>Input speech</th>
-        <th>Reference-Free Accent conversion (Baseline)</th>
-        <th>Reference-Free Accent conversion (Proposed)</th>
+        <th>VQ-inf (Baseline)</th>
+        <th>VQ-128 (Proposed)</th>
     </tr>
     <tr>
-        <td rowspan="3">YKWK</td>
+        <td rowspan="3">NJS</td>
         <td>
-            He had fulfilled his duty and paid properly.
+            We will have to watch our chances.
         </td>
         <td>
             <audio controls="">
-                <source src="wav/reference_l2/ykwk_1102.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/reference_l2/NJS/arctic_a0038.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/baseline/ykwk_1102.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/baseline//NJS/arctic_a0038.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/proposed/ykwk_1102.wav" type="audio/wav">Your browser does not support the audio tag.</source>
-            </audio>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            But already he had composed himself.
-        </td>
-        <td>
-            <audio controls="">
-                <source src="wav/reference_l2/ykwk_1108.wav" type="audio/wav">Your browser does not support the audio tag.</source>
-            </audio>
-        </td>
-        <td>
-            <audio controls="">
-                <source src="wav/baseline/ykwk_1108.wav" type="audio/wav">Your browser does not support the audio tag.</source>
-            </audio>
-        </td>
-        <td>
-            <audio controls="">
-                <source src="wav/proposed/ykwk_1108.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/proposed/NJS/arctic_a0038.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
     </tr>
     <tr>
         <td>
-            The Russian music player, the Count, was her obedient slave.
+            It was a curious coincidence.
         </td>
         <td>
             <audio controls="">
-                <source src="wav/reference_l2/ykwk_1116.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/reference_l2/NJS/arctic_a0052.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/baseline/ykwk_1116.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/baseline/NJS/arctic_a0052.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/proposed/ykwk_1116.wav" type="audio/wav">Your browser does not support the audio tag.</source>
-            </audio>
-        </td>
-    </tr>
-    <tr>
-        <td rowspan="3">TXHC</td>
-        <td>
-            What an excited whispering and conferring took place.
-        </td>
-        <td>
-            <audio controls="">
-                <source src="wav/reference_l2/txhc_1083.wav" type="audio/wav">Your browser does not support the audio tag.</source>
-            </audio>
-        </td>
-        <td>
-            <audio controls="">
-                <source src="wav/baseline/txhc_1083.wav" type="audio/wav">Your browser does not support the audio tag.</source>
-            </audio>
-        </td>
-        <td>
-            <audio controls="">
-                <source src="wav/proposed/txhc_1083.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/proposed/NJS/arctic_a0052.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
     </tr>
     <tr>
         <td>
-            Thus he turned the tenets and jargon of psychology back on me.
+            It was the same way with our revolvers and rifles.
         </td>
         <td>
             <audio controls="">
-                <source src="wav/reference_l2/txhc_1085.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/reference_l2/NJS/arctic_a0227.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/baseline/txhc_1085.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/baseline/NJS/arctic_a0227.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/proposed/txhc_1085.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/proposed/NJS/arctic_a0227.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td rowspan="3">ZHAA</td>
+        <td>
+            I'll be out of my head in fifteen minutes.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/reference_l2/ZHAA/arctic_a0280.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/baseline/ZHAA/arctic_a0280.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/proposed/ZHAA/arctic_a0280.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
     </tr>
     <tr>
         <td>
-            You were making them talk shop, Ruth charged him.
+            These rumors may even originate with us.
         </td>
         <td>
             <audio controls="">
-                <source src="wav/reference_l2/txhc_1132.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/reference_l2/ZHAA/arctic_a0365.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/baseline/txhc_1132.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/baseline/ZHAA/arctic_a0365.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/proposed/txhc_1132.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/proposed/ZHAA/arctic_a0365.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            He was worth nothing to the world.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/reference_l2/ZHAA/arctic_a0443.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/baseline/ZHAA/arctic_a0443.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/proposed/ZHAA/arctic_a0443.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
     </tr>
 </tbody>
-</table> -->
+</table>
 
-<!-- <h2>References</h2>
+<h2>References</h2>
 <p>[1] G. Zhao <i>et al</i>., "L2-ARCTIC: A non-native English speech corpus," in <i>Proc. Interspeech</i>, 2018, pp. 2783-2787.</p>
-<p>[2] G. Zhao, S. Ding, and R. Gutierrez-Osuna., "Converting Foreign Accent Speech Without a Reference." <i>IEEE/ACM Transactions on Audio, Speech, and Language Processing</i>, 2021, pp.2367-2381.</p> -->
 </main>
 </body></html>
