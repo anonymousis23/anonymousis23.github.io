@@ -1,0 +1,269 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-171609755-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-171609755-1');
+</script>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Prosody Accent Conversion Audio Samples</title>
+<link rel="icon" href="../../media/image/favicon.png"></head>
+<style>
+body{
+    padding: 0;
+    margin: 0;
+}
+
+.title {
+    background-color: rgb(80,0,0);
+    width: 100%;
+    text-align: center
+}
+
+.title td{
+    padding: 5px;
+}
+
+.title .logo{
+    width: 220px;
+}
+
+.title h1{
+    font-size: 18pt;
+    font-family: calibri, verdana, helvetica, sans-serif, Arial, Times, serif;
+    color: white;
+    line-height: 1.15;
+}
+
+.title h2{
+    font-size: 12pt;
+    font-family: calibri, verdana, helvetica, sans-serif, Arial, Times, serif;
+    font-style: italic;
+    color: white;
+    line-height: 1.15;
+}
+
+main{
+    font-family: calibri, verdana, helvetica, sans-serif, Arial, Times, serif;
+    font-size: 18px;
+    padding: 0 10px 0 10px;
+}
+
+main h2{
+    font-size: 20px;
+}
+
+main table.samples{
+    text-align: center;
+}
+
+main table.samples th{
+    border-bottom: 2px solid #333;
+    width: 16%;
+    height: 60px;
+}
+
+main table.samples td{
+    border-right: 1px #333 solid;
+    border-bottom: 1px #666 solid;
+    width: 16%;
+    height: 60px;
+}
+
+.mtf { 
+    background-color: rgb(225, 225, 255);
+}
+
+.ftm{
+    background-color: rgb(255, 225, 225);
+}
+
+.source{
+    background-color: rgb(225, 255, 225);
+}
+
+audio{
+  width: 250px;
+}
+
+pre code {
+  background-color: #eee;
+  border: 1px solid #999;
+  display: block;
+  padding: 5px;
+}
+
+</style>
+<body>
+<table class="title">
+<tbody>
+<tr>
+<td>
+<h1>Decoupling segmental and prosodic cues of non-native speech through vector quantization</h1>
+<!-- <h2>Waris Quamer<sup>1</sup>, Anurag Das<sup>1</sup>, John Levis<sup>2</sup>, Evgeny Chukharev-Hudilainen<sup>2</sup>, Ricardo Gutierrez-Osuna<sup>1</sup></h2>
+<h2><sup>1</sup>Department of Computer Science and Engineering, Texas A&M University, USA</h2>
+<h2><sup>2</sup>Department of English, Iowa State University, USA</h2> -->
+</td>
+</tbody>
+</table>
+<main>
+
+<h2>Notes</h2>
+
+<!-- <ul>
+<li>The L1 speaker speaks the General American Accent</li>
+<li>YKWK's native language is Korean</li>
+<li>TXHC's native language is Chinese</li>
+<li>Dataset (L2-ARCTIC corpus [1]): <a href="https://psi.engr.tamu.edu/l2-arctic-corpus/">https://psi.engr.tamu.edu/l2-arctic-corpus/</a></li>
+</ul> -->
+
+<!-- <h2>Experiment : Evaluating the reference-free golden speakers</h2>
+
+<ul>
+    <li><b>Input speech</b>: original unmodified L2 speech recordings</li>
+    <li><b>Baseline</b>: the reference-free FAC system of Zhao et al. [2]; samples provided through the courtesy of G. Zhao (TAMU)</li>
+    <li><b>Proposed</b>: the proposed reference-free accent conversion model</li>
+</ul> -->
+
+<!-- <table width="100%" class="samples">
+<tbody>
+    <tr>
+        <th>L2 speaker</th>
+        <th>Text</th>
+        <th>Input speech</th>
+        <th>Reference-Free Accent conversion (Baseline)</th>
+        <th>Reference-Free Accent conversion (Proposed)</th>
+    </tr>
+    <tr>
+        <td rowspan="3">YKWK</td>
+        <td>
+            He had fulfilled his duty and paid properly.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/reference_l2/ykwk_1102.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/baseline/ykwk_1102.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/proposed/ykwk_1102.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            But already he had composed himself.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/reference_l2/ykwk_1108.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/baseline/ykwk_1108.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/proposed/ykwk_1108.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            The Russian music player, the Count, was her obedient slave.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/reference_l2/ykwk_1116.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/baseline/ykwk_1116.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/proposed/ykwk_1116.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td rowspan="3">TXHC</td>
+        <td>
+            What an excited whispering and conferring took place.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/reference_l2/txhc_1083.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/baseline/txhc_1083.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/proposed/txhc_1083.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Thus he turned the tenets and jargon of psychology back on me.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/reference_l2/txhc_1085.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/baseline/txhc_1085.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/proposed/txhc_1085.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            You were making them talk shop, Ruth charged him.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/reference_l2/txhc_1132.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/baseline/txhc_1132.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/proposed/txhc_1132.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+</tbody>
+</table> -->
+
+<!-- <h2>References</h2>
+<p>[1] G. Zhao <i>et al</i>., "L2-ARCTIC: A non-native English speech corpus," in <i>Proc. Interspeech</i>, 2018, pp. 2783-2787.</p>
+<p>[2] G. Zhao, S. Ding, and R. Gutierrez-Osuna., "Converting Foreign Accent Speech Without a Reference." <i>IEEE/ACM Transactions on Audio, Speech, and Language Processing</i>, 2021, pp.2367-2381.</p> -->
+</main>
+</body></html>
