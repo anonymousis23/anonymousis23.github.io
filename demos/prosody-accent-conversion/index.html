@@ -109,28 +109,69 @@ pre code {
 </table>
 <main>
 
+<h2>Abstract</h2>
+<p style="width:100%">
+Accent conversion (AC) seeks to transform utterances from a 
+non-native speaker to appear native-like. Compared to voice
+conversion, which generally treats accent and voice quality as
+one, AC provides a finer-grained decomposition of speech. This
+paper presents an AC system that further decomposes an accent
+into its segmental and prosodic characteristics, and provides
+independent control of both channels. The system uses conventional 
+modules (acoustic model, speaker/prosody encoders, seq2seq model) 
+to generate accent conversions that combine 
+(1) the segmental characteristics from a source utterance, 
+(2) the voice characteristics from a target utterance, and 
+(3) the prosody of a reference utterance. 
+However, naive application of this idea prevents the system 
+from learning and transferring prosody. 
+We show that vector quantization and removal of repeated 
+codewords allows the system to transfer prosody and improve 
+transfer of voice quality, as verified by objective and perceptual measures.
+</p>
+
+
+<h2>Block Diagram</h2>
+<figure style="width:25%">
+    <img src="blockdiagram.svg" alt="Block Diagram" >
+    <figcaption>Block diagram of the proposed system. The prosody
+        encoder and seq2seq model are trained jointly as an autoencoder. 
+        For accent conversion, segmentals come from U1
+        and prosody from U3, thus providing independent control of both channels.</figcaption>
+</figure>
+
+
+
 <h2>Notes</h2>
 
 <ul>
-<li>The L1 speaker speaks the General American Accent</li>
-<li>NJS's native language is Spanish</li>
-<li>ZHAA's native language is Arabic</li>
+<li>The L1 speaker speaks the General American Accent.</li>
+<li>NJS's native language is Spanish.</li>
+<li>ZHAA's native language is Arabic.</li>
 <li>Dataset (L2-ARCTIC corpus [1]): <a href="https://psi.engr.tamu.edu/l2-arctic-corpus/">https://psi.engr.tamu.edu/l2-arctic-corpus/</a></li>
 </ul>
 
 <h2>Audio Samples</h2>
 <ul>
-    <li><b>Input speech</b>: original unmodified L2 speech recordings</li>
+    <li><b>Input speech</b>: original unmodified speech recordings
+        <ul>
+            <li>U1: L1 speaker (BDL) (i.e., native segmentals)</li>
+            <li>U2: L2 speaker (NJS / ZHAA) (i.e., non-native speaker's identity)</li>
+            <li>U3: L2 speaker (NJS / ZHAA) (i.e., non-native speaker's prosody)</li>
+        </ul>
+    </li>
     <li><b>Baseline</b>: VQ-inf accent conversion model</li>
     <li><b>Proposed</b>: the proposed VQ-128 accent conversion model</li>
 </ul>
+
+<!-- <p>Open a PDF file <a href="blockdiagram.pdf">example</a>.</p> -->
 
 <table width="100%" class="samples">
 <tbody>
     <tr>
         <th>L2 speaker</th>
         <th>Text</th>
-        <th>Input speech</th>
+        <th>Input L2 speech</th>
         <th>VQ-inf (Baseline)</th>
         <th>VQ-128 (Proposed)</th>
     </tr>
