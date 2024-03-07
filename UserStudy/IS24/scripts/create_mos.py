@@ -15,7 +15,7 @@ random.seed(1234)
 # ##########################################################################################################################
 
 audio_samples_root = "UserStudy/IS24/Samples/MOS"
-url_root = "UserStudy/IS24/Samples/MOS"
+url_root = "../../UserStudy/IS24/Samples/MOS"
 
 wav_list = []
 _, audio_type_dirs, _ = next(os.walk(audio_samples_root))
