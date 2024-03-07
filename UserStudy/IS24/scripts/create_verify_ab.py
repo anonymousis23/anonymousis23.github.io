@@ -17,7 +17,7 @@ random.seed(1234)
 ###########################################################################################################################
 
 audio_samples_root = "UserStudy/IS24/Samples/Verifiability"
-url_root = "../../UserStudy/IS24/Samples/Verifiability"
+url_root = "../../Samples/Verifiability"
 
 
 wav_list = []
