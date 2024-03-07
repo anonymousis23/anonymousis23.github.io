@@ -1,3 +1,210 @@
+<style type="text/css">
+	table.tests {
+		width: 85%;
+		border-collapse: collapse;
+		table-layout: fixed;
+	}
+
+	table.tests th {
+		text-align: center;
+	}
+
+	table.tests td {
+		text-align: center;
+		vertical-align: middle;
+		border: 2px solid #000000;
+		width: 4%;
+	}
+
+	table.tests td+td {
+		width: 12%;
+	}
+
+	table.tests td+td+td {
+		width: 12%;
+	}
+
+	table.tests td+td+td+td {
+		width: 12%;
+	}
+
+	table.tests td+td+td+td+td {
+		width: 9%;
+	}
+
+	table.tests td+td+td+td+td+td {
+		width: auto;
+	}
+
+	table.tests tr {
+		border: 2px solid #500000;
+		height: 60px;
+		vertical-align: middle;
+		margin: 0 auto;
+		padding: 0;
+	}
+
+	table.tests tr {
+		margin: 0 auto;
+		padding: 0;
+	}
+
+	table.tests tr:nth-child(even) {
+		background-color: #F8F5E6;
+	}
+
+	table.tests tr:nth-child(odd) {
+		background: #EEE;
+	}
+
+	table.tests tr:first-child {
+		background-color: #500000;
+		color: #FFF;
+		font-weight: bold;
+		font-size: 1.25em;
+	}
+
+	table.tests tr:first-child:hover {
+		background-color: #500000;
+	}
+
+	table.tests tr:hover {
+		background-color: #336FA4
+	}
+
+	table.tests tr.complete {
+		background-color: #6FB89B;
+	}
+
+	table.tests input.mos {
+		display: block;
+		width: 100%;
+		height: 20px;
+	}
+
+	table.tests .question_id {
+		width: 21%;
+	}
+
+	table.tests td.A,
+	table.tests td.B,
+	table.tests td.X {
+		width: 27%;
+	}
+
+	table.tests .X {
+		border-right: 3px solid #500000;
+	}
+
+	input[type=radio] {
+		width: 20px;
+		height: 60px;
+		border: 10px solid #CCC;
+		border-radius: 50%;
+		vertical-align: middle;
+	}
+
+	input[type=radio].A {
+		float: right;
+	}
+
+	input[type=radio].B {
+		float: left;
+	}
+
+	audio {
+		vertical-align: middle;
+		width: 150px;
+	}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+	//The magic that lets us find the unselected questions
+
+	$(document).ready(function () {
+		$('#submitButton').click(check_buttons);
+	});
+
+	var check_buttons = function () {
+		//Get all the radio buttons
+		n_ckd = $('input[type=radio]:not(:checked)').toArray().reduce((acc, val) => acc.includes(val.name) ? acc : acc.concat(val.name), []);
+
+		//Get all the checked buttons
+		ckd = $('input[type=radio]:checked').toArray().reduce((acc, val) => acc.includes(val.name) ? acc : acc.concat(val.name), []);
+
+		//Filter out all the checked radio buttons from the not checked list
+		//We should get NOTHING if we've filled in every option
+		var unfilled = n_ckd.filter(function (x) { return !ckd.includes(x) });
+
+		if (unfilled.length > 0) {
+			alert("You have not rated your confidence for one or more of the questions.\nThe first one missing an answer is: " + unfilled[0].substring(5, 8));
+			var any_unfilled = true;
+		}
+		else {
+			var any_unfilled = false;
+		}
+
+		var unselected = $('select.overall').toArray().filter(function (x) { return x.value == 0 })
+
+		if (unselected.length > 0) {
+			alert("You have not rated 'Same or different?' for one or more of the questions.\nThe first one missing an answer is: " + unselected[0].name.substring(5, 8))
+		}
+
+		return !any_unfilled && !(unselected.length)
+	}
+</script>
+<script>
+	var reload_audio = function (e) {
+		console.log(e)
+
+
+		//Add in a nocache cheat
+		var src_selector = 'audio[id=' + e + '] > source';
+		$(src_selector)[0].src = $(src_selector)[0].src + "?nocache=" + new Date().getTime()
+		$('audio[id=' + e + ']')[0].load()
+		console.log($('audio[id=' + e + ']')[0].currentSrc)
+	}
+</script>
+<script>
+	var onclick_nocache = function (e) {
+		var currentSrc = $('audio[id=' + e + ']')[0].currentSrc;
+		$('audio[id=' + e + ']')[0].currentSrc = currentSrc + "?nocache=" + new Date().getTime();
+		$('audio[id=' + e + ']>source')[0].src = currentSrc + "?nocache=" + new Date().getTime();
+		$('audio[id=' + e + ']>a')[0].href = currentSrc + "?nocache=" + new Date().getTime();
+	}
+</script>
+<style type="text/css">
+	table,
+	th,
+	td {
+		border: 1px solid black;
+	}
+</style>
+<h1><strong>Speaker Verification Test</strong></h1>
+<hr>
+<h3>Below is a list of recordings organized in rows. In each row, you will see two clips: A & B.
+	Please listen to the two recordings, and then decide whether the two voices in clip A and clip B are the same or different speakers. 
+	Once you choose, please rate how confident you are in your choice.</h3>
+<ul>
+	<li>There are seven (7) levels of confidence, as shown in the tables below. 
+		"|" means that your confidence level is between two levels.  
+		For example, the "|" between "Not at all confident" and "Somewhat confident" means that your confidence level is  
+		more than "Not at all confident" but less than "Somewhat confident".</li>
+	<li>Please <em><strong><span style="color:red">ignore</span></strong></em> the audio quality
+		(e.g., noises, distortions) and instead focus on the <em><strong><span style="color:red">voice 
+			 characteristics</span></strong></em> of the speaker.</li>
+	<li>You may listen to a sound more than once if needed; just click the play button to replay.</li>
+	<li>Your responses will be manually screened to ensure that you made a serious effort to rate the recordings. 
+		If your answers are determined to be random or contain inconsistent answers, the task may be rejected and you may not receive payment.</li>
+	<li>Please perform these tasks in a quiet place using a pair of good headphones. 
+		It is recommended that you set the volume a bit higher than normal for these tasks.</li>
+	<li>If you are having trouble viewing or listening to the sound clips, please try completing the test in Google Chrome.</li>
+	<li>Please make sure that you've finished all the questions before submitting.</li>
+</ul>
+<hr>
+
+<h2><strong>In each question, answer whether the two voices in clip A and clip B are the same or different speakers. How confident are you with your answer?</strong></h2>
+
 <h2>Set 1</h2>
 <table class="tests">
 	<tbody>
@@ -1834,3 +2041,27 @@
 		</tr>
 	</tbody>
 </table>
+
+<p>Have you participated in any such speech tasks before? <select class="post-survey" name="VS_PT_Experience">
+	<option selected="selected" value="0">- select one -</option>
+	<option value="1">Yes</option>
+	<option value="-1">No</option>
+</select></p>
+
+<p>How did you listen to the audio clips in this task? <select class="post-survey" name="VS_PT_listening">
+	<option selected="selected" value="0">- select one -</option>
+	<option value="1">Laptop speaker</option>
+	<option value="2">Headphones</option>
+	<option value="3">Desktop speaker</option>
+	<option value="4">Other</option>
+</select></p>
+
+<p>What is your native language? <input class="post-survey" maxlength="100" name="VS_PT_nativeLanguage" size="20"
+	type="text" /></p>
+
+<p>What other languages do you speak? <input class="post-survey" maxlength="100" name="VS_PT_otherLanguages" size="50"
+	type="text" /></p>
+
+<p>Please suggest comments for improving this study:</p>
+
+<p><textarea class="post-survey" cols="120" name="VS_PT_comments" rows="5"></textarea></p>
