@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 import random
 
-out_dir = Path("/Users/warisqr/PSI/IS24/User Study/interfaces")
+out_dir = Path("UserStudy/IS24/interfaces/mos")
 audio_type_code = {
     'source': 'SR',
     'base': 'BS',
@@ -14,8 +14,8 @@ random.seed(1234)
 # MOS TEST
 # ##########################################################################################################################
 
-audio_samples_root = "/Users/warisqr/PSI/IS24/User Study/samples/MOS"
-url_root = "<url>"
+audio_samples_root = "UserStudy/IS24/Samples/MOS"
+url_root = "UserStudy/IS24/Samples/MOS"
 
 wav_list = []
 _, audio_type_dirs, _ = next(os.walk(audio_samples_root))
@@ -31,7 +31,7 @@ for audio_type in audio_type_dirs:
 random.shuffle(wav_list)
 test_samples = len(wav_list)
 
-mos_test_fpath = out_dir.joinpath("mos_test.html")
+mos_test_fpath = out_dir.joinpath("index.html")
 mos_test_fpath = mos_test_fpath.open("w", encoding="utf-8")
 
 num_sets = test_samples//5

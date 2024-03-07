@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 import random
 
-out_dir = Path("/Users/warisqr/PSI/IS24/User Study/interfaces")
+out_dir = Path("UserStudy/IS24/interfaces/verify")
 audio_type_code = {
     'same': 'SME',
     'same_anon': 'SMA',
@@ -16,8 +16,8 @@ random.seed(1234)
 #
 ###########################################################################################################################
 
-audio_samples_root = "/Users/warisqr/PSI/IS24/User Study/samples/Verifiability"
-url_root = "<url>"
+audio_samples_root = "UserStudy/IS24/Samples/Verifiability"
+url_root = "UserStudy/IS24/Samples/Verifiability"
 
 
 wav_list = []
@@ -39,7 +39,7 @@ for audio_type in audio_type_dirs:
 random.shuffle(wav_list)
 test_samples = len(wav_list)
 
-voice_similarity_test_fpath = out_dir.joinpath("verifiability_test.html")
+voice_similarity_test_fpath = out_dir.joinpath("index.html")
 voice_similarity_test_fpath = voice_similarity_test_fpath.open("w", encoding="utf-8")
 
 num_sets = test_samples//5
@@ -66,7 +66,6 @@ for i in range(num_sets):
         wav_id = wav_list[index]['id']
         wav_fpath_a = wav_list[index]['wav_fpath_a']
         wav_fpath_b = wav_list[index]['wav_fpath_b']
-        wav_fpath_x = wav_list[index]['wav_fpath_x']
 
         voice_similarity_test_fpath.write("\t\t" + "<tr>" + "\n")
 
