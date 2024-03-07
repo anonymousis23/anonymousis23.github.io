@@ -30,8 +30,8 @@ for audio_type in audio_type_dirs:
     for uttr_pair in utterances:
         uttr_a, uttr_b = uttr_pair.strip().split('|')
         wav_dict = {}
-        wav_dict['wav_fpath_a'] = f"{os.path.join(url_root, audio_type, uttr_a)}?raw=true"
-        wav_dict['wav_fpath_b'] = f"{os.path.join(url_root, audio_type, uttr_b)}?raw=true"
+        wav_dict['wav_fpath_a'] = f"{os.path.join(url_root, audio_type, uttr_a)}"
+        wav_dict['wav_fpath_b'] = f"{os.path.join(url_root, audio_type, uttr_b)}"
         wav_dict['id'] = f"VS_{audio_type_code[audio_type]}_{Path(uttr_a).stem}_{Path(uttr_b).stem}"
         wav_list.append(wav_dict)
         

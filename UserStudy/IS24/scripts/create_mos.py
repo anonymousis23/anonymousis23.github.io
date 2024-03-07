@@ -25,7 +25,7 @@ for audio_type in audio_type_dirs:
     for utterance in utterance_ids:
         wav_dict = {}
         wav_dict['id'] = f"MOS_{audio_type_code[audio_type]}_{Path(utterance).stem}"
-        wav_dict['wav_fpath'] = f"{os.path.join(url_root, audio_type, utterance)}?raw=true"
+        wav_dict['wav_fpath'] = f"{os.path.join(url_root, audio_type, utterance)}"
         wav_list.append(wav_dict)
 
 random.shuffle(wav_list)
