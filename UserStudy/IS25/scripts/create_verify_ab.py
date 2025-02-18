@@ -19,7 +19,8 @@ random.seed(1234)
 ###########################################################################################################################
 
 audio_samples_root = "UserStudy/IS25/Samples/Verifiability"
-url_root = "../../Samples/Verifiability"
+url_root = "https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability"
+url_suffix = "?raw=true"
 
 
 wav_list = []
@@ -33,8 +34,8 @@ for uttr_pair in utterances:
     wav_dict = {}
     uttr_a = f"{speaker}_{Path(uttr_a).name}"
     uttr_b = f"{Path(uttr_b).name}"
-    wav_dict['wav_fpath_a'] = f"{os.path.join(url_root, uttr_a)}"
-    wav_dict['wav_fpath_b'] = f"{os.path.join(url_root, uttr_b)}"
+    wav_dict['wav_fpath_a'] = f"{os.path.join(url_root, uttr_a)}{url_suffix}"
+    wav_dict['wav_fpath_b'] = f"{os.path.join(url_root, uttr_b)}{url_suffix}"
     wav_dict['id'] = f"VS_{change_type}_{Path(uttr_a).stem}_{Path(uttr_b).stem}"
 
     
