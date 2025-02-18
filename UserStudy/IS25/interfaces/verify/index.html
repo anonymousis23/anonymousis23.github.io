@@ -1,0 +1,2824 @@
+<style type="text/css">
+	table.tests {
+		width: 85%;
+		border-collapse: collapse;
+		table-layout: fixed;
+	}
+
+	table.tests th {
+		text-align: center;
+	}
+
+	table.tests td {
+		text-align: center;
+		vertical-align: middle;
+		border: 2px solid #000000;
+		width: 4%;
+	}
+
+	table.tests td+td {
+		width: 12%;
+	}
+
+	table.tests td+td+td {
+		width: 12%;
+	}
+
+	table.tests td+td+td+td {
+		width: 12%;
+	}
+
+	table.tests td+td+td+td+td {
+		width: 9%;
+	}
+
+	table.tests td+td+td+td+td+td {
+		width: auto;
+	}
+
+	table.tests tr {
+		border: 2px solid #500000;
+		height: 60px;
+		vertical-align: middle;
+		margin: 0 auto;
+		padding: 0;
+	}
+
+	table.tests tr {
+		margin: 0 auto;
+		padding: 0;
+	}
+
+	table.tests tr:nth-child(even) {
+		background-color: #F8F5E6;
+	}
+
+	table.tests tr:nth-child(odd) {
+		background: #EEE;
+	}
+
+	table.tests tr:first-child {
+		background-color: #500000;
+		color: #FFF;
+		font-weight: bold;
+		font-size: 1.25em;
+	}
+
+	table.tests tr:first-child:hover {
+		background-color: #500000;
+	}
+
+	table.tests tr:hover {
+		background-color: #336FA4
+	}
+
+	table.tests tr.complete {
+		background-color: #6FB89B;
+	}
+
+	table.tests input.mos {
+		display: block;
+		width: 100%;
+		height: 20px;
+	}
+
+	table.tests .question_id {
+		width: 21%;
+	}
+
+	table.tests td.A,
+	table.tests td.B,
+	table.tests td.X {
+		width: 27%;
+	}
+
+	table.tests .X {
+		border-right: 3px solid #500000;
+	}
+
+	input[type=radio] {
+		width: 20px;
+		height: 60px;
+		border: 10px solid #CCC;
+		border-radius: 50%;
+		vertical-align: middle;
+	}
+
+	input[type=radio].A {
+		float: right;
+	}
+
+	input[type=radio].B {
+		float: left;
+	}
+
+	audio {
+		vertical-align: middle;
+		width: 150px;
+	}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+	//The magic that lets us find the unselected questions
+
+	$(document).ready(function () {
+		$('#submitButton').click(check_buttons);
+	});
+
+	var check_buttons = function () {
+		//Get all the radio buttons
+		n_ckd = $('input[type=radio]:not(:checked)').toArray().reduce((acc, val) => acc.includes(val.name) ? acc : acc.concat(val.name), []);
+
+		//Get all the checked buttons
+		ckd = $('input[type=radio]:checked').toArray().reduce((acc, val) => acc.includes(val.name) ? acc : acc.concat(val.name), []);
+
+		//Filter out all the checked radio buttons from the not checked list
+		//We should get NOTHING if we've filled in every option
+		var unfilled = n_ckd.filter(function (x) { return !ckd.includes(x) });
+
+		if (unfilled.length > 0) {
+			alert("You have not rated your confidence for one or more of the questions.\nThe first one missing an answer is: " + unfilled[0].substring(5, 8));
+			var any_unfilled = true;
+		}
+		else {
+			var any_unfilled = false;
+		}
+
+		var unselected = $('select.overall').toArray().filter(function (x) { return x.value == 0 })
+
+		if (unselected.length > 0) {
+			alert("You have not rated 'Same or different?' for one or more of the questions.\nThe first one missing an answer is: " + unselected[0].name.substring(5, 8))
+		}
+
+		return !any_unfilled && !(unselected.length)
+	}
+</script>
+<script>
+	var reload_audio = function (e) {
+		console.log(e)
+
+
+		//Add in a nocache cheat
+		var src_selector = 'audio[id=' + e + '] > source';
+		$(src_selector)[0].src = $(src_selector)[0].src + "?nocache=" + new Date().getTime()
+		$('audio[id=' + e + ']')[0].load()
+		console.log($('audio[id=' + e + ']')[0].currentSrc)
+	}
+</script>
+<script>
+	var onclick_nocache = function (e) {
+		var currentSrc = $('audio[id=' + e + ']')[0].currentSrc;
+		$('audio[id=' + e + ']')[0].currentSrc = currentSrc + "?nocache=" + new Date().getTime();
+		$('audio[id=' + e + ']>source')[0].src = currentSrc + "?nocache=" + new Date().getTime();
+		$('audio[id=' + e + ']>a')[0].href = currentSrc + "?nocache=" + new Date().getTime();
+	}
+</script>
+<style type="text/css">
+	table,
+	th,
+	td {
+		border: 1px solid black;
+	}
+</style>
+<h1><strong>Speaker Verification Test</strong></h1>
+<hr>
+<h3>Below is a list of recordings organized in rows. In each row, you will see two clips: A & B.
+	Please listen to the two recordings, and then decide whether the two voices in clip A and clip B are the same or different speakers. 
+	Once you choose, please rate how confident you are in your choice.</h3>
+<ul>
+	<li>There are seven (7) levels of confidence, as shown in the tables below. 
+		"|" means that your confidence level is between two levels.  
+		For example, the "|" between "Not at all confident" and "Somewhat confident" means that your confidence level is  
+		more than "Not at all confident" but less than "Somewhat confident".</li>
+	<li>Please <em><strong><span style="color:red">ignore</span></strong></em> the audio quality
+		(e.g., noises, distortions) and instead focus on the <em><strong><span style="color:red">voice 
+			 characteristics</span></strong></em> of the speaker.</li>
+	<li>You may listen to a sound more than once if needed; just click the play button to replay.</li>
+	<li>Your responses will be manually screened to ensure that you made a serious effort to rate the recordings. 
+		If your answers are determined to be random or contain inconsistent answers, the task may be rejected and you may not receive payment.</li>
+	<li>Please perform these tasks in a quiet place using a pair of good headphones. 
+		It is recommended that you set the volume a bit higher than normal for these tasks.</li>
+	<li>If you are having trouble viewing or listening to the sound clips, please try completing the test in Google Chrome.</li>
+	<li>Please make sure that you've finished all the questions before submitting.</li>
+</ul>
+<hr>
+
+<h2><strong>In each question, answer whether the two voices in clip A and clip B are the same or different speakers. How confident are you with your answer?</strong></h2>
+
+<h2>Set 1</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>QuestionID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Quality</strong></td>
+			<td><strong>Speaker</strong></td>
+		</tr>
+		<tr>
+			<td>Q1</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_b0143.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_1_3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_low_RMS_arctic_b0143_RMS_1_3_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_low_RMS_arctic_b0143_RMS_1_3_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q2</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_a0246.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_1_8.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_high_CLB_arctic_a0246_CLB_1_8_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_high_CLB_arctic_a0246_CLB_1_8_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q3</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_b0143.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_1_7.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_none_RMS_arctic_b0143_RMS_1_7_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_none_RMS_arctic_b0143_RMS_1_7_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q4</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0250.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_1_8.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_high_BDL_arctic_a0250_BDL_1_8_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_high_BDL_arctic_a0250_BDL_1_8_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q5</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_2_8.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0188.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_high_BDL_2_8_BDL_arctic_a0188_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_high_BDL_2_8_BDL_arctic_a0188_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 2</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>QuestionID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Quality</strong></td>
+			<td><strong>Speaker</strong></td>
+		</tr>
+		<tr>
+			<td>Q6</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_1_7.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0250.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_none_BDL_1_7_BDL_arctic_a0250_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_none_BDL_1_7_BDL_arctic_a0250_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q7</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_2_0.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_b0440.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_none_CLB_2_0_CLB_arctic_b0440_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_none_CLB_2_0_CLB_arctic_b0440_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q8</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_2_1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_a0112.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_none_SLT_2_1_SLT_arctic_a0112_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_none_SLT_2_1_SLT_arctic_a0112_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q9</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_1_0.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_a0246.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_none_CLB_1_0_CLB_arctic_a0246_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_none_CLB_1_0_CLB_arctic_a0246_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q10</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_1_3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_a0246.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_low_CLB_1_3_CLB_arctic_a0246_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_low_CLB_1_3_CLB_arctic_a0246_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 3</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>QuestionID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Quality</strong></td>
+			<td><strong>Speaker</strong></td>
+		</tr>
+		<tr>
+			<td>Q11</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_a0112.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_2_3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_low_SLT_arctic_a0112_SLT_2_3_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_low_SLT_arctic_a0112_SLT_2_3_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q12</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_1_2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_b0143.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_low_RMS_1_2_RMS_arctic_b0143_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_low_RMS_1_2_RMS_arctic_b0143_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q13</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_2_8.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_a0112.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_high_SLT_2_8_SLT_arctic_a0112_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_high_SLT_2_8_SLT_arctic_a0112_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q14</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0250.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_1_0.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_none_BDL_arctic_a0250_BDL_1_0_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_none_BDL_arctic_a0250_BDL_1_0_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q15</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_b0143.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_1_9.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_high_RMS_arctic_b0143_RMS_1_9_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_high_RMS_arctic_b0143_RMS_1_9_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 4</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>QuestionID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Quality</strong></td>
+			<td><strong>Speaker</strong></td>
+		</tr>
+		<tr>
+			<td>Q16</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_b0117.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_1_2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_low_SLT_arctic_b0117_SLT_1_2_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_low_SLT_arctic_b0117_SLT_1_2_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q17</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_1_1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_a0246.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_none_CLB_1_1_CLB_arctic_a0246_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_none_CLB_1_1_CLB_arctic_a0246_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q18</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_a0237.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_2_4.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_none_RMS_arctic_a0237_RMS_2_4_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_none_RMS_arctic_a0237_RMS_2_4_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q19</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_a0246.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_1_9.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_high_CLB_arctic_a0246_CLB_1_9_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_high_CLB_arctic_a0246_CLB_1_9_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q20</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_1_1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0250.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_none_BDL_1_1_BDL_arctic_a0250_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_none_BDL_1_1_BDL_arctic_a0250_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 5</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>QuestionID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Quality</strong></td>
+			<td><strong>Speaker</strong></td>
+		</tr>
+		<tr>
+			<td>Q21</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_1_1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_b0117.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_none_SLT_1_1_SLT_arctic_b0117_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_none_SLT_1_1_SLT_arctic_b0117_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q22</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_1_6.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_b0143.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_medium_RMS_1_6_RMS_arctic_b0143_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_medium_RMS_1_6_RMS_arctic_b0143_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q23</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_1_7.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_a0246.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_none_CLB_1_7_CLB_arctic_a0246_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_none_CLB_1_7_CLB_arctic_a0246_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q24</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_2_0.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_a0112.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_none_SLT_2_0_SLT_arctic_a0112_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_none_SLT_2_0_SLT_arctic_a0112_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q25</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_b0117.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_1_8.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_high_SLT_arctic_b0117_SLT_1_8_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_high_SLT_arctic_b0117_SLT_1_8_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 6</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>QuestionID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Quality</strong></td>
+			<td><strong>Speaker</strong></td>
+		</tr>
+		<tr>
+			<td>Q26</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_2_6.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_b0440.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_medium_CLB_2_6_CLB_arctic_b0440_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_medium_CLB_2_6_CLB_arctic_b0440_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q27</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_2_9.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_a0112.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_high_SLT_2_9_SLT_arctic_a0112_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_high_SLT_2_9_SLT_arctic_a0112_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q28</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_b0440.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_2_8.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_high_CLB_arctic_b0440_CLB_2_8_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_high_CLB_arctic_b0440_CLB_2_8_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q29</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_2_7.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0188.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_none_BDL_2_7_BDL_arctic_a0188_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_none_BDL_2_7_BDL_arctic_a0188_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q30</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_b0440.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_2_2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_low_CLB_arctic_b0440_CLB_2_2_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_low_CLB_arctic_b0440_CLB_2_2_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 7</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>QuestionID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Quality</strong></td>
+			<td><strong>Speaker</strong></td>
+		</tr>
+		<tr>
+			<td>Q31</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_a0112.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_2_5.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_medium_SLT_arctic_a0112_SLT_2_5_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_medium_SLT_arctic_a0112_SLT_2_5_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q32</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0250.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_1_3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_low_BDL_arctic_a0250_BDL_1_3_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_low_BDL_arctic_a0250_BDL_1_3_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q33</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_2_8.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_a0237.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_high_RMS_2_8_RMS_arctic_a0237_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_high_RMS_2_8_RMS_arctic_a0237_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q34</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_2_6.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_a0237.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_medium_RMS_2_6_RMS_arctic_a0237_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_medium_RMS_2_6_RMS_arctic_a0237_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q35</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0188.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_2_1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_none_BDL_arctic_a0188_BDL_2_1_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_none_BDL_arctic_a0188_BDL_2_1_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 8</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>QuestionID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Quality</strong></td>
+			<td><strong>Speaker</strong></td>
+		</tr>
+		<tr>
+			<td>Q36</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_b0117.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_1_6.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_medium_SLT_arctic_b0117_SLT_1_6_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_medium_SLT_arctic_b0117_SLT_1_6_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q37</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_1_0.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_b0143.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_none_RMS_1_0_RMS_arctic_b0143_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_none_RMS_1_0_RMS_arctic_b0143_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q38</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_2_4.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_b0440.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_none_CLB_2_4_CLB_arctic_b0440_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_none_CLB_2_4_CLB_arctic_b0440_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q39</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_1_3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_b0117.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_low_SLT_1_3_SLT_arctic_b0117_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_low_SLT_1_3_SLT_arctic_b0117_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q40</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_2_5.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0188.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_medium_BDL_2_5_BDL_arctic_a0188_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_medium_BDL_2_5_BDL_arctic_a0188_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 9</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>QuestionID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Quality</strong></td>
+			<td><strong>Speaker</strong></td>
+		</tr>
+		<tr>
+			<td>Q41</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_a0237.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_2_9.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_high_RMS_arctic_a0237_RMS_2_9_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_high_RMS_arctic_a0237_RMS_2_9_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q42</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_2_2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_a0237.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_low_RMS_2_2_RMS_arctic_a0237_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_low_RMS_2_2_RMS_arctic_a0237_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q43</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_b0143.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_1_5.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_medium_RMS_arctic_b0143_RMS_1_5_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_medium_RMS_arctic_b0143_RMS_1_5_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q44</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_1_5.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_b0117.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_medium_SLT_1_5_SLT_arctic_b0117_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_medium_SLT_1_5_SLT_arctic_b0117_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q45</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_a0246.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_1_4.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_none_CLB_arctic_a0246_CLB_1_4_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_none_CLB_arctic_a0246_CLB_1_4_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 10</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>QuestionID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Quality</strong></td>
+			<td><strong>Speaker</strong></td>
+		</tr>
+		<tr>
+			<td>Q46</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_2_2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0188.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_low_BDL_2_2_BDL_arctic_a0188_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_low_BDL_2_2_BDL_arctic_a0188_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q47</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_1_5.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_a0246.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_medium_CLB_1_5_CLB_arctic_a0246_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_medium_CLB_1_5_CLB_arctic_a0246_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q48</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_2_5.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_a0237.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_medium_RMS_2_5_RMS_arctic_a0237_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_medium_RMS_2_5_RMS_arctic_a0237_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q49</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_b0440.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_2_9.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_high_CLB_arctic_b0440_CLB_2_9_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_high_CLB_arctic_b0440_CLB_2_9_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q50</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_2_6.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0188.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_medium_BDL_2_6_BDL_arctic_a0188_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_medium_BDL_2_6_BDL_arctic_a0188_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 11</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>QuestionID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Quality</strong></td>
+			<td><strong>Speaker</strong></td>
+		</tr>
+		<tr>
+			<td>Q51</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_a0112.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_2_7.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_none_SLT_arctic_a0112_SLT_2_7_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_none_SLT_arctic_a0112_SLT_2_7_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q52</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0250.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_1_4.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_none_BDL_arctic_a0250_BDL_1_4_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_none_BDL_arctic_a0250_BDL_1_4_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q53</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_b0117.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_1_9.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_high_SLT_arctic_b0117_SLT_1_9_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_high_SLT_arctic_b0117_SLT_1_9_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q54</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_b0440.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_2_1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_none_CLB_arctic_b0440_CLB_2_1_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_none_CLB_arctic_b0440_CLB_2_1_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q55</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_2_3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_b0440.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_low_CLB_2_3_CLB_arctic_b0440_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_low_CLB_2_3_CLB_arctic_b0440_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 12</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>QuestionID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Quality</strong></td>
+			<td><strong>Speaker</strong></td>
+		</tr>
+		<tr>
+			<td>Q56</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_2_5.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_b0440.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_medium_CLB_2_5_CLB_arctic_b0440_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_medium_CLB_2_5_CLB_arctic_b0440_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q57</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_a0246.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_1_6.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_medium_CLB_arctic_a0246_CLB_1_6_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_medium_CLB_arctic_a0246_CLB_1_6_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q58</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0250.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_1_5.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_medium_BDL_arctic_a0250_BDL_1_5_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_medium_BDL_arctic_a0250_BDL_1_5_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q59</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_2_3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_a0237.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_low_RMS_2_3_RMS_arctic_a0237_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_low_RMS_2_3_RMS_arctic_a0237_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q60</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_2_7.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_b0440.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_none_CLB_2_7_CLB_arctic_b0440_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_none_CLB_2_7_CLB_arctic_b0440_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 13</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>QuestionID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Quality</strong></td>
+			<td><strong>Speaker</strong></td>
+		</tr>
+		<tr>
+			<td>Q61</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0188.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_2_4.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_none_BDL_arctic_a0188_BDL_2_4_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_none_BDL_arctic_a0188_BDL_2_4_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q62</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_1_2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0250.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_low_BDL_1_2_BDL_arctic_a0250_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_low_BDL_1_2_BDL_arctic_a0250_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q63</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_2_1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_a0237.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_none_RMS_2_1_RMS_arctic_a0237_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_none_RMS_2_1_RMS_arctic_a0237_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q64</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_2_6.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_a0112.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_medium_SLT_2_6_SLT_arctic_a0112_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_medium_SLT_2_6_SLT_arctic_a0112_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q65</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0250.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_1_6.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_medium_BDL_arctic_a0250_BDL_1_6_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_medium_BDL_arctic_a0250_BDL_1_6_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 14</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>QuestionID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Quality</strong></td>
+			<td><strong>Speaker</strong></td>
+		</tr>
+		<tr>
+			<td>Q66</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_1_7.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_b0117.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_none_SLT_1_7_SLT_arctic_b0117_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_none_SLT_1_7_SLT_arctic_b0117_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q67</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_2_0.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_a0237.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_none_RMS_2_0_RMS_arctic_a0237_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_none_RMS_2_0_RMS_arctic_a0237_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q68</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_2_0.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0188.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_none_BDL_2_0_BDL_arctic_a0188_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_none_BDL_2_0_BDL_arctic_a0188_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q69</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_1_9.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0250.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_high_BDL_1_9_BDL_arctic_a0250_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_high_BDL_1_9_BDL_arctic_a0250_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q70</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_a0237.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_2_7.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_none_RMS_arctic_a0237_RMS_2_7_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_none_RMS_arctic_a0237_RMS_2_7_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 15</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>QuestionID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Quality</strong></td>
+			<td><strong>Speaker</strong></td>
+		</tr>
+		<tr>
+			<td>Q71</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_1_1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_b0143.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_none_RMS_1_1_RMS_arctic_b0143_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_none_RMS_1_1_RMS_arctic_b0143_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q72</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_2_9.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0188.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_high_BDL_2_9_BDL_arctic_a0188_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_high_high_BDL_2_9_BDL_arctic_a0188_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q73</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_2_4.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_a0112.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_none_SLT_2_4_SLT_arctic_a0112_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_none_SLT_2_4_SLT_arctic_a0112_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q74</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_b0117.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_1_0.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_none_SLT_arctic_b0117_SLT_1_0_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_none_SLT_arctic_b0117_SLT_1_0_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q75</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_arctic_a0188.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/BDL_2_3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_low_BDL_arctic_a0188_BDL_2_3_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_low_low_BDL_arctic_a0188_BDL_2_3_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 16</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>QuestionID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Quality</strong></td>
+			<td><strong>Speaker</strong></td>
+		</tr>
+		<tr>
+			<td>Q76</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_1_4.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_b0143.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_none_RMS_1_4_RMS_arctic_b0143_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_none_RMS_1_4_RMS_arctic_b0143_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q77</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_b0117.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_1_4.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_none_SLT_arctic_b0117_SLT_1_4_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_medium_none_SLT_arctic_b0117_SLT_1_4_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q78</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_2_2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/SLT_arctic_a0112.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_low_SLT_2_2_SLT_arctic_a0112_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_low_SLT_2_2_SLT_arctic_a0112_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q79</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_arctic_b0143.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/RMS_1_8.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_high_RMS_arctic_b0143_RMS_1_8_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_high_RMS_arctic_b0143_RMS_1_8_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Q80</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_1_2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS25/Samples/Verifiability/CLB_arctic_a0246.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_low_CLB_1_2_CLB_arctic_a0246_quality_relative">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="2">A much better</option>
+					<option value="1">A better</option>
+					<option value="0">Similar Quality</option>
+					<option value="-1">B better</option>
+					<option value="-2">B much better</option>
+				</select>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_none_low_CLB_1_2_CLB_arctic_a0246_speaker_choice">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+
+<p>Have you participated in any such speech tasks before? <select class="post-survey" name="VS_PT_Experience">
+	<option selected="selected" value="0">- select one -</option>
+	<option value="1">Yes</option>
+	<option value="-1">No</option>
+</select></p>
+
+<p>How did you listen to the audio clips in this task? <select class="post-survey" name="VS_PT_listening">
+	<option selected="selected" value="0">- select one -</option>
+	<option value="1">Laptop speaker</option>
+	<option value="2">Headphones</option>
+	<option value="3">Desktop speaker</option>
+	<option value="4">Other</option>
+</select></p>
+
+<p>What is your native language? <input class="post-survey" maxlength="100" name="VS_PT_nativeLanguage" size="20"
+	type="text" /></p>
+
+<p>What other languages do you speak? <input class="post-survey" maxlength="100" name="VS_PT_otherLanguages" size="50"
+	type="text" /></p>
+
+<p>Please suggest comments for improving this study:</p>
+
+<p><textarea class="post-survey" cols="120" name="VS_PT_comments" rows="5"></textarea></p>
