@@ -1,0 +1,354 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-171609755-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-171609755-1');
+</script>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Streaming Anonymization Audio Samples</title>
+<link rel="icon" href="../../media/image/favicon.png"></head>
+<style>
+body{
+    padding: 0;
+    margin: 0;
+}
+
+.title {
+    background-color: rgb(80,0,0);
+    width: 100%;
+    text-align: center
+}
+
+.title td{
+    padding: 5px;
+}
+
+.title .logo{
+    width: 220px;
+}
+
+.title h1{
+    font-size: 18pt;
+    font-family: calibri, verdana, helvetica, sans-serif, Arial, Times, serif;
+    color: white;
+    line-height: 1.15;
+}
+
+.title h2{
+    font-size: 12pt;
+    font-family: calibri, verdana, helvetica, sans-serif, Arial, Times, serif;
+    font-style: italic;
+    color: white;
+    line-height: 1.15;
+}
+
+main{
+    font-family: calibri, verdana, helvetica, sans-serif, Arial, Times, serif;
+    font-size: 18px;
+    padding: 0 10px 0 10px;
+}
+
+main h2{
+    font-size: 20px;
+}
+
+main table.samples{
+    text-align: center;
+}
+
+main table.samples th{
+    border-bottom: 2px solid #333;
+    width: 16%;
+    height: 60px;
+}
+
+main table.samples td{
+    border-right: 1px #333 solid;
+    border-bottom: 1px #666 solid;
+    width: 16%;
+    height: 60px;
+}
+
+.mtf { 
+    background-color: rgb(225, 225, 255);
+}
+
+.ftm{
+    background-color: rgb(255, 225, 225);
+}
+
+.source{
+    background-color: rgb(225, 255, 225);
+}
+
+audio{
+  width: 250px;
+}
+
+pre code {
+  background-color: #eee;
+  border: 1px solid #999;
+  display: block;
+  padding: 5px;
+}
+
+</style>
+<body>
+<table class="title">
+<tbody>
+<tr>
+<td>
+<h1>Investigating the tradeoff between privacy and quality in speaker anonymization</h1>
+<!-- <h2>Waris Quamer<sup>1</sup>, Ricardo Gutierrez-Osuna<sup>1</sup></h2>
+<h2><sup>1</sup>Department of Computer Science and Engineering, Texas A&M University, USA</h2> -->
+<h2>Anonymous submission to INTERSPEECH 2025</h2>
+</td>
+</tbody>
+</table>
+<main>
+
+    <h2>Abstract</h2>
+    <p style="width:100%">
+        The goal of speech anonymization is to modify the attributes of a speaker, such as age and gender, 
+        to hide their identity. While such modifications are effective in obfuscating the speakers' identity, 
+        they generally reduce the quality of the synthesized speech.  In this study, we analyze the trade-off 
+        between anonymization and synthesis quality using controlled modifications of age and gender attributes 
+        and measure their effect using objective measures of speaker similarity and audio quality and linear regression. 
+        We validate these findings through listening tests of identity retention, and quality preferences. We find that 
+        anonymization performance increases with the magnitude of the modification, though at the expense of 
+        degradations in speech quality. However, we find there is an optimum range of modifications that 
+        balances identity suppression with naturalness.
+    </p>
+
+    <h2>Method</h2>
+    <!-- <h2>Attribute Editing in Embedding Space</h2> -->
+    <p>Given that our goal is speech anonymization in real-time, we used a parametric approach to modify specific speaker attributes, 
+        such as age and gender, within latent speaker embeddings. First, we applied principal component analysis (PCA) to the speaker embeddings, 
+        then we identified PC directions in the latent space that correlate with the desired attributes. 
+        For this purpose, we computed the Pearson correlation coefficient ρ of each PCA dimension with the speaker attributes (e.g., age).</p>
+    
+    <p>Then, we used these correlation coefficients as weights to construct a composite direction V<sub>age</sub> that captures the primary variance associated with age:</p>
+    
+    <p style="text-align: center;">V<sub>age</sub> = w<sub>1</sub> PC<sub>1</sub> + w<sub>2</sub> PC<sub>2</sub> + ⋯</p>
+    
+    <p>where, w<sub>i</sub> = ρ(PC<sub>i</sub>, age). To modify the attribute in the embedding, we adjust the original embedding Z along this direction:</p>
+    
+    <p style="text-align: center;">Z' = Z + λV<sub>age</sub></p>
+    
+    <p>where λ controls the extent of modification: positive λ increases the attribute (e.g., age), while negative λ decreases it. This method enables fine-grained control over age or gender within speaker embeddings by moving in attribute-correlated directions in latent space, as illustrated in the figure below. Note that, by identifying these latent vectors along the directions of highest variance in the data, the approach is robust to noise. Audio samples of the results of our approach to attribute editing are available in a footnote.</p>
+    
+    <!-- <h3>Figure: Attribute editing in embedding space via principal components projections</h3> -->
+    <figure>
+        <img style="display: block; margin: 20px auto; max-width: 80%; width: 400px;" src="image.png" alt="Attribute Editing Diagram" >
+        <figcaption>Attribute editing in embedding space via principal components projections</figcaption>
+    </figure>
+    <!-- <img src="image.png" alt="Attribute Editing Diagram" style="display: block; margin: 20px auto; max-width: 100%;"> -->
+
+    <h2>Notes</h2>
+    <ul>
+        <li>Dataset (CMU-ARCTIC corpus): <a href="http://www.festvox.org/cmu_arctic/">http://www.festvox.org/cmu_arctic/</a></li>
+        <li>Synthesis Model: End-to-end Streaming model for Low-Latency Speech Anonymization [1] [<a href="https://arxiv.org/abs/2406.09277" target="_blank">Arxiv</a>]</li>
+    </ul>
+
+    <h2></h2>
+    <p><br><br></p>
+
+    <h2>Audio Samples</h2>
+    <p>Below are audio samples of the results of our approach to attribute editing in speaker embeddings.</p>  
+    
+<table class="samples">
+    <h2>Sex Editing</h2>
+    <tbody>
+        <tr>
+            <th>Speaker</th>
+            <th>Feminine --</th>
+            <th>Original</th>
+            <th>Feminine ++</th>
+        </tr>
+        <tr>
+            <td>
+                RMS (Male)
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/sex/RMS/femminus_arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/sex/RMS/arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/sex/RMS/femplus_arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                BDL (Male)
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/sex/BDL/femminus_arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/sex/BDL/arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/sex/BDL/femplus_arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                SLT (Female)
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/sex/SLT/femminus_arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/sex/SLT/arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/sex/SLT/femplus_arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                CLB (Female)
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/sex/CLB/femminus_arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/sex/CLB/arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/sex/CLB/femplus_arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<h2></h2>
+<p><br><br></p>
+<table class="samples">
+    <h2>Age Editing</h2>
+    <tbody>
+        <tr>
+            <th>Speaker</th>
+            <th>Age --</th>
+            <th>Original</th>
+            <th>Age ++</th>
+        </tr>
+        <tr>
+            <td>
+                RMS (Male)
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/age/RMS/ageminus_arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/age/RMS/arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/age/RMS/ageplus_arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                BDL (Male)
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/age/BDL/ageminus_arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/age/BDL/arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/age/BDL/ageplus_arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                SLT (Female)
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/age/SLT/ageminus_arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/age/SLT/arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/age/SLT/ageplus_arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                CLB (Female)
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/age/CLB/ageminus_arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/age/CLB/arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+            <td>
+                <audio controls="">
+                    <source src="wav/age/CLB/ageplus_arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                </audio>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<h2></h2>
+<p><br><br></p>
+<h2>References</h2>
+<p>[1] W. Quamer <i>et al</i>., "End-to-end streaming model for low-latency speech anonymization," in <i>IEEE SLT 2024</i>.</p>
+<h2></h2>
+<p><br><br><br><br><br></p>
+</main>
+</body></html>
