@@ -1,0 +1,2067 @@
+<style type="text/css">
+	table.tests {
+		width: 85%;
+		border-collapse: collapse;
+		table-layout: fixed;
+	}
+
+	table.tests th {
+		text-align: center;
+	}
+
+	table.tests td {
+		text-align: center;
+		vertical-align: middle;
+		border: 2px solid #000000;
+		width: 4%;
+	}
+
+	table.tests td+td {
+		width: 12%;
+	}
+
+	table.tests td+td+td {
+		width: 12%;
+	}
+
+	table.tests td+td+td+td {
+		width: 12%;
+	}
+
+	table.tests td+td+td+td+td {
+		width: 9%;
+	}
+
+	table.tests td+td+td+td+td+td {
+		width: auto;
+	}
+
+	table.tests tr {
+		border: 2px solid #500000;
+		height: 60px;
+		vertical-align: middle;
+		margin: 0 auto;
+		padding: 0;
+	}
+
+	table.tests tr {
+		margin: 0 auto;
+		padding: 0;
+	}
+
+	table.tests tr:nth-child(even) {
+		background-color: #F8F5E6;
+	}
+
+	table.tests tr:nth-child(odd) {
+		background: #EEE;
+	}
+
+	table.tests tr:first-child {
+		background-color: #500000;
+		color: #FFF;
+		font-weight: bold;
+		font-size: 1.25em;
+	}
+
+	table.tests tr:first-child:hover {
+		background-color: #500000;
+	}
+
+	table.tests tr:hover {
+		background-color: #336FA4
+	}
+
+	table.tests tr.complete {
+		background-color: #6FB89B;
+	}
+
+	table.tests input.mos {
+		display: block;
+		width: 100%;
+		height: 20px;
+	}
+
+	table.tests .question_id {
+		width: 21%;
+	}
+
+	table.tests td.A,
+	table.tests td.B,
+	table.tests td.X {
+		width: 27%;
+	}
+
+	table.tests .X {
+		border-right: 3px solid #500000;
+	}
+
+	input[type=radio] {
+		width: 20px;
+		height: 60px;
+		border: 10px solid #CCC;
+		border-radius: 50%;
+		vertical-align: middle;
+	}
+
+	input[type=radio].A {
+		float: right;
+	}
+
+	input[type=radio].B {
+		float: left;
+	}
+
+	audio {
+		vertical-align: middle;
+		width: 150px;
+	}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+	//The magic that lets us find the unselected questions
+
+	$(document).ready(function () {
+		$('#submitButton').click(check_buttons);
+	});
+
+	var check_buttons = function () {
+		//Get all the radio buttons
+		n_ckd = $('input[type=radio]:not(:checked)').toArray().reduce((acc, val) => acc.includes(val.name) ? acc : acc.concat(val.name), []);
+
+		//Get all the checked buttons
+		ckd = $('input[type=radio]:checked').toArray().reduce((acc, val) => acc.includes(val.name) ? acc : acc.concat(val.name), []);
+
+		//Filter out all the checked radio buttons from the not checked list
+		//We should get NOTHING if we've filled in every option
+		var unfilled = n_ckd.filter(function (x) { return !ckd.includes(x) });
+
+		if (unfilled.length > 0) {
+			alert("You have not rated your confidence for one or more of the questions.\nThe first one missing an answer is: " + unfilled[0].substring(5, 8));
+			var any_unfilled = true;
+		}
+		else {
+			var any_unfilled = false;
+		}
+
+		var unselected = $('select.overall').toArray().filter(function (x) { return x.value == 0 })
+
+		if (unselected.length > 0) {
+			alert("You have not rated 'Same or different?' for one or more of the questions.\nThe first one missing an answer is: " + unselected[0].name.substring(5, 8))
+		}
+
+		return !any_unfilled && !(unselected.length)
+	}
+</script>
+<script>
+	var reload_audio = function (e) {
+		console.log(e)
+
+
+		//Add in a nocache cheat
+		var src_selector = 'audio[id=' + e + '] > source';
+		$(src_selector)[0].src = $(src_selector)[0].src + "?nocache=" + new Date().getTime()
+		$('audio[id=' + e + ']')[0].load()
+		console.log($('audio[id=' + e + ']')[0].currentSrc)
+	}
+</script>
+<script>
+	var onclick_nocache = function (e) {
+		var currentSrc = $('audio[id=' + e + ']')[0].currentSrc;
+		$('audio[id=' + e + ']')[0].currentSrc = currentSrc + "?nocache=" + new Date().getTime();
+		$('audio[id=' + e + ']>source')[0].src = currentSrc + "?nocache=" + new Date().getTime();
+		$('audio[id=' + e + ']>a')[0].href = currentSrc + "?nocache=" + new Date().getTime();
+	}
+</script>
+<style type="text/css">
+	table,
+	th,
+	td {
+		border: 1px solid black;
+	}
+</style>
+<h1><strong>Speaker Verification Test</strong></h1>
+<hr>
+<h3>Below is a list of recordings organized in rows. In each row, you will see two clips: A & B.
+	Please listen to the two recordings, and then decide whether the two voices in clip A and clip B are the same or different speakers. 
+	Once you choose, please rate how confident you are in your choice.</h3>
+<ul>
+	<li>There are seven (7) levels of confidence, as shown in the tables below. 
+		"|" means that your confidence level is between two levels.  
+		For example, the "|" between "Not at all confident" and "Somewhat confident" means that your confidence level is  
+		more than "Not at all confident" but less than "Somewhat confident".</li>
+	<li>Please <em><strong><span style="color:red">ignore</span></strong></em> the audio quality
+		(e.g., noises, distortions) and instead focus on the <em><strong><span style="color:red">voice 
+			 characteristics</span></strong></em> of the speaker.</li>
+	<li>You may listen to a sound more than once if needed; just click the play button to replay.</li>
+	<li>Your responses will be manually screened to ensure that you made a serious effort to rate the recordings. 
+		If your answers are determined to be random or contain inconsistent answers, the task may be rejected and you may not receive payment.</li>
+	<li>Please perform these tasks in a quiet place using a pair of good headphones. 
+		It is recommended that you set the volume a bit higher than normal for these tasks.</li>
+	<li>If you are having trouble viewing or listening to the sound clips, please try completing the test in Google Chrome.</li>
+	<li>Please make sure that you've finished all the questions before submitting.</li>
+</ul>
+<hr>
+
+<h2><strong>In each question, answer whether the two voices in clip A and clip B are the same or different speakers. How confident are you with your answer?</strong></h2>
+
+<h2>Set 1</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>Q ID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Same or Not?</strong></td>
+			<td><strong>Not at all confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Somewhat confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Quite a bit confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Extremely confident</strong></td>
+		</tr>
+		<tr>
+			<td>Q1</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/1221-135767-0015.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/8297-275156-0012.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_1221-135767-0015_8297-275156-0012_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_1221-135767-0015_8297-275156-0012" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_1221-135767-0015_8297-275156-0012" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_1221-135767-0015_8297-275156-0012" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_1221-135767-0015_8297-275156-0012" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_1221-135767-0015_8297-275156-0012" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_1221-135767-0015_8297-275156-0012" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_1221-135767-0015_8297-275156-0012" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q2</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/5105-28240-0013.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/5105-28240-0011.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_5105-28240-0013_5105-28240-0011_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_5105-28240-0013_5105-28240-0011" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_5105-28240-0013_5105-28240-0011" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_5105-28240-0013_5105-28240-0011" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_5105-28240-0013_5105-28240-0011" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_5105-28240-0013_5105-28240-0011" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_5105-28240-0013_5105-28240-0011" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_5105-28240-0013_5105-28240-0011" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q3</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/3575-170457-0034.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/2277-149896-0008.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_3575-170457-0034_2277-149896-0008_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_3575-170457-0034_2277-149896-0008" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3575-170457-0034_2277-149896-0008" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3575-170457-0034_2277-149896-0008" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3575-170457-0034_2277-149896-0008" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3575-170457-0034_2277-149896-0008" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3575-170457-0034_2277-149896-0008" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3575-170457-0034_2277-149896-0008" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q4</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/61-70968-0037.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/61-70970-0036.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_61-70968-0037_61-70970-0036_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_61-70968-0037_61-70970-0036" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_61-70968-0037_61-70970-0036" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_61-70968-0037_61-70970-0036" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_61-70968-0037_61-70970-0036" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_61-70968-0037_61-70970-0036" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_61-70968-0037_61-70970-0036" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_61-70968-0037_61-70970-0036" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q5</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/6241-61946-0018.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/6241-66616-0019.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_6241-61946-0018_6241-66616-0019_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_6241-61946-0018_6241-66616-0019" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_6241-61946-0018_6241-66616-0019" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_6241-61946-0018_6241-66616-0019" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_6241-61946-0018_6241-66616-0019" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_6241-61946-0018_6241-66616-0019" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_6241-61946-0018_6241-66616-0019" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_6241-61946-0018_6241-66616-0019" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 2</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>Q ID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Same or Not?</strong></td>
+			<td><strong>Not at all confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Somewhat confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Quite a bit confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Extremely confident</strong></td>
+		</tr>
+		<tr>
+			<td>Q6</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/1221-135767-0015.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/1221-135767-0014.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_1221-135767-0015_1221-135767-0014_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_1221-135767-0015_1221-135767-0014" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_1221-135767-0015_1221-135767-0014" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_1221-135767-0015_1221-135767-0014" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_1221-135767-0015_1221-135767-0014" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_1221-135767-0015_1221-135767-0014" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_1221-135767-0015_1221-135767-0014" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_1221-135767-0015_1221-135767-0014" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q7</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/6319-64726-0017.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/6319-64726-0020.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_6319-64726-0017_6319-64726-0020_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_6319-64726-0017_6319-64726-0020" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_6319-64726-0017_6319-64726-0020" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_6319-64726-0017_6319-64726-0020" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_6319-64726-0017_6319-64726-0020" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_6319-64726-0017_6319-64726-0020" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_6319-64726-0017_6319-64726-0020" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_6319-64726-0017_6319-64726-0020" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q8</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/2428-83705-0018.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/2428-83705-0019.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_2428-83705-0018_2428-83705-0019_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_2428-83705-0018_2428-83705-0019" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2428-83705-0018_2428-83705-0019" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2428-83705-0018_2428-83705-0019" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2428-83705-0018_2428-83705-0019" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2428-83705-0018_2428-83705-0019" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2428-83705-0018_2428-83705-0019" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2428-83705-0018_2428-83705-0019" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q9</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/121-121726-0008.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/121-127105-0007.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_121-121726-0008_121-127105-0007_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_121-121726-0008_121-127105-0007" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_121-121726-0008_121-127105-0007" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_121-121726-0008_121-127105-0007" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_121-121726-0008_121-127105-0007" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_121-121726-0008_121-127105-0007" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_121-121726-0008_121-127105-0007" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_121-121726-0008_121-127105-0007" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q10</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/174-50561-0005.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/174-84280-0008.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_174-50561-0005_174-84280-0008_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_174-50561-0005_174-84280-0008" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_174-50561-0005_174-84280-0008" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_174-50561-0005_174-84280-0008" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_174-50561-0005_174-84280-0008" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_174-50561-0005_174-84280-0008" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_174-50561-0005_174-84280-0008" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_174-50561-0005_174-84280-0008" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 3</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>Q ID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Same or Not?</strong></td>
+			<td><strong>Not at all confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Somewhat confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Quite a bit confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Extremely confident</strong></td>
+		</tr>
+		<tr>
+			<td>Q11</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/5105-28240-0011.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/5105-28240-0023.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_5105-28240-0011_5105-28240-0023_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_5105-28240-0011_5105-28240-0023" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_5105-28240-0011_5105-28240-0023" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_5105-28240-0011_5105-28240-0023" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_5105-28240-0011_5105-28240-0023" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_5105-28240-0011_5105-28240-0023" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_5105-28240-0011_5105-28240-0023" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_5105-28240-0011_5105-28240-0023" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q12</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/2300-131720-0005.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/2300-131720-0006.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_2300-131720-0005_2300-131720-0006_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_2300-131720-0005_2300-131720-0006" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2300-131720-0005_2300-131720-0006" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2300-131720-0005_2300-131720-0006" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2300-131720-0005_2300-131720-0006" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2300-131720-0005_2300-131720-0006" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2300-131720-0005_2300-131720-0006" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2300-131720-0005_2300-131720-0006" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q13</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/5895-34615-0013.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/5895-34615-0014.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_5895-34615-0013_5895-34615-0014_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_5895-34615-0013_5895-34615-0014" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_5895-34615-0013_5895-34615-0014" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_5895-34615-0013_5895-34615-0014" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_5895-34615-0013_5895-34615-0014" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_5895-34615-0013_5895-34615-0014" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_5895-34615-0013_5895-34615-0014" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_5895-34615-0013_5895-34615-0014" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q14</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/2428-83705-0019.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/2428-83705-0014.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_2428-83705-0019_2428-83705-0014_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_2428-83705-0019_2428-83705-0014" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2428-83705-0019_2428-83705-0014" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2428-83705-0019_2428-83705-0014" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2428-83705-0019_2428-83705-0014" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2428-83705-0019_2428-83705-0014" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2428-83705-0019_2428-83705-0014" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2428-83705-0019_2428-83705-0014" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q15</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/2277-149896-0009.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/2277-149896-0008.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_2277-149896-0009_2277-149896-0008_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_2277-149896-0009_2277-149896-0008" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2277-149896-0009_2277-149896-0008" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2277-149896-0009_2277-149896-0008" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2277-149896-0009_2277-149896-0008" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2277-149896-0009_2277-149896-0008" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2277-149896-0009_2277-149896-0008" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2277-149896-0009_2277-149896-0008" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 4</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>Q ID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Same or Not?</strong></td>
+			<td><strong>Not at all confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Somewhat confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Quite a bit confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Extremely confident</strong></td>
+		</tr>
+		<tr>
+			<td>Q16</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/2428-83705-0018.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/5105-28240-0011.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_2428-83705-0018_5105-28240-0011_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_2428-83705-0018_5105-28240-0011" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2428-83705-0018_5105-28240-0011" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2428-83705-0018_5105-28240-0011" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2428-83705-0018_5105-28240-0011" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2428-83705-0018_5105-28240-0011" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2428-83705-0018_5105-28240-0011" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2428-83705-0018_5105-28240-0011" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q17</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/3000-15664-0006.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/2300-131720-0005.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_3000-15664-0006_2300-131720-0005_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_3000-15664-0006_2300-131720-0005" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3000-15664-0006_2300-131720-0005" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3000-15664-0006_2300-131720-0005" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3000-15664-0006_2300-131720-0005" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3000-15664-0006_2300-131720-0005" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3000-15664-0006_2300-131720-0005" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3000-15664-0006_2300-131720-0005" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q18</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/3575-170457-0040.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/3575-170457-0031.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_3575-170457-0040_3575-170457-0031_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_3575-170457-0040_3575-170457-0031" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3575-170457-0040_3575-170457-0031" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3575-170457-0040_3575-170457-0031" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3575-170457-0040_3575-170457-0031" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3575-170457-0040_3575-170457-0031" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3575-170457-0040_3575-170457-0031" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3575-170457-0040_3575-170457-0031" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q19</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/5105-28240-0013.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/2428-83705-0019.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_5105-28240-0013_2428-83705-0019_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_5105-28240-0013_2428-83705-0019" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_5105-28240-0013_2428-83705-0019" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_5105-28240-0013_2428-83705-0019" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_5105-28240-0013_2428-83705-0019" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_5105-28240-0013_2428-83705-0019" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_5105-28240-0013_2428-83705-0019" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_5105-28240-0013_2428-83705-0019" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q20</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/2277-149896-0008.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/2277-149897-0036.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_2277-149896-0008_2277-149897-0036_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_2277-149896-0008_2277-149897-0036" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2277-149896-0008_2277-149897-0036" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2277-149896-0008_2277-149897-0036" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2277-149896-0008_2277-149897-0036" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2277-149896-0008_2277-149897-0036" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2277-149896-0008_2277-149897-0036" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2277-149896-0008_2277-149897-0036" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 5</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>Q ID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Same or Not?</strong></td>
+			<td><strong>Not at all confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Somewhat confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Quite a bit confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Extremely confident</strong></td>
+		</tr>
+		<tr>
+			<td>Q21</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/5895-34615-0014.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/5895-34622-0005.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_5895-34615-0014_5895-34622-0005_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_5895-34615-0014_5895-34622-0005" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_5895-34615-0014_5895-34622-0005" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_5895-34615-0014_5895-34622-0005" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_5895-34615-0014_5895-34622-0005" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_5895-34615-0014_5895-34622-0005" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_5895-34615-0014_5895-34622-0005" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_5895-34615-0014_5895-34622-0005" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q22</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/2300-131720-0006.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/2300-131720-0005.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_2300-131720-0006_2300-131720-0005_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_2300-131720-0006_2300-131720-0005" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2300-131720-0006_2300-131720-0005" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2300-131720-0006_2300-131720-0005" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2300-131720-0006_2300-131720-0005" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2300-131720-0006_2300-131720-0005" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2300-131720-0006_2300-131720-0005" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2300-131720-0006_2300-131720-0005" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q23</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/4446-2273-0004.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/4446-2273-0005.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_4446-2273-0004_4446-2273-0005_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_4446-2273-0004_4446-2273-0005" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_4446-2273-0004_4446-2273-0005" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_4446-2273-0004_4446-2273-0005" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_4446-2273-0004_4446-2273-0005" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_4446-2273-0004_4446-2273-0005" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_4446-2273-0004_4446-2273-0005" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_4446-2273-0004_4446-2273-0005" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q24</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/1462-170138-0022.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/1462-170142-0032.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_1462-170138-0022_1462-170142-0032_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_1462-170138-0022_1462-170142-0032" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_1462-170138-0022_1462-170142-0032" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_1462-170138-0022_1462-170142-0032" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_1462-170138-0022_1462-170142-0032" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_1462-170138-0022_1462-170142-0032" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_1462-170138-0022_1462-170142-0032" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_1462-170138-0022_1462-170142-0032" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q25</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/61-70968-0037.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/6319-64726-0020.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_61-70968-0037_6319-64726-0020_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_61-70968-0037_6319-64726-0020" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_61-70968-0037_6319-64726-0020" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_61-70968-0037_6319-64726-0020" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_61-70968-0037_6319-64726-0020" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_61-70968-0037_6319-64726-0020" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_61-70968-0037_6319-64726-0020" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_61-70968-0037_6319-64726-0020" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 6</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>Q ID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Same or Not?</strong></td>
+			<td><strong>Not at all confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Somewhat confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Quite a bit confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Extremely confident</strong></td>
+		</tr>
+		<tr>
+			<td>Q26</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/3000-15664-0007.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/3000-15664-0027.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_3000-15664-0007_3000-15664-0027_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_3000-15664-0007_3000-15664-0027" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3000-15664-0007_3000-15664-0027" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3000-15664-0007_3000-15664-0027" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3000-15664-0007_3000-15664-0027" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3000-15664-0007_3000-15664-0027" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3000-15664-0007_3000-15664-0027" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3000-15664-0007_3000-15664-0027" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q27</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/3536-8226-0013.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/3536-8226-0008.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_3536-8226-0013_3536-8226-0008_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_3536-8226-0013_3536-8226-0008" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3536-8226-0013_3536-8226-0008" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3536-8226-0013_3536-8226-0008" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3536-8226-0013_3536-8226-0008" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3536-8226-0013_3536-8226-0008" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3536-8226-0013_3536-8226-0008" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_3536-8226-0013_3536-8226-0008" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q28</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/8555-284447-0005.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/8555-284447-0014.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_8555-284447-0005_8555-284447-0014_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_8555-284447-0005_8555-284447-0014" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_8555-284447-0005_8555-284447-0014" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_8555-284447-0005_8555-284447-0014" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_8555-284447-0005_8555-284447-0014" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_8555-284447-0005_8555-284447-0014" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_8555-284447-0005_8555-284447-0014" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_8555-284447-0005_8555-284447-0014" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q29</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/6241-61946-0019.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/4446-2273-0005.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_6241-61946-0019_4446-2273-0005_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_6241-61946-0019_4446-2273-0005" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_6241-61946-0019_4446-2273-0005" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_6241-61946-0019_4446-2273-0005" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_6241-61946-0019_4446-2273-0005" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_6241-61946-0019_4446-2273-0005" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_6241-61946-0019_4446-2273-0005" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_6241-61946-0019_4446-2273-0005" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q30</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/3000-15664-0006.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/3000-15664-0007.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_3000-15664-0006_3000-15664-0007_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_3000-15664-0006_3000-15664-0007" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3000-15664-0006_3000-15664-0007" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3000-15664-0006_3000-15664-0007" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3000-15664-0006_3000-15664-0007" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3000-15664-0006_3000-15664-0007" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3000-15664-0006_3000-15664-0007" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3000-15664-0006_3000-15664-0007" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 7</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>Q ID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Same or Not?</strong></td>
+			<td><strong>Not at all confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Somewhat confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Quite a bit confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Extremely confident</strong></td>
+		</tr>
+		<tr>
+			<td>Q31</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/2277-149896-0009.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/3575-170457-0040.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_2277-149896-0009_3575-170457-0040_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_2277-149896-0009_3575-170457-0040" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2277-149896-0009_3575-170457-0040" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2277-149896-0009_3575-170457-0040" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2277-149896-0009_3575-170457-0040" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2277-149896-0009_3575-170457-0040" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2277-149896-0009_3575-170457-0040" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2277-149896-0009_3575-170457-0040" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q32</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/8297-275156-0011.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/8297-275156-0012.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_8297-275156-0011_8297-275156-0012_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_8297-275156-0011_8297-275156-0012" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_8297-275156-0011_8297-275156-0012" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_8297-275156-0011_8297-275156-0012" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_8297-275156-0011_8297-275156-0012" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_8297-275156-0011_8297-275156-0012" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_8297-275156-0011_8297-275156-0012" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_8297-275156-0011_8297-275156-0012" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q33</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/6241-61946-0019.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/6241-61946-0018.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_6241-61946-0019_6241-61946-0018_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_6241-61946-0019_6241-61946-0018" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_6241-61946-0019_6241-61946-0018" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_6241-61946-0019_6241-61946-0018" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_6241-61946-0019_6241-61946-0018" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_6241-61946-0019_6241-61946-0018" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_6241-61946-0019_6241-61946-0018" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_6241-61946-0019_6241-61946-0018" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q34</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/5895-34615-0013.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/8555-284447-0014.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_5895-34615-0013_8555-284447-0014_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_5895-34615-0013_8555-284447-0014" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_5895-34615-0013_8555-284447-0014" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_5895-34615-0013_8555-284447-0014" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_5895-34615-0013_8555-284447-0014" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_5895-34615-0013_8555-284447-0014" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_5895-34615-0013_8555-284447-0014" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_5895-34615-0013_8555-284447-0014" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q35</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/3536-8226-0012.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/7021-79740-0003.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_3536-8226-0012_7021-79740-0003_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_3536-8226-0012_7021-79740-0003" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3536-8226-0012_7021-79740-0003" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3536-8226-0012_7021-79740-0003" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3536-8226-0012_7021-79740-0003" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3536-8226-0012_7021-79740-0003" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3536-8226-0012_7021-79740-0003" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_3536-8226-0012_7021-79740-0003" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 8</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>Q ID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Same or Not?</strong></td>
+			<td><strong>Not at all confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Somewhat confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Quite a bit confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Extremely confident</strong></td>
+		</tr>
+		<tr>
+			<td>Q36</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/8297-275156-0012.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/8297-275155-0032.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_8297-275156-0012_8297-275155-0032_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_8297-275156-0012_8297-275155-0032" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_8297-275156-0012_8297-275155-0032" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_8297-275156-0012_8297-275155-0032" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_8297-275156-0012_8297-275155-0032" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_8297-275156-0012_8297-275155-0032" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_8297-275156-0012_8297-275155-0032" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_8297-275156-0012_8297-275155-0032" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q37</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/1462-170145-0021.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/2961-961-0005.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_1462-170145-0021_2961-961-0005_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_1462-170145-0021_2961-961-0005" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_1462-170145-0021_2961-961-0005" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_1462-170145-0021_2961-961-0005" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_1462-170145-0021_2961-961-0005" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_1462-170145-0021_2961-961-0005" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_1462-170145-0021_2961-961-0005" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_1462-170145-0021_2961-961-0005" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q38</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/2961-961-0005.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/2961-961-0010.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_2961-961-0005_2961-961-0010_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_2961-961-0005_2961-961-0010" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2961-961-0005_2961-961-0010" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2961-961-0005_2961-961-0010" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2961-961-0005_2961-961-0010" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2961-961-0005_2961-961-0010" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2961-961-0005_2961-961-0010" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_2961-961-0005_2961-961-0010" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q39</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/2961-961-0006.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/2961-961-0005.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_2961-961-0006_2961-961-0005_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_2961-961-0006_2961-961-0005" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2961-961-0006_2961-961-0005" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2961-961-0006_2961-961-0005" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2961-961-0006_2961-961-0005" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2961-961-0006_2961-961-0005" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2961-961-0006_2961-961-0005" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_2961-961-0006_2961-961-0005" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q40</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/174-50561-0002.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/174-50561-0005.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_174-50561-0002_174-50561-0005_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_174-50561-0002_174-50561-0005" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_174-50561-0002_174-50561-0005" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_174-50561-0002_174-50561-0005" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_174-50561-0002_174-50561-0005" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_174-50561-0002_174-50561-0005" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_174-50561-0002_174-50561-0005" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_174-50561-0002_174-50561-0005" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 9</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>Q ID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Same or Not?</strong></td>
+			<td><strong>Not at all confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Somewhat confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Quite a bit confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Extremely confident</strong></td>
+		</tr>
+		<tr>
+			<td>Q41</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/1462-170145-0021.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/1462-170138-0022.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_1462-170145-0021_1462-170138-0022_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_1462-170145-0021_1462-170138-0022" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_1462-170145-0021_1462-170138-0022" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_1462-170145-0021_1462-170138-0022" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_1462-170145-0021_1462-170138-0022" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_1462-170145-0021_1462-170138-0022" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_1462-170145-0021_1462-170138-0022" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_1462-170145-0021_1462-170138-0022" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q42</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/8555-284447-0005.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/5895-34615-0014.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_8555-284447-0005_5895-34615-0014_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_8555-284447-0005_5895-34615-0014" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_8555-284447-0005_5895-34615-0014" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_8555-284447-0005_5895-34615-0014" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_8555-284447-0005_5895-34615-0014" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_8555-284447-0005_5895-34615-0014" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_8555-284447-0005_5895-34615-0014" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_8555-284447-0005_5895-34615-0014" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q43</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/4446-2273-0004.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/6241-61946-0018.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_4446-2273-0004_6241-61946-0018_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_4446-2273-0004_6241-61946-0018" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_4446-2273-0004_6241-61946-0018" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_4446-2273-0004_6241-61946-0018" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_4446-2273-0004_6241-61946-0018" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_4446-2273-0004_6241-61946-0018" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_4446-2273-0004_6241-61946-0018" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_4446-2273-0004_6241-61946-0018" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q44</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/174-50561-0002.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/121-127105-0007.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_174-50561-0002_121-127105-0007_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_174-50561-0002_121-127105-0007" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_174-50561-0002_121-127105-0007" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_174-50561-0002_121-127105-0007" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_174-50561-0002_121-127105-0007" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_174-50561-0002_121-127105-0007" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_174-50561-0002_121-127105-0007" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_174-50561-0002_121-127105-0007" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q45</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/121-121726-0008.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/174-50561-0005.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_121-121726-0008_174-50561-0005_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_121-121726-0008_174-50561-0005" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_121-121726-0008_174-50561-0005" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_121-121726-0008_174-50561-0005" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_121-121726-0008_174-50561-0005" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_121-121726-0008_174-50561-0005" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_121-121726-0008_174-50561-0005" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_121-121726-0008_174-50561-0005" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 10</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>Q ID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Same or Not?</strong></td>
+			<td><strong>Not at all confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Somewhat confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Quite a bit confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Extremely confident</strong></td>
+		</tr>
+		<tr>
+			<td>Q46</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/8555-284447-0014.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/8455-210777-0039.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_8555-284447-0014_8455-210777-0039_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_8555-284447-0014_8455-210777-0039" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_8555-284447-0014_8455-210777-0039" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_8555-284447-0014_8455-210777-0039" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_8555-284447-0014_8455-210777-0039" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_8555-284447-0014_8455-210777-0039" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_8555-284447-0014_8455-210777-0039" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_8555-284447-0014_8455-210777-0039" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q47</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/6319-64726-0020.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/6319-64726-0017.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_6319-64726-0020_6319-64726-0017_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_6319-64726-0020_6319-64726-0017" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_6319-64726-0020_6319-64726-0017" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_6319-64726-0020_6319-64726-0017" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_6319-64726-0020_6319-64726-0017" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_6319-64726-0020_6319-64726-0017" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_6319-64726-0020_6319-64726-0017" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_6319-64726-0020_6319-64726-0017" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q48</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/7021-79740-0012.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/7021-79740-0003.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_7021-79740-0012_7021-79740-0003_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_7021-79740-0012_7021-79740-0003" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_7021-79740-0012_7021-79740-0003" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_7021-79740-0012_7021-79740-0003" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_7021-79740-0012_7021-79740-0003" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_7021-79740-0012_7021-79740-0003" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_7021-79740-0012_7021-79740-0003" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_7021-79740-0012_7021-79740-0003" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q49</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/1221-135767-0014.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/1221-135767-0024.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_1221-135767-0014_1221-135767-0024_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_1221-135767-0014_1221-135767-0024" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_1221-135767-0014_1221-135767-0024" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_1221-135767-0014_1221-135767-0024" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_1221-135767-0014_1221-135767-0024" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_1221-135767-0014_1221-135767-0024" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_1221-135767-0014_1221-135767-0024" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_1221-135767-0014_1221-135767-0024" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q50</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/6319-64726-0017.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/61-70970-0036.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_6319-64726-0017_61-70970-0036_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_6319-64726-0017_61-70970-0036" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_6319-64726-0017_61-70970-0036" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_6319-64726-0017_61-70970-0036" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_6319-64726-0017_61-70970-0036" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_6319-64726-0017_61-70970-0036" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_6319-64726-0017_61-70970-0036" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_6319-64726-0017_61-70970-0036" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 11</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>Q ID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Same or Not?</strong></td>
+			<td><strong>Not at all confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Somewhat confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Quite a bit confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Extremely confident</strong></td>
+		</tr>
+		<tr>
+			<td>Q51</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/2300-131720-0006.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/3000-15664-0007.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_2300-131720-0006_3000-15664-0007_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_2300-131720-0006_3000-15664-0007" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2300-131720-0006_3000-15664-0007" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2300-131720-0006_3000-15664-0007" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2300-131720-0006_3000-15664-0007" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2300-131720-0006_3000-15664-0007" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2300-131720-0006_3000-15664-0007" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2300-131720-0006_3000-15664-0007" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q52</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/7021-79740-0012.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/3536-8226-0013.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_7021-79740-0012_3536-8226-0013_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_7021-79740-0012_3536-8226-0013" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_7021-79740-0012_3536-8226-0013" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_7021-79740-0012_3536-8226-0013" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_7021-79740-0012_3536-8226-0013" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_7021-79740-0012_3536-8226-0013" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_7021-79740-0012_3536-8226-0013" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_7021-79740-0012_3536-8226-0013" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q53</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/7021-79740-0003.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/7021-79740-0008.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_7021-79740-0003_7021-79740-0008_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_7021-79740-0003_7021-79740-0008" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_7021-79740-0003_7021-79740-0008" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_7021-79740-0003_7021-79740-0008" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_7021-79740-0003_7021-79740-0008" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_7021-79740-0003_7021-79740-0008" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_7021-79740-0003_7021-79740-0008" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_7021-79740-0003_7021-79740-0008" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q54</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/3536-8226-0012.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/3536-8226-0013.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_3536-8226-0012_3536-8226-0013_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_3536-8226-0012_3536-8226-0013" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3536-8226-0012_3536-8226-0013" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3536-8226-0012_3536-8226-0013" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3536-8226-0012_3536-8226-0013" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3536-8226-0012_3536-8226-0013" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3536-8226-0012_3536-8226-0013" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3536-8226-0012_3536-8226-0013" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q55</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/8297-275156-0011.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/1221-135767-0014.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_8297-275156-0011_1221-135767-0014_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_8297-275156-0011_1221-135767-0014" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_8297-275156-0011_1221-135767-0014" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_8297-275156-0011_1221-135767-0014" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_8297-275156-0011_1221-135767-0014" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_8297-275156-0011_1221-135767-0014" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_8297-275156-0011_1221-135767-0014" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_8297-275156-0011_1221-135767-0014" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 12</h2>
+<table class="tests">
+	<tbody>
+		<tr>
+			<td><strong>Q ID</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip A &nbsp;&nbsp;</strong></td>
+			<td><strong>&nbsp; &nbsp;Clip B &nbsp;&nbsp;</strong></td>
+			<td><strong>Same or Not?</strong></td>
+			<td><strong>Not at all confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Somewhat confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Quite a bit confident</strong></td>
+			<td><strong>&nbsp; &nbsp;| &nbsp;&nbsp;</strong></td>
+			<td><strong>Extremely confident</strong></td>
+		</tr>
+		<tr>
+			<td>Q56</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/121-127105-0007.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/121-127105-0028.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_121-127105-0007_121-127105-0028_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_121-127105-0007_121-127105-0028" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_121-127105-0007_121-127105-0028" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_121-127105-0007_121-127105-0028" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_121-127105-0007_121-127105-0028" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_121-127105-0007_121-127105-0028" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_121-127105-0007_121-127105-0028" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_121-127105-0007_121-127105-0028" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q57</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/61-70970-0036.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/61-70970-0002.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_61-70970-0036_61-70970-0002_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_61-70970-0036_61-70970-0002" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_61-70970-0036_61-70970-0002" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_61-70970-0036_61-70970-0002" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_61-70970-0036_61-70970-0002" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_61-70970-0036_61-70970-0002" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_61-70970-0036_61-70970-0002" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_61-70970-0036_61-70970-0002" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q58</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/4446-2273-0005.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same_anon/4446-2275-0001.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SMA_4446-2273-0005_4446-2275-0001_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SMA_4446-2273-0005_4446-2275-0001" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_4446-2273-0005_4446-2275-0001" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_4446-2273-0005_4446-2275-0001" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_4446-2273-0005_4446-2275-0001" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_4446-2273-0005_4446-2275-0001" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_4446-2273-0005_4446-2275-0001" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SMA_4446-2273-0005_4446-2275-0001" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q59</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/3575-170457-0034.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/same/3575-170457-0040.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_SME_3575-170457-0034_3575-170457-0040_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_SME_3575-170457-0034_3575-170457-0040" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3575-170457-0034_3575-170457-0040" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3575-170457-0034_3575-170457-0040" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3575-170457-0034_3575-170457-0040" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3575-170457-0034_3575-170457-0040" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3575-170457-0034_3575-170457-0040" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_SME_3575-170457-0034_3575-170457-0040" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q60</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/2961-961-0006.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls="controls" preload="none">
+					<source preload="none" src="https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/IS24/Samples/Verifiability/different/1462-170138-0022.wav?raw=True" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<select class="form-control overall" name="VS_DIF_2961-961-0006_1462-170138-0022_Answer_overall">
+					<option selected="selected" value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td style="text-align: center;"><input name="VS_DIF_2961-961-0006_1462-170138-0022" type="radio" value="1" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2961-961-0006_1462-170138-0022" type="radio" value="2" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2961-961-0006_1462-170138-0022" type="radio" value="3" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2961-961-0006_1462-170138-0022" type="radio" value="4" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2961-961-0006_1462-170138-0022" type="radio" value="5" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2961-961-0006_1462-170138-0022" type="radio" value="6" /></td>
+			<td style="text-align: center;"><input name="VS_DIF_2961-961-0006_1462-170138-0022" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+
+<p>Have you participated in any such speech tasks before? <select class="post-survey" name="VS_PT_Experience">
+	<option selected="selected" value="0">- select one -</option>
+	<option value="1">Yes</option>
+	<option value="-1">No</option>
+</select></p>
+
+<p>How did you listen to the audio clips in this task? <select class="post-survey" name="VS_PT_listening">
+	<option selected="selected" value="0">- select one -</option>
+	<option value="1">Laptop speaker</option>
+	<option value="2">Headphones</option>
+	<option value="3">Desktop speaker</option>
+	<option value="4">Other</option>
+</select></p>
+
+<p>What is your native language? <input class="post-survey" maxlength="100" name="VS_PT_nativeLanguage" size="20"
+	type="text" /></p>
+
+<p>What other languages do you speak? <input class="post-survey" maxlength="100" name="VS_PT_otherLanguages" size="50"
+	type="text" /></p>
+
+<p>Please suggest comments for improving this study:</p>
+
+<p><textarea class="post-survey" cols="120" name="VS_PT_comments" rows="5"></textarea></p>

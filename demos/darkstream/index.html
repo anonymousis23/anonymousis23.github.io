@@ -1,0 +1,408 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-171609755-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-171609755-1');
+</script>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Streaming Anonymization Audio Samples</title>
+<link rel="icon" href="../../media/image/favicon.png"></head>
+<style>
+body{
+    padding: 0;
+    margin: 0;
+}
+
+.title {
+    background-color: rgb(80,0,0);
+    width: 100%;
+    text-align: center
+}
+
+.title td{
+    padding: 5px;
+}
+
+.title .logo{
+    width: 220px;
+}
+
+.title h1{
+    font-size: 18pt;
+    font-family: calibri, verdana, helvetica, sans-serif, Arial, Times, serif;
+    color: white;
+    line-height: 1.15;
+}
+
+.title h2{
+    font-size: 12pt;
+    font-family: calibri, verdana, helvetica, sans-serif, Arial, Times, serif;
+    font-style: italic;
+    color: white;
+    line-height: 1.15;
+}
+
+main{
+    font-family: calibri, verdana, helvetica, sans-serif, Arial, Times, serif;
+    font-size: 18px;
+    padding: 0 10px 0 10px;
+}
+
+main h2{
+    font-size: 20px;
+}
+
+main table.samples{
+    text-align: center;
+}
+
+main table.samples th{
+    border-bottom: 2px solid #333;
+    width: 16%;
+    height: 60px;
+}
+
+main table.samples td{
+    border-right: 1px #333 solid;
+    border-bottom: 1px #666 solid;
+    width: 16%;
+    height: 60px;
+}
+
+.mtf { 
+    background-color: rgb(225, 225, 255);
+}
+
+.ftm{
+    background-color: rgb(255, 225, 225);
+}
+
+.source{
+    background-color: rgb(225, 255, 225);
+}
+
+audio{
+  width: 250px;
+}
+
+pre code {
+  background-color: #eee;
+  border: 1px solid #999;
+  display: block;
+  padding: 5px;
+}
+
+</style>
+<body>
+<table class="title">
+<tbody>
+<tr>
+<td>
+<h1>End-to-end Streaming model for Low-Latency Speech Anonymization</h1>
+<h2>Anonymous submission to INTERSPEECH 2024</h2>
+</td>
+</tbody>
+</table>
+<main>
+
+<h2>Abstract</h2>
+<p style="width:100%">
+    Speaker anonymization aims to conceal cues to speaker identity while preserving linguistic content. 
+    Current machine learning based approaches require substantial computational resources, hindering real-time streaming applications. 
+    To address these concerns, we propose a streaming model that achieves speaker anonymization with low latency. 
+    The system is trained in an end-to-end autoencoder fashion using a lightweight content encoder that extracts HuBERT-like information, 
+    a pretrained speaker encoder that extract speaker identity, and a variance encoder that injects pitch and energy information. 
+    These three disentangled representations are fed to a decoder that re-synthesizes the speech signal. 
+    We present evaluation results from two implementations of our system, a full model that achieves a latency of 230ms, 
+    and a lite version (0.1x in size) that further reduces latency to 66ms while maintaining state-of-the-art performance in naturalness, intelligibility, 
+    and privacy preservation.
+</p>
+
+
+<h2>Block Diagram</h2>
+<figure>
+    <img width=600 src="blockdiagram.svg" alt="Block Diagram" >
+    <figcaption>Block diagram of the proposed system (a) Training flow (b) Inference flow.</figcaption>
+</figure>
+
+
+
+<h2>Notes</h2>
+
+<ul>
+<li>Dataset (CMU-ARCTIC corpus): <a href="http://www.festvox.org/cmu_arctic/">http://www.festvox.org/cmu_arctic/</a></li>
+</ul>
+
+<h2>Audio Samples</h2>
+<ul>
+    <li><b>Input speech</b>: original unmodified speech recordings</li>
+    <li><b>Base</b>: input speech anonymized through the base version</li>
+    <li><b>Lite</b>: input speech anonymized through the lite version</li>
+</ul>
+
+<!-- <p>Open a PDF file <a href="blockdiagram.pdf">example</a>.</p> -->
+
+<table width="100%" class="samples">
+<tbody>
+    <tr>
+        <th>Speaker</th>
+        <th>Text</th>
+        <th>Input speech</th>
+        <th>Base</th>
+        <th>Lite</th>
+    </tr>
+    <tr>
+        <td rowspan="3">BDL</td>
+        <td>
+            Author of the danger trail Philip Steels and etc.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/input/BDL/arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/base/BDL/arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/lite/BDL/arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Not at this particular case Tom apologized Whittemore.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/input/BDL/arctic_a0002.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/base/BDL/arctic_a0002.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/lite/BDL/arctic_a0002.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            For the twentieth time that evening the two men shook hands.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/input/BDL/arctic_a0003.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/base/BDL/arctic_a0003.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/lite/BDL/arctic_a0003.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td rowspan="3">CLB</td>
+        <td>
+            Lord but I'm glad to see you again Phil.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/input/CLB/arctic_a0004.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/base/CLB/arctic_a0004.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/lite/CLB/arctic_a0004.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Will we ever forget it.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/input/CLB/arctic_a0005.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/base/CLB/arctic_a0005.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/lite/CLB/arctic_a0005.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            God bless 'em I hope I will go on seeing them forever.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/input/CLB/arctic_a0006.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/base/CLB/arctic_a0006.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/lite/CLB/arctic_a0006.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td rowspan="3">RMS</td>
+        <td>
+            And you always want to see it in the superlative degree.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/input/RMS/arctic_a0007.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/base/RMS/arctic_a0007.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/lite/RMS/arctic_a0007.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Gad your letter came just in time.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/input/RMS/arctic_a0008.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/base/RMS/arctic_a0008.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/lite/RMS/arctic_a0008.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            He turned sharply and faced Gregson across the table.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/input/RMS/arctic_a0009.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/base/RMS/arctic_a0009.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/lite/RMS/arctic_a0009.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td rowspan="3">SLT</td>
+        <td>
+            I'm playing a single hand in what looks like a losing game.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/input/SLT/arctic_a0010.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/base/SLT/arctic_a0010.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/lite/SLT/arctic_a0010.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            If I ever needed a fighter in my life I need one now.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/input/SLT/arctic_a0011.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/base/SLT/arctic_a0011.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/lite/SLT/arctic_a0011.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Gregson shoved back his chair and rose his feet.
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/input/SLT/arctic_a0012.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/base/SLT/arctic_a0012.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/lite/SLT/arctic_a0012.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+    </tr>
+</tbody>
+</table>
+
+<h2></h2>
+<p><br><br><br><br><br></p>
+</main>
+</body></html>
