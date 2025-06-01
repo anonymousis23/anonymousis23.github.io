@@ -19,7 +19,7 @@ random.seed(1234)
 # ##########################################################################################################################
 
 audio_samples_root = Path("/mnt/data1/waris/PSI-TAMU/Xarts_exp/recon_for_mos")
-url_root = "https://github.com/anonymousis23/anonymousis23.github.io/blob/main/UserStudy/ASRU25/Samples/MOS"
+url_root = "https://anonymousis23.github.io/UserStudy/ASRU25/Samples/MOS"
 
 
 wav_files = glob.glob(os.path.join(audio_samples_root, "original/**", "*.wav"), recursive=True)
