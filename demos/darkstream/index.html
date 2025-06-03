@@ -102,8 +102,8 @@ pre code {
 <tbody>
 <tr>
 <td>
-<h1>End-to-end Streaming model for Low-Latency Speech Anonymization</h1>
-<h2>Anonymous submission to INTERSPEECH 2024</h2>
+<h1>DarkStream: real-time speech anonymization \\with low latency</h1>
+<h2>Anonymous submission to ASRU 2025</h2>
 </td>
 </tbody>
 </table>
@@ -111,15 +111,14 @@ pre code {
 
 <h2>Abstract</h2>
 <p style="width:100%">
-    Speaker anonymization aims to conceal cues to speaker identity while preserving linguistic content. 
-    Current machine learning based approaches require substantial computational resources, hindering real-time streaming applications. 
-    To address these concerns, we propose a streaming model that achieves speaker anonymization with low latency. 
-    The system is trained in an end-to-end autoencoder fashion using a lightweight content encoder that extracts HuBERT-like information, 
-    a pretrained speaker encoder that extract speaker identity, and a variance encoder that injects pitch and energy information. 
-    These three disentangled representations are fed to a decoder that re-synthesizes the speech signal. 
-    We present evaluation results from two implementations of our system, a full model that achieves a latency of 230ms, 
-    and a lite version (0.1x in size) that further reduces latency to 66ms while maintaining state-of-the-art performance in naturalness, intelligibility, 
-    and privacy preservation.
+    We propose DarkStream, a streaming speech synthesis architecture for real-time speaker anonymization. 
+    To improve content representation under strict latency constraints, DarkStream combines a causal waveform-based encoder, a short lookahead buffer, 
+    and transformer-based contextual layers. To further reduce inference time, the model generates waveforms directly via a neural vocoder, 
+    thus removing the need for intermediate mel-spectrogram conversions. Finally, DarkStream anonymizes speaker identity by injecting a 
+    GAN-generated pseudo-speaker embedding into linguistic features from the content encoder. Evaluations show our model achieves strong anonymization, 
+    yielding close to 50% speaker verification EER (near-chance performance) on the lazy-informed attack scenario, while maintaining acceptable 
+    linguistic intelligibility (WER within 9%). By balancing low-latency operation, robust privacy, and minimal intelligibility degradation, 
+    DarkStream provides a practical solution for privacy-preserving real-time speech communication.
 </p>
 
 
@@ -140,8 +139,9 @@ pre code {
 <h2>Audio Samples</h2>
 <ul>
     <li><b>Input speech</b>: original unmodified speech recordings</li>
-    <li><b>Base</b>: input speech anonymized through the base version</li>
-    <li><b>Lite</b>: input speech anonymized through the lite version</li>
+    <li><b>Wav</b>: input speech anonymized through the base version</li>
+    <li><b>Wav+CL</b>: input speech anonymized through the lite version</li>
+    <li><b>Wav+CL+KM</b>: input speech anonymized through the lite version</li>
 </ul>
 
 <!-- <p>Open a PDF file <a href="blockdiagram.pdf">example</a>.</p> -->
@@ -152,8 +152,9 @@ pre code {
         <th>Speaker</th>
         <th>Text</th>
         <th>Input speech</th>
-        <th>Base</th>
-        <th>Lite</th>
+        <th>Wav</th>
+        <th>Wav+CL</th>
+        <th>Wav+CL+KM</th>
     </tr>
     <tr>
         <td rowspan="3">BDL</td>
@@ -167,12 +168,17 @@ pre code {
         </td>
         <td>
             <audio controls="">
-                <source src="wav/base/BDL/arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav/BDL/arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/lite/BDL/arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav_cl/BDL/arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/wav_cl_km/BDL/arctic_a0001.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
     </tr>
@@ -187,12 +193,17 @@ pre code {
         </td>
         <td>
             <audio controls="">
-                <source src="wav/base/BDL/arctic_a0002.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav/BDL/arctic_a0002.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/lite/BDL/arctic_a0002.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav_cl/BDL/arctic_a0002.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/wav_cl_km/BDL/arctic_a0002.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
     </tr>
@@ -207,12 +218,17 @@ pre code {
         </td>
         <td>
             <audio controls="">
-                <source src="wav/base/BDL/arctic_a0003.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav/BDL/arctic_a0003.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/lite/BDL/arctic_a0003.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav_cl/BDL/arctic_a0003.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/wav_cl_km/BDL/arctic_a0003.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
     </tr>
@@ -228,12 +244,17 @@ pre code {
         </td>
         <td>
             <audio controls="">
-                <source src="wav/base/CLB/arctic_a0004.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav/CLB/arctic_a0004.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/lite/CLB/arctic_a0004.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav_cl/CLB/arctic_a0004.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/wav_cl_km/CLB/arctic_a0004.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
     </tr>
@@ -248,12 +269,17 @@ pre code {
         </td>
         <td>
             <audio controls="">
-                <source src="wav/base/CLB/arctic_a0005.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav/CLB/arctic_a0005.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/lite/CLB/arctic_a0005.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav_cl/CLB/arctic_a0005.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/wav_cl_km/CLB/arctic_a0005.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
     </tr>
@@ -268,12 +294,17 @@ pre code {
         </td>
         <td>
             <audio controls="">
-                <source src="wav/base/CLB/arctic_a0006.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav/CLB/arctic_a0006.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/lite/CLB/arctic_a0006.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav_cl/CLB/arctic_a0006.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/wav_cl_km/CLB/arctic_a0006.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
     </tr>
@@ -289,12 +320,17 @@ pre code {
         </td>
         <td>
             <audio controls="">
-                <source src="wav/base/RMS/arctic_a0007.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav/RMS/arctic_a0007.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/lite/RMS/arctic_a0007.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav_cl/RMS/arctic_a0007.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/wav_cl_km/RMS/arctic_a0007.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
     </tr>
@@ -309,12 +345,17 @@ pre code {
         </td>
         <td>
             <audio controls="">
-                <source src="wav/base/RMS/arctic_a0008.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav/RMS/arctic_a0008.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/lite/RMS/arctic_a0008.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav_cl/RMS/arctic_a0008.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/wav_cl_km/RMS/arctic_a0008.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
     </tr>
@@ -329,12 +370,17 @@ pre code {
         </td>
         <td>
             <audio controls="">
-                <source src="wav/base/RMS/arctic_a0009.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav/RMS/arctic_a0009.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/lite/RMS/arctic_a0009.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav_cl/RMS/arctic_a0009.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/wav_cl_km/RMS/arctic_a0009.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
     </tr>
@@ -350,12 +396,17 @@ pre code {
         </td>
         <td>
             <audio controls="">
-                <source src="wav/base/SLT/arctic_a0010.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav/SLT/arctic_a0010.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/lite/SLT/arctic_a0010.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav_cl/SLT/arctic_a0010.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/wav_cl_km/SLT/arctic_a0010.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
     </tr>
@@ -370,12 +421,17 @@ pre code {
         </td>
         <td>
             <audio controls="">
-                <source src="wav/base/SLT/arctic_a0011.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav/SLT/arctic_a0011.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/lite/SLT/arctic_a0011.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav_cl/SLT/arctic_a0011.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/wav_cl_km/SLT/arctic_a0011.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
     </tr>
@@ -390,12 +446,17 @@ pre code {
         </td>
         <td>
             <audio controls="">
-                <source src="wav/base/SLT/arctic_a0012.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav/SLT/arctic_a0012.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
         <td>
             <audio controls="">
-                <source src="wav/lite/SLT/arctic_a0012.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+                <source src="wav/wav_cl/SLT/arctic_a0012.wav" type="audio/wav">Your browser does not support the audio tag.</source>
+            </audio>
+        </td>
+        <td>
+            <audio controls="">
+                <source src="wav/wav_cl_km/SLT/arctic_a0012.wav" type="audio/wav">Your browser does not support the audio tag.</source>
             </audio>
         </td>
     </tr>
