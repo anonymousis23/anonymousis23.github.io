@@ -1,0 +1,2124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Verifiability Test</title>
+<!-- <style>
+body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }
+h1 { margin: 0 0 12px; }
+h2 { margin: 24px 0 8px; }
+table.tests { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+.tests td, .tests th { border: 1px solid #ddd; padding: 8px; vertical-align: middle; }
+.tests tr:nth-child(even){ background: #fafafa; }
+.tests th { background: #f2f2f2; text-align: left; }
+audio { width: 260px; }
+.select-cell select { width: 160px; }
+.center { text-align: center; }
+.muted { color: #666; font-size: 0.95rem; }
+.hr { height: 1px; background: #eee; margin: 16px 0; }
+.note { background: #fff9c4; padding: 8px 12px; border-radius: 8px; }
+</style>
+</head>
+<body>
+<h1>Verifiability Test</h1>
+<p class="note">For each question, listen to both clips and decide if they are the <strong>same speaker</strong> or <strong>different speakers</strong>. Then mark your confidence.</p> -->
+
+
+<style type="text/css">
+	table.tests {
+		width: 85%;
+		border-collapse: collapse;
+		table-layout: fixed;
+	}
+
+	table.tests th {
+		text-align: center;
+	}
+
+	table.tests td {
+		text-align: center;
+		vertical-align: middle;
+		border: 2px solid #000000;
+		width: 4%;
+	}
+
+	table.tests td+td {
+		width: 12%;
+	}
+
+	table.tests td+td+td {
+		width: 12%;
+	}
+
+	table.tests td+td+td+td {
+		width: 12%;
+	}
+
+	table.tests td+td+td+td+td {
+		width: 9%;
+	}
+
+	table.tests td+td+td+td+td+td {
+		width: auto;
+	}
+
+	table.tests tr {
+		border: 2px solid #500000;
+		height: 60px;
+		vertical-align: middle;
+		margin: 0 auto;
+		padding: 0;
+	}
+
+	table.tests tr {
+		margin: 0 auto;
+		padding: 0;
+	}
+
+	table.tests tr:nth-child(even) {
+		background-color: #F8F5E6;
+	}
+
+	table.tests tr:nth-child(odd) {
+		background: #EEE;
+	}
+
+	table.tests tr:first-child {
+		background-color: #500000;
+		color: #FFF;
+		font-weight: bold;
+		font-size: 1.25em;
+	}
+
+	table.tests tr:first-child:hover {
+		background-color: #500000;
+	}
+
+	table.tests tr:hover {
+		background-color: #336FA4
+	}
+
+	table.tests tr.complete {
+		background-color: #6FB89B;
+	}
+
+	table.tests input.mos {
+		display: block;
+		width: 100%;
+		height: 20px;
+	}
+
+	table.tests .question_id {
+		width: 21%;
+	}
+
+	table.tests td.A,
+	table.tests td.B,
+	table.tests td.X {
+		width: 27%;
+	}
+
+	table.tests .X {
+		border-right: 3px solid #500000;
+	}
+
+	input[type=radio] {
+		width: 20px;
+		height: 60px;
+		border: 10px solid #CCC;
+		border-radius: 50%;
+		vertical-align: middle;
+	}
+
+	input[type=radio].A {
+		float: right;
+	}
+
+	input[type=radio].B {
+		float: left;
+	}
+
+	audio {
+		vertical-align: middle;
+		width: 150px;
+	}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+	//The magic that lets us find the unselected questions
+
+	$(document).ready(function () {
+		$('#submitButton').click(check_buttons);
+	});
+
+	var check_buttons = function () {
+		//Get all the radio buttons
+		n_ckd = $('input[type=radio]:not(:checked)').toArray().reduce((acc, val) => acc.includes(val.name) ? acc : acc.concat(val.name), []);
+
+		//Get all the checked buttons
+		ckd = $('input[type=radio]:checked').toArray().reduce((acc, val) => acc.includes(val.name) ? acc : acc.concat(val.name), []);
+
+		//Filter out all the checked radio buttons from the not checked list
+		//We should get NOTHING if we've filled in every option
+		var unfilled = n_ckd.filter(function (x) { return !ckd.includes(x) });
+
+		if (unfilled.length > 0) {
+			alert("You have not rated your confidence for one or more of the questions.\nThe first one missing an answer is: " + unfilled[0].substring(5, 8));
+			var any_unfilled = true;
+		}
+		else {
+			var any_unfilled = false;
+		}
+
+		var unselected = $('select.overall').toArray().filter(function (x) { return x.value == 0 })
+
+		if (unselected.length > 0) {
+			alert("You have not rated 'Same or different?' for one or more of the questions.\nThe first one missing an answer is: " + unselected[0].name.substring(5, 8))
+		}
+
+		return !any_unfilled && !(unselected.length)
+	}
+</script>
+<script>
+	var reload_audio = function (e) {
+		console.log(e)
+
+
+		//Add in a nocache cheat
+		var src_selector = 'audio[id=' + e + '] > source';
+		$(src_selector)[0].src = $(src_selector)[0].src + "?nocache=" + new Date().getTime()
+		$('audio[id=' + e + ']')[0].load()
+		console.log($('audio[id=' + e + ']')[0].currentSrc)
+	}
+</script>
+<script>
+	var onclick_nocache = function (e) {
+		var currentSrc = $('audio[id=' + e + ']')[0].currentSrc;
+		$('audio[id=' + e + ']')[0].currentSrc = currentSrc + "?nocache=" + new Date().getTime();
+		$('audio[id=' + e + ']>source')[0].src = currentSrc + "?nocache=" + new Date().getTime();
+		$('audio[id=' + e + ']>a')[0].href = currentSrc + "?nocache=" + new Date().getTime();
+	}
+</script>
+<style type="text/css">
+	table,
+	th,
+	td {
+		border: 1px solid black;
+	}
+</style>
+<h1><strong>Speaker Verification Test</strong></h1>
+<hr>
+<h3>Below is a list of recordings organized in rows. In each row, you will see two clips: A & B.
+	Please listen to the two recordings, and then decide whether the two voices in clip A and clip B are the same or different speakers. 
+	Once you choose, please rate how confident you are in your choice.</h3>
+<ul>
+	<li>There are seven (7) levels of confidence, as shown in the tables below. 
+		"|" means that your confidence level is between two levels.  
+		For example, the "|" between "Not at all confident" and "Somewhat confident" means that your confidence level is  
+		more than "Not at all confident" but less than "Somewhat confident".</li>
+	<li>Please <em><strong><span style="color:red">ignore</span></strong></em> the audio quality
+		(e.g., noises, distortions) and instead focus on the <em><strong><span style="color:red">voice 
+			 characteristics</span></strong></em> of the speaker.</li>
+	<li>You may listen to a sound more than once if needed; just click the play button to replay.</li>
+	<li>Your responses will be manually screened to ensure that you made a serious effort to rate the recordings. 
+		If your answers are determined to be random or contain inconsistent answers, the task may be rejected and you may not receive payment.</li>
+	<li>Please perform these tasks in a quiet place using a pair of good headphones. 
+		It is recommended that you set the volume a bit higher than normal for these tasks.</li>
+	<li>If you are having trouble viewing or listening to the sound clips, please try completing the test in Google Chrome.</li>
+	<li>Please make sure that you've finished all the questions before submitting.</li>
+</ul>
+<hr>
+
+<h2><strong>In each question, answer whether the two voices in clip A and clip B are the same or different speakers. How confident are you with your answer?</strong></h2>
+
+<div class="hr"></div>
+<h2>Set 1</h2>
+<table class="tests">
+	<thead>
+		<tr>
+			<th>QuestionID</th>
+			<th>  Clip A  </th>
+			<th>  Clip B  </th>
+			<th>Same or Not?</th>
+			<th>Not at all confident</th>
+			<th>|</th>
+			<th>Somewhat confident</th>
+			<th>|</th>
+			<th>Quite a bit confident</th>
+			<th>|</th>
+			<th>Extremely confident</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Q1</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0089_0__2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/GenVC-small/EM4_ENG_0089_0__BDL_arctic_b0509.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_GenVC-small_EM4_ENG_0089_0_BDL_arctic_b0509_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_GenVC-small_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q2</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF2_ENG_0115_1__3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream-quant-TVT/EF2_ENG_0115_1__p374_p374_039.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream-quant-TVT_EF2_ENG_0115_1_p374_p374_039_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF2_ENG_0115_1_p374_p374_039" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF2_ENG_0115_1_p374_p374_039" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF2_ENG_0115_1_p374_p374_039" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF2_ENG_0115_1_p374_p374_039" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF2_ENG_0115_1_p374_p374_039" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF2_ENG_0115_1_p374_p374_039" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF2_ENG_0115_1_p374_p374_039" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q3</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF2_ENG_0115_1__1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream/EF2_ENG_0115_1__p374_p374_039.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream_EF2_ENG_0115_1_p374_p374_039_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream_EF2_ENG_0115_1_p374_p374_039" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream_EF2_ENG_0115_1_p374_p374_039" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream_EF2_ENG_0115_1_p374_p374_039" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream_EF2_ENG_0115_1_p374_p374_039" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream_EF2_ENG_0115_1_p374_p374_039" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream_EF2_ENG_0115_1_p374_p374_039" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream_EF2_ENG_0115_1_p374_p374_039" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q4</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM1_ENG_0091_0.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/slt24/EM1_ENG_0091_0__NJS_arctic_b0348.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_slt24_EM1_ENG_0091_0_NJS_arctic_b0348_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_slt24_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_slt24_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_slt24_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_slt24_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_slt24_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_slt24_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_slt24_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q5</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0001_1__7.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream-quant-TVT/EM4_ENG_0001_1__p336_p336_112.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream-quant-TVT_EM4_ENG_0001_1_p336_p336_112_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0001_1_p336_p336_112" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0001_1_p336_p336_112" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0001_1_p336_p336_112" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0001_1_p336_p336_112" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0001_1_p336_p336_112" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0001_1_p336_p336_112" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0001_1_p336_p336_112" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 2</h2>
+<table class="tests">
+	<thead>
+		<tr>
+			<th>QuestionID</th>
+			<th>  Clip A  </th>
+			<th>  Clip B  </th>
+			<th>Same or Not?</th>
+			<th>Not at all confident</th>
+			<th>|</th>
+			<th>Somewhat confident</th>
+			<th>|</th>
+			<th>Quite a bit confident</th>
+			<th>|</th>
+			<th>Extremely confident</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Q6</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF7_ENG_0048_0__3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream-quant-TVT/EF7_ENG_0048_0__p271_p271_007.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream-quant-TVT_EF7_ENG_0048_0_p271_p271_007_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF7_ENG_0048_0_p271_p271_007" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF7_ENG_0048_0_p271_p271_007" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF7_ENG_0048_0_p271_p271_007" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF7_ENG_0048_0_p271_p271_007" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF7_ENG_0048_0_p271_p271_007" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF7_ENG_0048_0_p271_p271_007" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF7_ENG_0048_0_p271_p271_007" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q7</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0001_1__4.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/slt24/EM4_ENG_0001_1__p336_p336_112.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_slt24_EM4_ENG_0001_1_p336_p336_112_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0001_1_p336_p336_112" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0001_1_p336_p336_112" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0001_1_p336_p336_112" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0001_1_p336_p336_112" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0001_1_p336_p336_112" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0001_1_p336_p336_112" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0001_1_p336_p336_112" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q8</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0087_1__3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream-quant-TVT/EM4_ENG_0087_1__YDCK_arctic_a0261.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream-quant-TVT_EM4_ENG_0087_1_YDCK_arctic_a0261_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q9</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF6_ENG_0006_1__3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream-quant-TVT/EF6_ENG_0006_1__RMS_arctic_a0125.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream-quant-TVT_EF6_ENG_0006_1_RMS_arctic_a0125_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q10</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF4_ENG_0003_1__2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/GenVC-small/EF4_ENG_0003_1__p252_p252_165.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_GenVC-small_EF4_ENG_0003_1_p252_p252_165_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_GenVC-small_EF4_ENG_0003_1_p252_p252_165" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF4_ENG_0003_1_p252_p252_165" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF4_ENG_0003_1_p252_p252_165" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF4_ENG_0003_1_p252_p252_165" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF4_ENG_0003_1_p252_p252_165" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF4_ENG_0003_1_p252_p252_165" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF4_ENG_0003_1_p252_p252_165" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 3</h2>
+<table class="tests">
+	<thead>
+		<tr>
+			<th>QuestionID</th>
+			<th>  Clip A  </th>
+			<th>  Clip B  </th>
+			<th>Same or Not?</th>
+			<th>Not at all confident</th>
+			<th>|</th>
+			<th>Somewhat confident</th>
+			<th>|</th>
+			<th>Quite a bit confident</th>
+			<th>|</th>
+			<th>Extremely confident</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Q11</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF4_ENG_0044_0.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/slt24/EF4_ENG_0044_0__p252_p252_350.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_slt24_EF4_ENG_0044_0_p252_p252_350_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_slt24_EF4_ENG_0044_0_p252_p252_350" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_slt24_EF4_ENG_0044_0_p252_p252_350" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_slt24_EF4_ENG_0044_0_p252_p252_350" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_slt24_EF4_ENG_0044_0_p252_p252_350" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_slt24_EF4_ENG_0044_0_p252_p252_350" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_slt24_EF4_ENG_0044_0_p252_p252_350" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_slt24_EF4_ENG_0044_0_p252_p252_350" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q12</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM6_ENG_0076_0__1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream/EM6_ENG_0076_0__p232_p232_194.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream_EM6_ENG_0076_0_p232_p232_194_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream_EM6_ENG_0076_0_p232_p232_194" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream_EM6_ENG_0076_0_p232_p232_194" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream_EM6_ENG_0076_0_p232_p232_194" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream_EM6_ENG_0076_0_p232_p232_194" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream_EM6_ENG_0076_0_p232_p232_194" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream_EM6_ENG_0076_0_p232_p232_194" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream_EM6_ENG_0076_0_p232_p232_194" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q13</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM6_ENG_0076_0__3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream-quant-TVT/EM6_ENG_0076_0__p232_p232_194.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream-quant-TVT_EM6_ENG_0076_0_p232_p232_194_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM6_ENG_0076_0_p232_p232_194" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM6_ENG_0076_0_p232_p232_194" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM6_ENG_0076_0_p232_p232_194" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM6_ENG_0076_0_p232_p232_194" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM6_ENG_0076_0_p232_p232_194" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM6_ENG_0076_0_p232_p232_194" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM6_ENG_0076_0_p232_p232_194" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q14</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/slt24/EM4_ENG_0001_1__BDL_arctic_b0290.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0001_1__8.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_slt24_BDL_arctic_b0290_EM4_ENG_0001_1_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_slt24_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_slt24_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_slt24_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_slt24_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_slt24_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_slt24_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_slt24_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q15</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0001_1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/slt24/EM4_ENG_0001_1__p265_p265_122.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_slt24_EM4_ENG_0001_1_p265_p265_122_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0001_1_p265_p265_122" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0001_1_p265_p265_122" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0001_1_p265_p265_122" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0001_1_p265_p265_122" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0001_1_p265_p265_122" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0001_1_p265_p265_122" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0001_1_p265_p265_122" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 4</h2>
+<table class="tests">
+	<thead>
+		<tr>
+			<th>QuestionID</th>
+			<th>  Clip A  </th>
+			<th>  Clip B  </th>
+			<th>Same or Not?</th>
+			<th>Not at all confident</th>
+			<th>|</th>
+			<th>Somewhat confident</th>
+			<th>|</th>
+			<th>Quite a bit confident</th>
+			<th>|</th>
+			<th>Extremely confident</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Q16</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/slt24/EF6_ENG_0006_1__RMS_arctic_a0125.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF6_ENG_0006_1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_slt24_RMS_arctic_a0125_EF6_ENG_0006_1_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_slt24_RMS_arctic_a0125_EF6_ENG_0006_1" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_slt24_RMS_arctic_a0125_EF6_ENG_0006_1" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_slt24_RMS_arctic_a0125_EF6_ENG_0006_1" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_slt24_RMS_arctic_a0125_EF6_ENG_0006_1" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_slt24_RMS_arctic_a0125_EF6_ENG_0006_1" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_slt24_RMS_arctic_a0125_EF6_ENG_0006_1" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_slt24_RMS_arctic_a0125_EF6_ENG_0006_1" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q17</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream/EM5_ENG_0009_0__p276_p276_365.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM5_ENG_0009_0__1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream_p276_p276_365_EM5_ENG_0009_0_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream_p276_p276_365_EM5_ENG_0009_0" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream_p276_p276_365_EM5_ENG_0009_0" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream_p276_p276_365_EM5_ENG_0009_0" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream_p276_p276_365_EM5_ENG_0009_0" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream_p276_p276_365_EM5_ENG_0009_0" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream_p276_p276_365_EM5_ENG_0009_0" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream_p276_p276_365_EM5_ENG_0009_0" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q18</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF7_ENG_0048_0__1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream/EF7_ENG_0048_0__p271_p271_007.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream_EF7_ENG_0048_0_p271_p271_007_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream_EF7_ENG_0048_0_p271_p271_007" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream_EF7_ENG_0048_0_p271_p271_007" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream_EF7_ENG_0048_0_p271_p271_007" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream_EF7_ENG_0048_0_p271_p271_007" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream_EF7_ENG_0048_0_p271_p271_007" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream_EF7_ENG_0048_0_p271_p271_007" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream_EF7_ENG_0048_0_p271_p271_007" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q19</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF2_ENG_0115_1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/slt24/EF2_ENG_0115_1__p374_p374_039.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_slt24_EF2_ENG_0115_1_p374_p374_039_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_slt24_EF2_ENG_0115_1_p374_p374_039" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_slt24_EF2_ENG_0115_1_p374_p374_039" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_slt24_EF2_ENG_0115_1_p374_p374_039" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_slt24_EF2_ENG_0115_1_p374_p374_039" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_slt24_EF2_ENG_0115_1_p374_p374_039" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_slt24_EF2_ENG_0115_1_p374_p374_039" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_slt24_EF2_ENG_0115_1_p374_p374_039" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q20</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream-quant-TVT/EF4_ENG_0003_1__p252_p252_165.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF4_ENG_0003_1__3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream-quant-TVT_p252_p252_165_EF4_ENG_0003_1_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_p252_p252_165_EF4_ENG_0003_1" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_p252_p252_165_EF4_ENG_0003_1" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_p252_p252_165_EF4_ENG_0003_1" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_p252_p252_165_EF4_ENG_0003_1" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_p252_p252_165_EF4_ENG_0003_1" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_p252_p252_165_EF4_ENG_0003_1" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_p252_p252_165_EF4_ENG_0003_1" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 5</h2>
+<table class="tests">
+	<thead>
+		<tr>
+			<th>QuestionID</th>
+			<th>  Clip A  </th>
+			<th>  Clip B  </th>
+			<th>Same or Not?</th>
+			<th>Not at all confident</th>
+			<th>|</th>
+			<th>Somewhat confident</th>
+			<th>|</th>
+			<th>Quite a bit confident</th>
+			<th>|</th>
+			<th>Extremely confident</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Q21</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream/EM1_ENG_0091_0__NJS_arctic_b0348.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM1_ENG_0091_0__1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream_NJS_arctic_b0348_EM1_ENG_0091_0_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream_NJS_arctic_b0348_EM1_ENG_0091_0" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream_NJS_arctic_b0348_EM1_ENG_0091_0" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream_NJS_arctic_b0348_EM1_ENG_0091_0" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream_NJS_arctic_b0348_EM1_ENG_0091_0" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream_NJS_arctic_b0348_EM1_ENG_0091_0" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream_NJS_arctic_b0348_EM1_ENG_0091_0" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream_NJS_arctic_b0348_EM1_ENG_0091_0" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q22</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF2_ENG_0024_0__3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream-quant-TVT/EF2_ENG_0024_0__BWC_arctic_b0191.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream-quant-TVT_EF2_ENG_0024_0_BWC_arctic_b0191_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q23</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF2_ENG_0024_0__2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/GenVC-small/EF2_ENG_0024_0__BWC_arctic_b0191.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_GenVC-small_EF2_ENG_0024_0_BWC_arctic_b0191_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_GenVC-small_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q24</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF4_ENG_0044_0__2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/GenVC-small/EF4_ENG_0044_0__p252_p252_350.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_GenVC-small_EF4_ENG_0044_0_p252_p252_350_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_GenVC-small_EF4_ENG_0044_0_p252_p252_350" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF4_ENG_0044_0_p252_p252_350" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF4_ENG_0044_0_p252_p252_350" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF4_ENG_0044_0_p252_p252_350" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF4_ENG_0044_0_p252_p252_350" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF4_ENG_0044_0_p252_p252_350" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF4_ENG_0044_0_p252_p252_350" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q25</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF6_ENG_0006_1__4.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/slt24/EF6_ENG_0006_1__SLT_arctic_a0410.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_slt24_EF6_ENG_0006_1_SLT_arctic_a0410_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_slt24_EF6_ENG_0006_1_SLT_arctic_a0410" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_slt24_EF6_ENG_0006_1_SLT_arctic_a0410" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_slt24_EF6_ENG_0006_1_SLT_arctic_a0410" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_slt24_EF6_ENG_0006_1_SLT_arctic_a0410" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_slt24_EF6_ENG_0006_1_SLT_arctic_a0410" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_slt24_EF6_ENG_0006_1_SLT_arctic_a0410" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_slt24_EF6_ENG_0006_1_SLT_arctic_a0410" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 6</h2>
+<table class="tests">
+	<thead>
+		<tr>
+			<th>QuestionID</th>
+			<th>  Clip A  </th>
+			<th>  Clip B  </th>
+			<th>Same or Not?</th>
+			<th>Not at all confident</th>
+			<th>|</th>
+			<th>Somewhat confident</th>
+			<th>|</th>
+			<th>Quite a bit confident</th>
+			<th>|</th>
+			<th>Extremely confident</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Q26</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF6_ENG_0006_1__1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream/EF6_ENG_0006_1__RMS_arctic_a0125.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream_EF6_ENG_0006_1_RMS_arctic_a0125_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q27</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream/EF4_ENG_0003_1__p252_p252_165.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF4_ENG_0003_1__1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream_p252_p252_165_EF4_ENG_0003_1_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream_p252_p252_165_EF4_ENG_0003_1" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream_p252_p252_165_EF4_ENG_0003_1" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream_p252_p252_165_EF4_ENG_0003_1" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream_p252_p252_165_EF4_ENG_0003_1" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream_p252_p252_165_EF4_ENG_0003_1" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream_p252_p252_165_EF4_ENG_0003_1" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream_p252_p252_165_EF4_ENG_0003_1" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q28</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/GenVC-small/EM4_ENG_0001_1__p336_p336_112.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0001_1__6.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_GenVC-small_p336_p336_112_EM4_ENG_0001_1_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_GenVC-small_p336_p336_112_EM4_ENG_0001_1" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_GenVC-small_p336_p336_112_EM4_ENG_0001_1" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_GenVC-small_p336_p336_112_EM4_ENG_0001_1" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_GenVC-small_p336_p336_112_EM4_ENG_0001_1" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_GenVC-small_p336_p336_112_EM4_ENG_0001_1" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_GenVC-small_p336_p336_112_EM4_ENG_0001_1" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_GenVC-small_p336_p336_112_EM4_ENG_0001_1" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q29</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/GenVC-small/EM6_ENG_0076_0__p232_p232_194.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM6_ENG_0076_0__2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_GenVC-small_p232_p232_194_EM6_ENG_0076_0_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_GenVC-small_p232_p232_194_EM6_ENG_0076_0" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_GenVC-small_p232_p232_194_EM6_ENG_0076_0" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_GenVC-small_p232_p232_194_EM6_ENG_0076_0" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_GenVC-small_p232_p232_194_EM6_ENG_0076_0" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_GenVC-small_p232_p232_194_EM6_ENG_0076_0" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_GenVC-small_p232_p232_194_EM6_ENG_0076_0" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_GenVC-small_p232_p232_194_EM6_ENG_0076_0" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q30</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/GenVC-small/EM4_ENG_0001_1__p265_p265_122.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0001_1__2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_GenVC-small_p265_p265_122_EM4_ENG_0001_1_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_GenVC-small_p265_p265_122_EM4_ENG_0001_1" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_GenVC-small_p265_p265_122_EM4_ENG_0001_1" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_GenVC-small_p265_p265_122_EM4_ENG_0001_1" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_GenVC-small_p265_p265_122_EM4_ENG_0001_1" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_GenVC-small_p265_p265_122_EM4_ENG_0001_1" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_GenVC-small_p265_p265_122_EM4_ENG_0001_1" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_GenVC-small_p265_p265_122_EM4_ENG_0001_1" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 7</h2>
+<table class="tests">
+	<thead>
+		<tr>
+			<th>QuestionID</th>
+			<th>  Clip A  </th>
+			<th>  Clip B  </th>
+			<th>Same or Not?</th>
+			<th>Not at all confident</th>
+			<th>|</th>
+			<th>Somewhat confident</th>
+			<th>|</th>
+			<th>Quite a bit confident</th>
+			<th>|</th>
+			<th>Extremely confident</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Q31</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/GenVC-small/EF2_ENG_0115_1__p374_p374_039.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF2_ENG_0115_1__2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_GenVC-small_p374_p374_039_EF2_ENG_0115_1_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_GenVC-small_p374_p374_039_EF2_ENG_0115_1" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_GenVC-small_p374_p374_039_EF2_ENG_0115_1" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_GenVC-small_p374_p374_039_EF2_ENG_0115_1" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_GenVC-small_p374_p374_039_EF2_ENG_0115_1" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_GenVC-small_p374_p374_039_EF2_ENG_0115_1" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_GenVC-small_p374_p374_039_EF2_ENG_0115_1" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_GenVC-small_p374_p374_039_EF2_ENG_0115_1" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q32</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/slt24/EF7_ENG_0048_0__p271_p271_007.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF7_ENG_0048_0.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_slt24_p271_p271_007_EF7_ENG_0048_0_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_slt24_p271_p271_007_EF7_ENG_0048_0" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_slt24_p271_p271_007_EF7_ENG_0048_0" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_slt24_p271_p271_007_EF7_ENG_0048_0" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_slt24_p271_p271_007_EF7_ENG_0048_0" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_slt24_p271_p271_007_EF7_ENG_0048_0" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_slt24_p271_p271_007_EF7_ENG_0048_0" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_slt24_p271_p271_007_EF7_ENG_0048_0" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q33</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM5_ENG_0009_0__2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/GenVC-small/EM5_ENG_0009_0__p276_p276_365.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_GenVC-small_EM5_ENG_0009_0_p276_p276_365_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_GenVC-small_EM5_ENG_0009_0_p276_p276_365" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM5_ENG_0009_0_p276_p276_365" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM5_ENG_0009_0_p276_p276_365" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM5_ENG_0009_0_p276_p276_365" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM5_ENG_0009_0_p276_p276_365" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM5_ENG_0009_0_p276_p276_365" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM5_ENG_0009_0_p276_p276_365" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q34</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/GenVC-small/EM4_ENG_0087_1__YDCK_arctic_a0261.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0087_1__2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_GenVC-small_YDCK_arctic_a0261_EM4_ENG_0087_1_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_GenVC-small_YDCK_arctic_a0261_EM4_ENG_0087_1" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_GenVC-small_YDCK_arctic_a0261_EM4_ENG_0087_1" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_GenVC-small_YDCK_arctic_a0261_EM4_ENG_0087_1" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_GenVC-small_YDCK_arctic_a0261_EM4_ENG_0087_1" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_GenVC-small_YDCK_arctic_a0261_EM4_ENG_0087_1" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_GenVC-small_YDCK_arctic_a0261_EM4_ENG_0087_1" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_GenVC-small_YDCK_arctic_a0261_EM4_ENG_0087_1" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q35</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM5_ENG_0009_0.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/slt24/EM5_ENG_0009_0__p276_p276_365.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_slt24_EM5_ENG_0009_0_p276_p276_365_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_slt24_EM5_ENG_0009_0_p276_p276_365" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_slt24_EM5_ENG_0009_0_p276_p276_365" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_slt24_EM5_ENG_0009_0_p276_p276_365" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_slt24_EM5_ENG_0009_0_p276_p276_365" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_slt24_EM5_ENG_0009_0_p276_p276_365" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_slt24_EM5_ENG_0009_0_p276_p276_365" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_slt24_EM5_ENG_0009_0_p276_p276_365" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 8</h2>
+<table class="tests">
+	<thead>
+		<tr>
+			<th>QuestionID</th>
+			<th>  Clip A  </th>
+			<th>  Clip B  </th>
+			<th>Same or Not?</th>
+			<th>Not at all confident</th>
+			<th>|</th>
+			<th>Somewhat confident</th>
+			<th>|</th>
+			<th>Quite a bit confident</th>
+			<th>|</th>
+			<th>Extremely confident</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Q36</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/slt24/EM6_ENG_0076_0__p232_p232_194.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM6_ENG_0076_0.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_slt24_p232_p232_194_EM6_ENG_0076_0_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_slt24_p232_p232_194_EM6_ENG_0076_0" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_slt24_p232_p232_194_EM6_ENG_0076_0" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_slt24_p232_p232_194_EM6_ENG_0076_0" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_slt24_p232_p232_194_EM6_ENG_0076_0" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_slt24_p232_p232_194_EM6_ENG_0076_0" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_slt24_p232_p232_194_EM6_ENG_0076_0" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_slt24_p232_p232_194_EM6_ENG_0076_0" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q37</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/GenVC-small/EF6_ENG_0006_1__SLT_arctic_a0410.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF6_ENG_0006_1__6.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_GenVC-small_SLT_arctic_a0410_EF6_ENG_0006_1_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_GenVC-small_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_GenVC-small_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_GenVC-small_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_GenVC-small_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_GenVC-small_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_GenVC-small_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_GenVC-small_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q38</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/slt24/EF4_ENG_0003_1__p252_p252_165.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF4_ENG_0003_1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_slt24_p252_p252_165_EF4_ENG_0003_1_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_slt24_p252_p252_165_EF4_ENG_0003_1" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_slt24_p252_p252_165_EF4_ENG_0003_1" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_slt24_p252_p252_165_EF4_ENG_0003_1" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_slt24_p252_p252_165_EF4_ENG_0003_1" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_slt24_p252_p252_165_EF4_ENG_0003_1" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_slt24_p252_p252_165_EF4_ENG_0003_1" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_slt24_p252_p252_165_EF4_ENG_0003_1" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q39</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0089_0.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/slt24/EM4_ENG_0089_0__BDL_arctic_b0509.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_slt24_EM4_ENG_0089_0_BDL_arctic_b0509_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q40</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream-quant-TVT/EM4_ENG_0001_1__BDL_arctic_b0290.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0001_1__11.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream-quant-TVT_BDL_arctic_b0290_EM4_ENG_0001_1_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 9</h2>
+<table class="tests">
+	<thead>
+		<tr>
+			<th>QuestionID</th>
+			<th>  Clip A  </th>
+			<th>  Clip B  </th>
+			<th>Same or Not?</th>
+			<th>Not at all confident</th>
+			<th>|</th>
+			<th>Somewhat confident</th>
+			<th>|</th>
+			<th>Quite a bit confident</th>
+			<th>|</th>
+			<th>Extremely confident</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Q41</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF7_ENG_0048_0__2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/GenVC-small/EF7_ENG_0048_0__p271_p271_007.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_GenVC-small_EF7_ENG_0048_0_p271_p271_007_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_GenVC-small_EF7_ENG_0048_0_p271_p271_007" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF7_ENG_0048_0_p271_p271_007" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF7_ENG_0048_0_p271_p271_007" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF7_ENG_0048_0_p271_p271_007" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF7_ENG_0048_0_p271_p271_007" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF7_ENG_0048_0_p271_p271_007" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF7_ENG_0048_0_p271_p271_007" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q42</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/GenVC-small/EM4_ENG_0001_1__BDL_arctic_b0290.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0001_1__10.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_GenVC-small_BDL_arctic_b0290_EM4_ENG_0001_1_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_GenVC-small_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_GenVC-small_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_GenVC-small_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_GenVC-small_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_GenVC-small_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_GenVC-small_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_GenVC-small_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q43</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0087_1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/slt24/EM4_ENG_0087_1__YDCK_arctic_a0261.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_slt24_EM4_ENG_0087_1_YDCK_arctic_a0261_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_slt24_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q44</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM1_ENG_0091_0__2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/GenVC-small/EM1_ENG_0091_0__NJS_arctic_b0348.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_GenVC-small_EM1_ENG_0091_0_NJS_arctic_b0348_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_GenVC-small_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_GenVC-small_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q45</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0001_1__1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream/EM4_ENG_0001_1__p265_p265_122.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream_EM4_ENG_0001_1_p265_p265_122_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0001_1_p265_p265_122" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0001_1_p265_p265_122" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0001_1_p265_p265_122" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0001_1_p265_p265_122" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0001_1_p265_p265_122" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0001_1_p265_p265_122" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0001_1_p265_p265_122" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 10</h2>
+<table class="tests">
+	<thead>
+		<tr>
+			<th>QuestionID</th>
+			<th>  Clip A  </th>
+			<th>  Clip B  </th>
+			<th>Same or Not?</th>
+			<th>Not at all confident</th>
+			<th>|</th>
+			<th>Somewhat confident</th>
+			<th>|</th>
+			<th>Quite a bit confident</th>
+			<th>|</th>
+			<th>Extremely confident</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Q46</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream/EF4_ENG_0044_0__p252_p252_350.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF4_ENG_0044_0__1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream_p252_p252_350_EF4_ENG_0044_0_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream_p252_p252_350_EF4_ENG_0044_0" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream_p252_p252_350_EF4_ENG_0044_0" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream_p252_p252_350_EF4_ENG_0044_0" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream_p252_p252_350_EF4_ENG_0044_0" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream_p252_p252_350_EF4_ENG_0044_0" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream_p252_p252_350_EF4_ENG_0044_0" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream_p252_p252_350_EF4_ENG_0044_0" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q47</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0089_0__1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream/EM4_ENG_0089_0__BDL_arctic_b0509.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream_EM4_ENG_0089_0_BDL_arctic_b0509_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0089_0_BDL_arctic_b0509" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q48</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream/EF6_ENG_0006_1__SLT_arctic_a0410.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF6_ENG_0006_1__5.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream_SLT_arctic_a0410_EF6_ENG_0006_1_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q49</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF4_ENG_0044_0__3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream-quant-TVT/EF4_ENG_0044_0__p252_p252_350.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream-quant-TVT_EF4_ENG_0044_0_p252_p252_350_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF4_ENG_0044_0_p252_p252_350" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF4_ENG_0044_0_p252_p252_350" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF4_ENG_0044_0_p252_p252_350" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF4_ENG_0044_0_p252_p252_350" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF4_ENG_0044_0_p252_p252_350" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF4_ENG_0044_0_p252_p252_350" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EF4_ENG_0044_0_p252_p252_350" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q50</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream-quant-TVT/EF6_ENG_0006_1__SLT_arctic_a0410.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF6_ENG_0006_1__7.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream-quant-TVT_SLT_arctic_a0410_EF6_ENG_0006_1_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_SLT_arctic_a0410_EF6_ENG_0006_1" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 11</h2>
+<table class="tests">
+	<thead>
+		<tr>
+			<th>QuestionID</th>
+			<th>  Clip A  </th>
+			<th>  Clip B  </th>
+			<th>Same or Not?</th>
+			<th>Not at all confident</th>
+			<th>|</th>
+			<th>Somewhat confident</th>
+			<th>|</th>
+			<th>Quite a bit confident</th>
+			<th>|</th>
+			<th>Extremely confident</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Q51</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0001_1__3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream-quant-TVT/EM4_ENG_0001_1__p265_p265_122.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream-quant-TVT_EM4_ENG_0001_1_p265_p265_122_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0001_1_p265_p265_122" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0001_1_p265_p265_122" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0001_1_p265_p265_122" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0001_1_p265_p265_122" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0001_1_p265_p265_122" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0001_1_p265_p265_122" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM4_ENG_0001_1_p265_p265_122" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q52</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF6_ENG_0006_1__2.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/GenVC-small/EF6_ENG_0006_1__RMS_arctic_a0125.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_GenVC-small_EF6_ENG_0006_1_RMS_arctic_a0125_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_GenVC-small_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_GenVC-small_EF6_ENG_0006_1_RMS_arctic_a0125" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q53</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0087_1__1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream/EM4_ENG_0087_1__YDCK_arctic_a0261.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream_EM4_ENG_0087_1_YDCK_arctic_a0261_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0087_1_YDCK_arctic_a0261" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q54</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF2_ENG_0024_0__1.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream/EF2_ENG_0024_0__BWC_arctic_b0191.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream_EF2_ENG_0024_0_BWC_arctic_b0191_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q55</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM1_ENG_0091_0__3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream-quant-TVT/EM1_ENG_0091_0__NJS_arctic_b0348.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream-quant-TVT_EM1_ENG_0091_0_NJS_arctic_b0348_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_EM1_ENG_0091_0_NJS_arctic_b0348" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<h2>Set 12</h2>
+<table class="tests">
+	<thead>
+		<tr>
+			<th>QuestionID</th>
+			<th>  Clip A  </th>
+			<th>  Clip B  </th>
+			<th>Same or Not?</th>
+			<th>Not at all confident</th>
+			<th>|</th>
+			<th>Somewhat confident</th>
+			<th>|</th>
+			<th>Quite a bit confident</th>
+			<th>|</th>
+			<th>Extremely confident</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Q56</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EF2_ENG_0024_0.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/slt24/EF2_ENG_0024_0__BWC_arctic_b0191.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_slt24_EF2_ENG_0024_0_BWC_arctic_b0191_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_slt24_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_slt24_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_slt24_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_slt24_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_slt24_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_slt24_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_slt24_EF2_ENG_0024_0_BWC_arctic_b0191" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q57</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream/EM4_ENG_0001_1__BDL_arctic_b0290.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0001_1__9.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream_BDL_arctic_b0290_EM4_ENG_0001_1_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream_BDL_arctic_b0290_EM4_ENG_0001_1" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q58</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream-quant-TVT/EM5_ENG_0009_0__p276_p276_365.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM5_ENG_0009_0__3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream-quant-TVT_p276_p276_365_EM5_ENG_0009_0_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_p276_p276_365_EM5_ENG_0009_0" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_p276_p276_365_EM5_ENG_0009_0" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_p276_p276_365_EM5_ENG_0009_0" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_p276_p276_365_EM5_ENG_0009_0" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_p276_p276_365_EM5_ENG_0009_0" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_p276_p276_365_EM5_ENG_0009_0" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_p276_p276_365_EM5_ENG_0009_0" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q59</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream-quant-TVT/EM4_ENG_0089_0__BDL_arctic_b0509.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0089_0__3.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream-quant-TVT_BDL_arctic_b0509_EM4_ENG_0089_0_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_BDL_arctic_b0509_EM4_ENG_0089_0" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_BDL_arctic_b0509_EM4_ENG_0089_0" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_BDL_arctic_b0509_EM4_ENG_0089_0" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_BDL_arctic_b0509_EM4_ENG_0089_0" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_BDL_arctic_b0509_EM4_ENG_0089_0" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_BDL_arctic_b0509_EM4_ENG_0089_0" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream-quant-TVT_BDL_arctic_b0509_EM4_ENG_0089_0" type="radio" value="7" /></td>
+		</tr>
+		<tr>
+			<td>Q60</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/tgt/EM4_ENG_0001_1__5.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td>
+				<audio controls preload="none">
+					<source preload="none" src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/vc/DarkStream/EM4_ENG_0001_1__p336_p336_112.wav" type="audio/wav" />
+				</audio>
+			</td>
+			<td class="select-cell">
+				<select class="form-control overall" name="VS_DarkStream_EM4_ENG_0001_1_p336_p336_112_Answer_overall">
+					<option selected value="0">- select one -</option>
+					<option value="1">Same</option>
+					<option value="-1">Different</option>
+				</select>
+			</td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0001_1_p336_p336_112" type="radio" value="1" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0001_1_p336_p336_112" type="radio" value="2" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0001_1_p336_p336_112" type="radio" value="3" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0001_1_p336_p336_112" type="radio" value="4" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0001_1_p336_p336_112" type="radio" value="5" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0001_1_p336_p336_112" type="radio" value="6" /></td>
+			<td class="center"><input name="VS_DarkStream_EM4_ENG_0001_1_p336_p336_112" type="radio" value="7" /></td>
+		</tr>
+	</tbody>
+</table>
+<br />
+<br />
+<h2>Post-Survey</h2>
+<p>Have you participated in any such speech tasks before? <select class="post-survey" name="VS_PT_Experience">
+	<option selected="selected" value="0">- select one -</option>
+	<option value="1">Yes</option>
+	<option value="-1">No</option>
+</select></p>
+
+<p>How did you listen to the audio clips in this task? <select class="post-survey" name="VS_PT_listening">
+	<option selected="selected" value="0">- select one -</option>
+	<option value="1">Laptop speaker</option>
+	<option value="2">Headphones</option>
+	<option value="3">Desktop speaker</option>
+	<option value="4">Other</option>
+</select></p>
+
+<p>What is your native language? <input class="post-survey" maxlength="100" name="VS_PT_nativeLanguage" size="20"
+	type="text" /></p>
+
+<p>What other languages do you speak? <input class="post-survey" maxlength="100" name="VS_PT_otherLanguages" size="50"
+	type="text" /></p>
+
+<p>Please suggest comments for improving this study:</p>
+
+<p><textarea class="post-survey" cols="120" name="VS_PT_comments" rows="5"></textarea></p>
+
+</body>
+</html>
