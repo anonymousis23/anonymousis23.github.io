@@ -1,0 +1,2558 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>MOS Test</title>
+	<!-- <style>
+		body {
+			font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+			margin: 24px;
+		}
+
+		h1 {
+			margin: 0 0 12px;
+		}
+
+		h2 {
+			margin: 24px 0 8px;
+		}
+
+		table.tests {
+			width: 100%;
+			border-collapse: collapse;
+			margin-bottom: 12px;
+		}
+
+		.tests td,
+		.tests th {
+			border: 1px solid #ddd;
+			padding: 8px;
+			vertical-align: middle;
+		}
+
+		.tests tr:nth-child(even) {
+			background: #fafafa;
+		}
+
+		audio {
+			width: 260px;
+		}
+
+		.center {
+			text-align: center;
+		}
+
+		td:first-child,
+		th:first-child {
+			white-space: nowrap;
+		}
+
+		.note {
+			background: #fff9c4;
+			padding: 8px 12px;
+			border-radius: 8px;
+		}
+	</style> -->
+	<style type="text/css">
+		table.instructions_post {
+			float: left;
+		}
+
+		table.instructions_post tr {
+			border: 2px solid #500000;
+			height: 65px;
+			vertical-align: middle;
+			margin: 0 auto;
+			padding: 0;
+		}
+
+		table.instructions_post td {
+			text-align: center;
+			vertical-align: middle;
+			border: 2px solid #000000;
+		}
+
+		table.instructions_post tr:nth-child(even) {
+			background-color: #F8F5E6;
+		}
+
+		table.instructions_post tr:nth-child(odd) {
+			background: #EEE;
+		}
+
+		table.instructions_post tr:first-child {
+			background-color: #500000;
+			color: #FFF;
+			font-weight: bold;
+			font-size: 1.25em;
+		}
+
+		table.instructions_post tr:first-child:hover {
+			background-color: #500000;
+		}
+
+		table.instructions {
+			width: 45%;
+			border-collapse: collapse;
+		}
+
+		table.instructions td {
+			text-align: center;
+			border: 2px solid #000000;
+			width: 9%;
+		}
+
+		table.instructions td+td {
+			width: 16%;
+		}
+
+		table.instructions tr {
+			border: 2px solid #500000;
+			height: 50px;
+			vertical-align: middle;
+			margin: 0 auto;
+			padding: 0;
+		}
+
+		table.tests {
+			width: 75%;
+			border-collapse: collapse;
+			table-layout: fixed;
+			display: inline-block;
+		}
+
+		table.tests th {
+			text-align: center;
+		}
+
+		table.tests td {
+			text-align: center;
+			vertical-align: middle;
+			border: 2px solid #000000;
+			width: 10%;
+		}
+
+		table.tests td+td {
+			width: 16%;
+		}
+
+		table.tests td+td+td {
+			width: auto;
+		}
+
+		table.tests tr {
+			border: 2px solid #500000;
+			height: 60px;
+			vertical-align: middle;
+			margin: 0 auto;
+			padding: 0;
+		}
+
+		table.tests tr {
+			margin: 0 auto;
+			padding: 0;
+		}
+
+		table.tests tr:nth-child(even) {
+			background-color: #F8F5E6;
+		}
+
+		table.tests tr:nth-child(odd) {
+			background: #EEE;
+		}
+
+		table.tests tr:first-child {
+			background-color: #500000;
+			color: #FFF;
+			font-weight: bold;
+			font-size: 1.25em;
+		}
+
+		table.tests tr:first-child:hover {
+			background-color: #500000;
+		}
+
+		table.tests tr:nth-child(2) {
+			background-color: #500000;
+			color: #FFF;
+			font-weight: bold;
+			font-size: 1.25em;
+		}
+
+		table.tests tr:nth-child(2):hover {
+			background-color: #500000;
+		}
+
+		table.tests tr:hover {
+			background-color: #336FA4
+		}
+
+		table.tests tr.complete {
+			background-color: #6FB89B;
+		}
+
+		table.tests input.mos {
+			display: block;
+			width: 100%;
+			height: 20px;
+		}
+
+		table.tests .question_id {
+			width: 21%;
+		}
+
+		table.tests td.A,
+		table.tests td.B,
+		table.tests td.X {
+			width: 27%;
+		}
+
+		table.tests .X {
+			border-right: 3px solid #500000;
+		}
+
+		input[type=radio] {
+			width: 20px;
+			height: 60px;
+			border: 10px solid #CCC;
+			border-radius: 50%;
+			vertical-align: middle;
+		}
+
+		input[type=radio].A {
+			float: right;
+		}
+
+		input[type=radio].B {
+			float: left;
+		}
+
+		audio {
+			vertical-align: middle;
+			width: 150px;
+		}
+	</style>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script>
+		//The magic that lets us find the unselected questions
+
+		$(document).ready(function () {
+			$('#submitButton').click(check_buttons);
+		});
+
+		var check_buttons = function () {
+			//Get all the radio buttons
+			n_ckd = $('input[type=radio]:not(:checked)').toArray().reduce((acc, val) => acc.includes(val.name) ? acc : acc.concat(val.name), []);
+
+			//Get all the checked buttons
+			ckd = $('input[type=radio]:checked').toArray().reduce((acc, val) => acc.includes(val.name) ? acc : acc.concat(val.name), []);
+
+			//Filter out all the checked radio buttons from the not checked list
+			//We should get NOTHING if we've filled in every option
+			var unfilled = n_ckd.filter(function (x) { return !ckd.includes(x) });
+
+			if (unfilled.length > 0) {
+				alert("You have not rated your confidence for one or more of the questions.\nThe first one missing an answer is: " + unfilled[0].substring(5, 8));
+				var any_unfilled = true;
+			}
+			else {
+				var any_unfilled = false;
+			}
+
+			var unselected = $('select.overall').toArray().filter(function (x) { return x.value == 0 })
+
+			if (unselected.length > 0) {
+				alert("You have not rated 'Same or different?' for one or more of the questions.\nThe first one missing an answer is: " + unselected[0].name.substring(5, 8))
+			}
+
+			return !any_unfilled && !(unselected.length)
+		}
+	</script>
+	<script>
+		var reload_audio = function (e) {
+			console.log(e)
+
+
+			//Add in a nocache cheat
+			var src_selector = 'audio[id=' + e + '] > source';
+			$(src_selector)[0].src = $(src_selector)[0].src + "?nocache=" + new Date().getTime()
+			$('audio[id=' + e + ']')[0].load()
+			console.log($('audio[id=' + e + ']')[0].currentSrc)
+		}
+	</script>
+	<script>
+		var onclick_nocache = function (e) {
+			var currentSrc = $('audio[id=' + e + ']')[0].currentSrc;
+			$('audio[id=' + e + ']')[0].currentSrc = currentSrc + "?nocache=" + new Date().getTime();
+			$('audio[id=' + e + ']>source')[0].src = currentSrc + "?nocache=" + new Date().getTime();
+			$('audio[id=' + e + ']>a')[0].href = currentSrc + "?nocache=" + new Date().getTime();
+		}
+	</script>
+	<style type="text/css">
+		table,
+		th,
+		td {
+			border: 1px solid black;
+		}
+	</style>
+</head>
+
+<body>
+	<h1><strong>Audio Quality Evaluation</strong></h1>
+	<hr>
+
+	<h3>In the question set 1 to 15, a list of recordings are organized in rows. In each row, you will see an audio
+		clip.
+		Please listen to the recording and rate its <em><strong><span style="color:red">audio
+					quality</span></strong></em>
+		using the scale: "Excellent", "Good", 'Fair", "Poor", and "Bad". For example, a "Good" sound clip would be one
+		with some amount of distortion, but the distortion is not annoying.
+	</h3>
+
+	<h3>To give you a better idea about how to rate, reference samples for each of these categories are given in the
+		below table. It is essential that you refer to them before making your choice. </h3>
+	<table class="instructions">
+		<tbody>
+			<tr>
+				<td><strong>Audio quality</strong></td>
+				<td><strong>Level of distortion</strong></td>
+				<td><strong>Reference Clip A</strong></td>
+				<td><strong>Reference Clip B</strong></td>
+			</tr>
+			<tr>
+				<td>Excellent</td>
+				<td>Imperceptible</td>
+				<td>
+					<audio controls="controls" preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/commons/reference_samples_mos/Reference/5A.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td>
+					<audio controls="controls" preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/commons/reference_samples_mos/Reference/5B.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+			</tr>
+			<tr>
+				<td>Good</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>
+					<audio controls="controls" preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/commons/reference_samples_mos/Reference/4A.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td>
+					<audio controls="controls" preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/commons/reference_samples_mos/Reference/4B.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+			</tr>
+			<tr>
+				<td>Fair</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>
+					<audio controls="controls" preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/commons/reference_samples_mos/Reference/3A.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td>
+					<audio controls="controls" preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/commons/reference_samples_mos/Reference/3B.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+			</tr>
+			<tr>
+				<td>Poor</td>
+				<td>Annoying, but not objectionable</td>
+				<td>
+					<audio controls="controls" preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/commons/reference_samples_mos/Reference/2A.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td>
+					<audio controls="controls" preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/commons/reference_samples_mos/Reference/2B.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+			</tr>
+			<tr>
+				<td>Bad</td>
+				<td>Very annoying and objectionable</td>
+				<td>
+					<audio controls="controls" preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/commons/reference_samples_mos/Reference/1A.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td>
+					<audio controls="controls" preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/commons/reference_samples_mos/Reference/1B.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<ul>
+		<li>You may listen to each clip more than once if needed; just click the play button to replay.</li>
+		<li>Your responses will be manually screened to ensure that you made a serious effort to rate the recordings. If
+			your answers are determined to be random or contain inconsistent answers, the task may be rejected and you
+			may not receive payment</li>
+		<li>Please perform these tasks in a quiet place using a pair of good headphones. It is recommended that you set
+			the volume a bit higher than normal for these tasks.</li>
+		<li>If you are having trouble viewing or listening to the sound clips, please try completing the test in Google
+			Chrome.</li>
+		<li>Please make sure that you've finished all the questions before submitting.</li>
+	</ul>
+	<hr>
+
+	<p class="note">For each question, listen to the clip and rate the overall quality (5=Excellent, 1=Bad). The first
+		row reminds the scale.</p>
+	<h2>Set 1</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q1</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream/EM4_ENG_0087_1__YDCK_arctic_a0261.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0087_1__YDCK_arctic_a0261" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0087_1__YDCK_arctic_a0261" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0087_1__YDCK_arctic_a0261" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0087_1__YDCK_arctic_a0261" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0087_1__YDCK_arctic_a0261" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q2</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/slt24/EF6_ENG_0006_1__SLT_arctic_a0410.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_slt24_EF6_ENG_0006_1__SLT_arctic_a0410" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EF6_ENG_0006_1__SLT_arctic_a0410" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EF6_ENG_0006_1__SLT_arctic_a0410" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EF6_ENG_0006_1__SLT_arctic_a0410" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EF6_ENG_0006_1__SLT_arctic_a0410" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q3</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream/EF2_ENG_0115_1__p374_p374_039.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF2_ENG_0115_1__p374_p374_039" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF2_ENG_0115_1__p374_p374_039" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF2_ENG_0115_1__p374_p374_039" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF2_ENG_0115_1__p374_p374_039" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF2_ENG_0115_1__p374_p374_039" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q4</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/GenVC-small/EM4_ENG_0001_1__p265_p265_122.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0001_1__p265_p265_122" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0001_1__p265_p265_122" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0001_1__p265_p265_122" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0001_1__p265_p265_122" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0001_1__p265_p265_122" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q5</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream/EF6_ENG_0006_1__RMS_arctic_a0125.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF6_ENG_0006_1__RMS_arctic_a0125" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream_EF6_ENG_0006_1__RMS_arctic_a0125" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream_EF6_ENG_0006_1__RMS_arctic_a0125" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream_EF6_ENG_0006_1__RMS_arctic_a0125" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream_EF6_ENG_0006_1__RMS_arctic_a0125" type="radio"
+						value="1" /></td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>Set 2</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q6</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/GenVC-small/EM4_ENG_0001_1__BDL_arctic_b0290.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0001_1__BDL_arctic_b0290" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0001_1__BDL_arctic_b0290" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0001_1__BDL_arctic_b0290" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0001_1__BDL_arctic_b0290" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0001_1__BDL_arctic_b0290" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q7</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/slt24/EM4_ENG_0087_1__YDCK_arctic_a0261.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0087_1__YDCK_arctic_a0261" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0087_1__YDCK_arctic_a0261" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0087_1__YDCK_arctic_a0261" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0087_1__YDCK_arctic_a0261" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0087_1__YDCK_arctic_a0261" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q8</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-bottleneck-TVT-ns/EM6_ENG_0076_0__p232_p232_194.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM6_ENG_0076_0__p232_p232_194"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM6_ENG_0076_0__p232_p232_194"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM6_ENG_0076_0__p232_p232_194"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM6_ENG_0076_0__p232_p232_194"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM6_ENG_0076_0__p232_p232_194"
+						type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q9</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-bottleneck-TVT-ns/EF2_ENG_0024_0__BWC_arctic_b0191.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF2_ENG_0024_0__BWC_arctic_b0191"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF2_ENG_0024_0__BWC_arctic_b0191"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF2_ENG_0024_0__BWC_arctic_b0191"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF2_ENG_0024_0__BWC_arctic_b0191"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF2_ENG_0024_0__BWC_arctic_b0191"
+						type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q10</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/GenVC-small/EF4_ENG_0044_0__p252_p252_350.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF4_ENG_0044_0__p252_p252_350" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF4_ENG_0044_0__p252_p252_350" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF4_ENG_0044_0__p252_p252_350" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF4_ENG_0044_0__p252_p252_350" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF4_ENG_0044_0__p252_p252_350" type="radio" value="1" />
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>Set 3</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q11</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/src/arctic_a0365.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_src_arctic_a0365" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0365" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0365" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0365" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0365" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q12</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/src/arctic_b0191.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_src_arctic_b0191" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0191" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0191" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0191" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0191" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q13</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream/EF7_ENG_0048_0__p271_p271_007.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF7_ENG_0048_0__p271_p271_007" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF7_ENG_0048_0__p271_p271_007" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF7_ENG_0048_0__p271_p271_007" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF7_ENG_0048_0__p271_p271_007" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF7_ENG_0048_0__p271_p271_007" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q14</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-bottleneck-TVT-ns/EM4_ENG_0087_1__YDCK_arctic_a0261.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0087_1__YDCK_arctic_a0261"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0087_1__YDCK_arctic_a0261"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0087_1__YDCK_arctic_a0261"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0087_1__YDCK_arctic_a0261"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0087_1__YDCK_arctic_a0261"
+						type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q15</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/slt24/EM4_ENG_0001_1__p265_p265_122.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0001_1__p265_p265_122" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0001_1__p265_p265_122" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0001_1__p265_p265_122" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0001_1__p265_p265_122" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0001_1__p265_p265_122" type="radio" value="1" /></td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>Set 4</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q16</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-quant-TVT-ns/EM4_ENG_0001_1__BDL_arctic_b0290.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0001_1__BDL_arctic_b0290"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0001_1__BDL_arctic_b0290"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0001_1__BDL_arctic_b0290"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0001_1__BDL_arctic_b0290"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0001_1__BDL_arctic_b0290"
+						type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q17</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-bottleneck-TVT-ns/EM4_ENG_0089_0__BDL_arctic_b0509.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0089_0__BDL_arctic_b0509"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0089_0__BDL_arctic_b0509"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0089_0__BDL_arctic_b0509"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0089_0__BDL_arctic_b0509"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0089_0__BDL_arctic_b0509"
+						type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q18</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/slt24/EM5_ENG_0009_0__p276_p276_365.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_slt24_EM5_ENG_0009_0__p276_p276_365" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_slt24_EM5_ENG_0009_0__p276_p276_365" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_slt24_EM5_ENG_0009_0__p276_p276_365" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_slt24_EM5_ENG_0009_0__p276_p276_365" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_slt24_EM5_ENG_0009_0__p276_p276_365" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q19</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/slt24/EM4_ENG_0001_1__BDL_arctic_b0290.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0001_1__BDL_arctic_b0290" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0001_1__BDL_arctic_b0290" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0001_1__BDL_arctic_b0290" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0001_1__BDL_arctic_b0290" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0001_1__BDL_arctic_b0290" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q20</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-bottleneck-TVT-ns/EF2_ENG_0115_1__p374_p374_039.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF2_ENG_0115_1__p374_p374_039"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF2_ENG_0115_1__p374_p374_039"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF2_ENG_0115_1__p374_p374_039"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF2_ENG_0115_1__p374_p374_039"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF2_ENG_0115_1__p374_p374_039"
+						type="radio" value="1" /></td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>Set 5</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q21</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-bottleneck-TVT-ns/EF4_ENG_0003_1__p252_p252_165.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF4_ENG_0003_1__p252_p252_165"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF4_ENG_0003_1__p252_p252_165"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF4_ENG_0003_1__p252_p252_165"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF4_ENG_0003_1__p252_p252_165"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF4_ENG_0003_1__p252_p252_165"
+						type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q22</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/slt24/EM4_ENG_0089_0__BDL_arctic_b0509.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0089_0__BDL_arctic_b0509" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0089_0__BDL_arctic_b0509" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0089_0__BDL_arctic_b0509" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0089_0__BDL_arctic_b0509" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0089_0__BDL_arctic_b0509" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q23</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream/EF4_ENG_0044_0__p252_p252_350.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF4_ENG_0044_0__p252_p252_350" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF4_ENG_0044_0__p252_p252_350" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF4_ENG_0044_0__p252_p252_350" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF4_ENG_0044_0__p252_p252_350" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF4_ENG_0044_0__p252_p252_350" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q24</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-bottleneck-TVT-ns/EM4_ENG_0001_1__p265_p265_122.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0001_1__p265_p265_122"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0001_1__p265_p265_122"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0001_1__p265_p265_122"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0001_1__p265_p265_122"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0001_1__p265_p265_122"
+						type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q25</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-bottleneck-TVT-ns/EM5_ENG_0009_0__p276_p276_365.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM5_ENG_0009_0__p276_p276_365"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM5_ENG_0009_0__p276_p276_365"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM5_ENG_0009_0__p276_p276_365"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM5_ENG_0009_0__p276_p276_365"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM5_ENG_0009_0__p276_p276_365"
+						type="radio" value="1" /></td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>Set 6</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q26</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-quant-TVT-ns/EM4_ENG_0001_1__p265_p265_122.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0001_1__p265_p265_122" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0001_1__p265_p265_122" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0001_1__p265_p265_122" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0001_1__p265_p265_122" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0001_1__p265_p265_122" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q27</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/slt24/EM6_ENG_0076_0__p232_p232_194.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_slt24_EM6_ENG_0076_0__p232_p232_194" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_slt24_EM6_ENG_0076_0__p232_p232_194" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_slt24_EM6_ENG_0076_0__p232_p232_194" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_slt24_EM6_ENG_0076_0__p232_p232_194" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_slt24_EM6_ENG_0076_0__p232_p232_194" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q28</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/GenVC-small/EF2_ENG_0024_0__BWC_arctic_b0191.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF2_ENG_0024_0__BWC_arctic_b0191" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EF2_ENG_0024_0__BWC_arctic_b0191" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EF2_ENG_0024_0__BWC_arctic_b0191" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EF2_ENG_0024_0__BWC_arctic_b0191" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EF2_ENG_0024_0__BWC_arctic_b0191" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q29</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-bottleneck-TVT-ns/EF7_ENG_0048_0__p271_p271_007.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF7_ENG_0048_0__p271_p271_007"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF7_ENG_0048_0__p271_p271_007"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF7_ENG_0048_0__p271_p271_007"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF7_ENG_0048_0__p271_p271_007"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF7_ENG_0048_0__p271_p271_007"
+						type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q30</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-quant-TVT-ns/EM4_ENG_0087_1__YDCK_arctic_a0261.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0087_1__YDCK_arctic_a0261"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0087_1__YDCK_arctic_a0261"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0087_1__YDCK_arctic_a0261"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0087_1__YDCK_arctic_a0261"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0087_1__YDCK_arctic_a0261"
+						type="radio" value="1" /></td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>Set 7</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q31</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-quant-TVT-ns/EM4_ENG_0089_0__BDL_arctic_b0509.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0089_0__BDL_arctic_b0509"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0089_0__BDL_arctic_b0509"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0089_0__BDL_arctic_b0509"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0089_0__BDL_arctic_b0509"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0089_0__BDL_arctic_b0509"
+						type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q32</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-quant-TVT-ns/EF6_ENG_0006_1__RMS_arctic_a0125.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF6_ENG_0006_1__RMS_arctic_a0125"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF6_ENG_0006_1__RMS_arctic_a0125"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF6_ENG_0006_1__RMS_arctic_a0125"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF6_ENG_0006_1__RMS_arctic_a0125"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF6_ENG_0006_1__RMS_arctic_a0125"
+						type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q33</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream/EF6_ENG_0006_1__SLT_arctic_a0410.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF6_ENG_0006_1__SLT_arctic_a0410" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream_EF6_ENG_0006_1__SLT_arctic_a0410" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream_EF6_ENG_0006_1__SLT_arctic_a0410" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream_EF6_ENG_0006_1__SLT_arctic_a0410" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream_EF6_ENG_0006_1__SLT_arctic_a0410" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q34</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/src/arctic_b0348.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_src_arctic_b0348" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0348" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0348" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0348" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0348" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q35</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream/EM5_ENG_0009_0__p276_p276_365.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM5_ENG_0009_0__p276_p276_365" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM5_ENG_0009_0__p276_p276_365" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM5_ENG_0009_0__p276_p276_365" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM5_ENG_0009_0__p276_p276_365" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM5_ENG_0009_0__p276_p276_365" type="radio" value="1" />
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>Set 8</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q36</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream/EF4_ENG_0003_1__p252_p252_165.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF4_ENG_0003_1__p252_p252_165" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF4_ENG_0003_1__p252_p252_165" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF4_ENG_0003_1__p252_p252_165" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF4_ENG_0003_1__p252_p252_165" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF4_ENG_0003_1__p252_p252_165" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q37</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-quant-TVT-ns/EM4_ENG_0001_1__p336_p336_112.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0001_1__p336_p336_112" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0001_1__p336_p336_112" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0001_1__p336_p336_112" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0001_1__p336_p336_112" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM4_ENG_0001_1__p336_p336_112" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q38</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-bottleneck-TVT-ns/EM1_ENG_0091_0__NJS_arctic_b0348.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM1_ENG_0091_0__NJS_arctic_b0348"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM1_ENG_0091_0__NJS_arctic_b0348"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM1_ENG_0091_0__NJS_arctic_b0348"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM1_ENG_0091_0__NJS_arctic_b0348"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM1_ENG_0091_0__NJS_arctic_b0348"
+						type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q39</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/GenVC-small/EM6_ENG_0076_0__p232_p232_194.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM6_ENG_0076_0__p232_p232_194" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM6_ENG_0076_0__p232_p232_194" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM6_ENG_0076_0__p232_p232_194" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM6_ENG_0076_0__p232_p232_194" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM6_ENG_0076_0__p232_p232_194" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q40</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream/EM4_ENG_0001_1__BDL_arctic_b0290.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0001_1__BDL_arctic_b0290" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0001_1__BDL_arctic_b0290" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0001_1__BDL_arctic_b0290" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0001_1__BDL_arctic_b0290" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0001_1__BDL_arctic_b0290" type="radio"
+						value="1" /></td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>Set 9</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q41</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-bottleneck-TVT-ns/EF6_ENG_0006_1__SLT_arctic_a0410.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF6_ENG_0006_1__SLT_arctic_a0410"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF6_ENG_0006_1__SLT_arctic_a0410"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF6_ENG_0006_1__SLT_arctic_a0410"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF6_ENG_0006_1__SLT_arctic_a0410"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF6_ENG_0006_1__SLT_arctic_a0410"
+						type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q42</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/GenVC-small/EF7_ENG_0048_0__p271_p271_007.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF7_ENG_0048_0__p271_p271_007" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF7_ENG_0048_0__p271_p271_007" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF7_ENG_0048_0__p271_p271_007" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF7_ENG_0048_0__p271_p271_007" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF7_ENG_0048_0__p271_p271_007" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q43</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-quant-TVT-ns/EF2_ENG_0115_1__p374_p374_039.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF2_ENG_0115_1__p374_p374_039" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF2_ENG_0115_1__p374_p374_039" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF2_ENG_0115_1__p374_p374_039" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF2_ENG_0115_1__p374_p374_039" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF2_ENG_0115_1__p374_p374_039" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q44</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/src/arctic_a0261.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_src_arctic_a0261" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0261" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0261" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0261" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0261" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q45</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/slt24/EF2_ENG_0115_1__p374_p374_039.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_slt24_EF2_ENG_0115_1__p374_p374_039" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_slt24_EF2_ENG_0115_1__p374_p374_039" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_slt24_EF2_ENG_0115_1__p374_p374_039" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_slt24_EF2_ENG_0115_1__p374_p374_039" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_slt24_EF2_ENG_0115_1__p374_p374_039" type="radio" value="1" /></td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>Set 10</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q46</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/GenVC-small/EM5_ENG_0009_0__p276_p276_365.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM5_ENG_0009_0__p276_p276_365" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM5_ENG_0009_0__p276_p276_365" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM5_ENG_0009_0__p276_p276_365" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM5_ENG_0009_0__p276_p276_365" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM5_ENG_0009_0__p276_p276_365" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q47</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-quant-TVT-ns/EM5_ENG_0009_0__p276_p276_365.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM5_ENG_0009_0__p276_p276_365" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM5_ENG_0009_0__p276_p276_365" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM5_ENG_0009_0__p276_p276_365" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM5_ENG_0009_0__p276_p276_365" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM5_ENG_0009_0__p276_p276_365" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q48</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/src/arctic_b0509.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_src_arctic_b0509" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0509" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0509" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0509" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0509" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q49</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/GenVC-small/EM4_ENG_0001_1__p336_p336_112.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0001_1__p336_p336_112" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0001_1__p336_p336_112" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0001_1__p336_p336_112" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0001_1__p336_p336_112" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0001_1__p336_p336_112" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q50</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-bottleneck-TVT-ns/EF6_ENG_0006_1__RMS_arctic_a0125.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF6_ENG_0006_1__RMS_arctic_a0125"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF6_ENG_0006_1__RMS_arctic_a0125"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF6_ENG_0006_1__RMS_arctic_a0125"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF6_ENG_0006_1__RMS_arctic_a0125"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF6_ENG_0006_1__RMS_arctic_a0125"
+						type="radio" value="1" /></td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>Set 11</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q51</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/src/arctic_a0428.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_src_arctic_a0428" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0428" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0428" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0428" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0428" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q52</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-bottleneck-TVT-ns/EM4_ENG_0001_1__BDL_arctic_b0290.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0001_1__BDL_arctic_b0290"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0001_1__BDL_arctic_b0290"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0001_1__BDL_arctic_b0290"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0001_1__BDL_arctic_b0290"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0001_1__BDL_arctic_b0290"
+						type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q53</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/GenVC-small/EF4_ENG_0003_1__p252_p252_165.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF4_ENG_0003_1__p252_p252_165" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF4_ENG_0003_1__p252_p252_165" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF4_ENG_0003_1__p252_p252_165" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF4_ENG_0003_1__p252_p252_165" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF4_ENG_0003_1__p252_p252_165" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q54</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-bottleneck-TVT-ns/EF4_ENG_0044_0__p252_p252_350.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF4_ENG_0044_0__p252_p252_350"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF4_ENG_0044_0__p252_p252_350"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF4_ENG_0044_0__p252_p252_350"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF4_ENG_0044_0__p252_p252_350"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EF4_ENG_0044_0__p252_p252_350"
+						type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q55</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/slt24/EM4_ENG_0001_1__p336_p336_112.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0001_1__p336_p336_112" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0001_1__p336_p336_112" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0001_1__p336_p336_112" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0001_1__p336_p336_112" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_slt24_EM4_ENG_0001_1__p336_p336_112" type="radio" value="1" /></td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>Set 12</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q56</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/slt24/EF6_ENG_0006_1__RMS_arctic_a0125.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_slt24_EF6_ENG_0006_1__RMS_arctic_a0125" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EF6_ENG_0006_1__RMS_arctic_a0125" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EF6_ENG_0006_1__RMS_arctic_a0125" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EF6_ENG_0006_1__RMS_arctic_a0125" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EF6_ENG_0006_1__RMS_arctic_a0125" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q57</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream/EM4_ENG_0001_1__p336_p336_112.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0001_1__p336_p336_112" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0001_1__p336_p336_112" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0001_1__p336_p336_112" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0001_1__p336_p336_112" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0001_1__p336_p336_112" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q58</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-bottleneck-TVT-ns/EM4_ENG_0001_1__p336_p336_112.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0001_1__p336_p336_112"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0001_1__p336_p336_112"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0001_1__p336_p336_112"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0001_1__p336_p336_112"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-bottleneck-TVT-ns_EM4_ENG_0001_1__p336_p336_112"
+						type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q59</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-quant-TVT-ns/EM6_ENG_0076_0__p232_p232_194.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM6_ENG_0076_0__p232_p232_194" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM6_ENG_0076_0__p232_p232_194" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM6_ENG_0076_0__p232_p232_194" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM6_ENG_0076_0__p232_p232_194" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM6_ENG_0076_0__p232_p232_194" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q60</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-quant-TVT-ns/EF6_ENG_0006_1__SLT_arctic_a0410.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF6_ENG_0006_1__SLT_arctic_a0410"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF6_ENG_0006_1__SLT_arctic_a0410"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF6_ENG_0006_1__SLT_arctic_a0410"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF6_ENG_0006_1__SLT_arctic_a0410"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF6_ENG_0006_1__SLT_arctic_a0410"
+						type="radio" value="1" /></td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>Set 13</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q61</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/src/p232_065.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_src_p232_065" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_src_p232_065" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_src_p232_065" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_src_p232_065" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_src_p232_065" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q62</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-quant-TVT-ns/EF2_ENG_0024_0__BWC_arctic_b0191.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF2_ENG_0024_0__BWC_arctic_b0191"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF2_ENG_0024_0__BWC_arctic_b0191"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF2_ENG_0024_0__BWC_arctic_b0191"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF2_ENG_0024_0__BWC_arctic_b0191"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF2_ENG_0024_0__BWC_arctic_b0191"
+						type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q63</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/src/arctic_a0125.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_src_arctic_a0125" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0125" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0125" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0125" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0125" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q64</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/GenVC-small/EF6_ENG_0006_1__RMS_arctic_a0125.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF6_ENG_0006_1__RMS_arctic_a0125" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EF6_ENG_0006_1__RMS_arctic_a0125" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EF6_ENG_0006_1__RMS_arctic_a0125" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EF6_ENG_0006_1__RMS_arctic_a0125" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EF6_ENG_0006_1__RMS_arctic_a0125" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q65</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream/EM4_ENG_0001_1__p265_p265_122.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0001_1__p265_p265_122" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0001_1__p265_p265_122" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0001_1__p265_p265_122" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0001_1__p265_p265_122" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0001_1__p265_p265_122" type="radio" value="1" />
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>Set 14</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q66</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/slt24/EF4_ENG_0044_0__p252_p252_350.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_slt24_EF4_ENG_0044_0__p252_p252_350" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_slt24_EF4_ENG_0044_0__p252_p252_350" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_slt24_EF4_ENG_0044_0__p252_p252_350" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_slt24_EF4_ENG_0044_0__p252_p252_350" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_slt24_EF4_ENG_0044_0__p252_p252_350" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q67</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/GenVC-small/EF6_ENG_0006_1__SLT_arctic_a0410.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF6_ENG_0006_1__SLT_arctic_a0410" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EF6_ENG_0006_1__SLT_arctic_a0410" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EF6_ENG_0006_1__SLT_arctic_a0410" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EF6_ENG_0006_1__SLT_arctic_a0410" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EF6_ENG_0006_1__SLT_arctic_a0410" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q68</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/src/arctic_a0300.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_src_arctic_a0300" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0300" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0300" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0300" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0300" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q69</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/src/arctic_a0410.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_src_arctic_a0410" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0410" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0410" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0410" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0410" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q70</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-quant-TVT-ns/EM1_ENG_0091_0__NJS_arctic_b0348.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM1_ENG_0091_0__NJS_arctic_b0348"
+						type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM1_ENG_0091_0__NJS_arctic_b0348"
+						type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM1_ENG_0091_0__NJS_arctic_b0348"
+						type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM1_ENG_0091_0__NJS_arctic_b0348"
+						type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EM1_ENG_0091_0__NJS_arctic_b0348"
+						type="radio" value="1" /></td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>Set 15</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q71</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/slt24/EF2_ENG_0024_0__BWC_arctic_b0191.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_slt24_EF2_ENG_0024_0__BWC_arctic_b0191" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EF2_ENG_0024_0__BWC_arctic_b0191" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EF2_ENG_0024_0__BWC_arctic_b0191" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EF2_ENG_0024_0__BWC_arctic_b0191" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EF2_ENG_0024_0__BWC_arctic_b0191" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q72</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/slt24/EF4_ENG_0003_1__p252_p252_165.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_slt24_EF4_ENG_0003_1__p252_p252_165" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_slt24_EF4_ENG_0003_1__p252_p252_165" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_slt24_EF4_ENG_0003_1__p252_p252_165" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_slt24_EF4_ENG_0003_1__p252_p252_165" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_slt24_EF4_ENG_0003_1__p252_p252_165" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q73</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream/EM4_ENG_0089_0__BDL_arctic_b0509.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0089_0__BDL_arctic_b0509" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0089_0__BDL_arctic_b0509" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0089_0__BDL_arctic_b0509" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0089_0__BDL_arctic_b0509" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream_EM4_ENG_0089_0__BDL_arctic_b0509" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q74</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream/EF2_ENG_0024_0__BWC_arctic_b0191.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EF2_ENG_0024_0__BWC_arctic_b0191" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream_EF2_ENG_0024_0__BWC_arctic_b0191" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream_EF2_ENG_0024_0__BWC_arctic_b0191" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream_EF2_ENG_0024_0__BWC_arctic_b0191" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream_EF2_ENG_0024_0__BWC_arctic_b0191" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q75</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/src/arctic_a0383.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_src_arctic_a0383" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0383" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0383" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0383" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0383" type="radio" value="1" /></td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>Set 16</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q76</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/src/arctic_b0397.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_src_arctic_b0397" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0397" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0397" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0397" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0397" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q77</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-quant-TVT-ns/EF7_ENG_0048_0__p271_p271_007.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF7_ENG_0048_0__p271_p271_007" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF7_ENG_0048_0__p271_p271_007" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF7_ENG_0048_0__p271_p271_007" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF7_ENG_0048_0__p271_p271_007" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF7_ENG_0048_0__p271_p271_007" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q78</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/slt24/EF7_ENG_0048_0__p271_p271_007.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_slt24_EF7_ENG_0048_0__p271_p271_007" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_slt24_EF7_ENG_0048_0__p271_p271_007" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_slt24_EF7_ENG_0048_0__p271_p271_007" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_slt24_EF7_ENG_0048_0__p271_p271_007" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_slt24_EF7_ENG_0048_0__p271_p271_007" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q79</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/src/arctic_a0462.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_src_arctic_a0462" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0462" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0462" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0462" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0462" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q80</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream/EM6_ENG_0076_0__p232_p232_194.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM6_ENG_0076_0__p232_p232_194" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM6_ENG_0076_0__p232_p232_194" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM6_ENG_0076_0__p232_p232_194" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM6_ENG_0076_0__p232_p232_194" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM6_ENG_0076_0__p232_p232_194" type="radio" value="1" />
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>Set 17</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q81</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/GenVC-small/EM4_ENG_0089_0__BDL_arctic_b0509.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0089_0__BDL_arctic_b0509" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0089_0__BDL_arctic_b0509" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0089_0__BDL_arctic_b0509" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0089_0__BDL_arctic_b0509" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0089_0__BDL_arctic_b0509" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q82</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-quant-TVT-ns/EF4_ENG_0044_0__p252_p252_350.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF4_ENG_0044_0__p252_p252_350" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF4_ENG_0044_0__p252_p252_350" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF4_ENG_0044_0__p252_p252_350" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF4_ENG_0044_0__p252_p252_350" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF4_ENG_0044_0__p252_p252_350" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q83</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream-quant-TVT-ns/EF4_ENG_0003_1__p252_p252_165.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF4_ENG_0003_1__p252_p252_165" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF4_ENG_0003_1__p252_p252_165" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF4_ENG_0003_1__p252_p252_165" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF4_ENG_0003_1__p252_p252_165" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream-quant-TVT-ns_EF4_ENG_0003_1__p252_p252_165" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q84</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/src/arctic_a0097.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_src_arctic_a0097" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0097" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0097" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0097" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_src_arctic_a0097" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q85</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/GenVC-small/EM1_ENG_0091_0__NJS_arctic_b0348.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM1_ENG_0091_0__NJS_arctic_b0348" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EM1_ENG_0091_0__NJS_arctic_b0348" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EM1_ENG_0091_0__NJS_arctic_b0348" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EM1_ENG_0091_0__NJS_arctic_b0348" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EM1_ENG_0091_0__NJS_arctic_b0348" type="radio"
+						value="1" /></td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>Set 18</h2>
+	<table class="tests">
+		<tbody>
+			<tr>
+				<td></td>
+				<td>(Level of distortion)</td>
+				<td>Imperceptible</td>
+				<td>Just perceptible, but not annoying</td>
+				<td>Perceptible and slightly annoying</td>
+				<td>Annoying, but not objectionable</td>
+				<td>Very annoying and objectionable</td>
+			</tr>
+			<tr>
+				<td><strong>Q ID</strong></td>
+				<td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+				<td><strong>Excellent</strong></td>
+				<td><strong>Good</strong></td>
+				<td><strong>Fair</strong></td>
+				<td><strong>Poor</strong></td>
+				<td><strong>Bad</strong></td>
+			</tr>
+			<tr>
+				<td>Q86</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/DarkStream/EM1_ENG_0091_0__NJS_arctic_b0348.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_DarkStream_EM1_ENG_0091_0__NJS_arctic_b0348" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_DarkStream_EM1_ENG_0091_0__NJS_arctic_b0348" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_DarkStream_EM1_ENG_0091_0__NJS_arctic_b0348" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_DarkStream_EM1_ENG_0091_0__NJS_arctic_b0348" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_DarkStream_EM1_ENG_0091_0__NJS_arctic_b0348" type="radio"
+						value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q87</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/GenVC-small/EF2_ENG_0115_1__p374_p374_039.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF2_ENG_0115_1__p374_p374_039" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF2_ENG_0115_1__p374_p374_039" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF2_ENG_0115_1__p374_p374_039" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF2_ENG_0115_1__p374_p374_039" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EF2_ENG_0115_1__p374_p374_039" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q88</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/slt24/EM1_ENG_0091_0__NJS_arctic_b0348.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_slt24_EM1_ENG_0091_0__NJS_arctic_b0348" type="radio" value="5" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EM1_ENG_0091_0__NJS_arctic_b0348" type="radio" value="4" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EM1_ENG_0091_0__NJS_arctic_b0348" type="radio" value="3" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EM1_ENG_0091_0__NJS_arctic_b0348" type="radio" value="2" />
+				</td>
+				<td class="center"><input name="MOS_slt24_EM1_ENG_0091_0__NJS_arctic_b0348" type="radio" value="1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Q89</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/src/arctic_b0290.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_src_arctic_b0290" type="radio" value="5" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0290" type="radio" value="4" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0290" type="radio" value="3" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0290" type="radio" value="2" /></td>
+				<td class="center"><input name="MOS_src_arctic_b0290" type="radio" value="1" /></td>
+			</tr>
+			<tr>
+				<td>Q90</td>
+				<td>
+					<audio controls preload="none">
+						<source preload="none"
+							src="https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/vc/GenVC-small/EM4_ENG_0087_1__YDCK_arctic_a0261.wav"
+							type="audio/wav" />
+					</audio>
+				</td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0087_1__YDCK_arctic_a0261" type="radio"
+						value="5" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0087_1__YDCK_arctic_a0261" type="radio"
+						value="4" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0087_1__YDCK_arctic_a0261" type="radio"
+						value="3" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0087_1__YDCK_arctic_a0261" type="radio"
+						value="2" /></td>
+				<td class="center"><input name="MOS_GenVC-small_EM4_ENG_0087_1__YDCK_arctic_a0261" type="radio"
+						value="1" /></td>
+			</tr>
+		</tbody>
+	</table>
+
+	<br /><br />
+	<h2>Post-Survey Questions</h2>
+	<p>Have you participated in any such speech tasks before? <select class="post-survey" name="MOS_PT_Experience">
+			<option selected="selected" value="0">- select one -</option>
+			<option value="1">Yes</option>
+			<option value="-1">No</option>
+		</select></p>
+
+	<p>How did you listen to the audio clips in this task? <select class="post-survey" name="MOS_PT_listening">
+			<option selected="selected" value="0">- select one -</option>
+			<option value="1">Laptop speaker</option>
+			<option value="2">Headphones</option>
+			<option value="3">Desktop speaker</option>
+			<option value="4">Other</option>
+		</select></p>
+
+	<p>What is your native language? <input class="post-survey" maxlength="100" name="MOS_PT_nativeLanguage" size="20"
+			type="text" /></p>
+
+	<p>What other languages do you speak? <input class="post-survey" maxlength="100" name="MOS_PT_otherLanguages"
+			size="50" type="text" /></p>
+
+	<p>Please suggest comments for improving this study:</p>
+
+	<p><textarea class="post-survey" cols="120" name="MOS_PT_comments" rows="5"></textarea></p>
+</body>
+
+</html>

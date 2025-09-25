@@ -19,10 +19,17 @@ def find_wavs(samples_root: Path):
     # 1) src/*
     src_dir = samples_root / "src"
     if src_dir.exists():
+        src_files = sorted(src_dir.rglob("*"))
+        src_file_stems = [(p.stem).split("_")[0]+"_"+(p.stem).split("_")[1] for p in src_files if p.is_file() and p.suffix.lower() in AUDIO_EXTS]
+        src_file_stems = set(src_file_stems)
+        count = 0
         for p in sorted(src_dir.rglob("*")):
-            if p.is_file() and p.suffix.lower() in AUDIO_EXTS:
+            if p.is_file() and p.suffix.lower() in AUDIO_EXTS and p.stem in src_file_stems:
                 rel = p.relative_to(samples_root)
                 wavs.append(("src", rel, p.stem))
+                count += 1
+                if count == 15:
+                    break
 
     # 2) vc/<model>/*
     vc_dir = samples_root / "vc"
@@ -115,11 +122,11 @@ td:first-child, th:first-child { white-space: nowrap; }
 
 def main():
     parser = argparse.ArgumentParser(description="Build MOS HTML from Samples/Verifiability layout.")
-    parser.add_argument("--samples_root", type=Path, default=Path("../Samples/Verifiability"),
+    parser.add_argument("--samples_root", type=Path, default=Path("../Samples/Verifiability2"),
                         help="Local path to Samples/Verifiability")
     parser.add_argument("--public_base", type=str, required=True,
                         help="Base URL that maps to samples_root on GitHub Pages, e.g., "
-                             "'https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/'")
+                             "'https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/'")
     parser.add_argument("--out_dir", type=Path, default=Path("."),
                         help="Directory where index.html will be written")
     parser.add_argument("--seed", type=int, default=2025)
