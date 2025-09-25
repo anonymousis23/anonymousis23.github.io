@@ -71,7 +71,7 @@ audio { width: 260px; }
             f.write('<table class="tests">\n')
             f.write("\t<thead>\n\t\t<tr>\n")
             headers = [
-                "QuestionID", "  Clip A  ", "  Clip B  ", "Same or Not?",
+                "QID", "  Clip X  ", "  Clip A  ", "  Clip B  ", "A or B?",
                 "Not at all confident", "|", "Somewhat confident", "|",
                 "Quite a bit confident", "|", "Extremely confident"
             ]
@@ -83,11 +83,17 @@ audio { width: 260px; }
                 index = i * set_size + j
                 row = wav_list[index]
                 wav_id = row["id"]
+                wav_x = row["wav_fpath_x"]
                 wav_a = row["wav_fpath_a"]
                 wav_b = row["wav_fpath_b"]
 
                 f.write("\t\t<tr>\n")
                 f.write(f"\t\t\t<td>Q{index+1}</td>\n")
+
+                # Clip X
+                f.write("\t\t\t<td>\n\t\t\t\t<audio controls preload=\"none\">\n")
+                f.write(f"\t\t\t\t\t<source preload=\"none\" src=\"{html.escape(wav_x)}\" type=\"audio/wav\" />\n")
+                f.write("\t\t\t\t</audio>\n\t\t\t</td>\n")
 
                 # Clip A
                 f.write("\t\t\t<td>\n\t\t\t\t<audio controls preload=\"none\">\n")
@@ -103,8 +109,8 @@ audio { width: 260px; }
                 f.write('\t\t\t<td class="select-cell">\n')
                 f.write(f'\t\t\t\t<select class="form-control overall" name="{html.escape(wav_id)}_Answer_overall">\n')
                 f.write('\t\t\t\t\t<option selected value="0">- select one -</option>\n')
-                f.write('\t\t\t\t\t<option value="1">Same</option>\n')
-                f.write('\t\t\t\t\t<option value="-1">Different</option>\n')
+                f.write('\t\t\t\t\t<option value="1">Clip A</option>\n')
+                f.write('\t\t\t\t\t<option value="-1">Clip B</option>\n')
                 f.write('\t\t\t\t</select>\n')
                 f.write("\t\t\t</td>\n")
 
@@ -124,10 +130,10 @@ def main():
     parser = argparse.ArgumentParser(description="Build Verifiability HTML from CSV and copy audio samples.")
     parser.add_argument("--csv", type=Path, required=True, help="Path to CSV with columns: model,src,tgt,vc")
     parser.add_argument("--out_dir", type=Path, default=Path("."), help="Directory in which to write index.html")
-    parser.add_argument("--samples_root", type=Path, default=Path("../../Samples/Verifiability"), help="Where to copy audio samples")
+    parser.add_argument("--samples_root", type=Path, default=Path("../Samples/Verifiability2"), help="Where to copy audio samples")
     parser.add_argument("--public_base", type=str, required=True,
                         help="Base URL that maps to `samples_root` on GitHub Pages, e.g., "
-                             "'https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability/'")
+                             "'https://anonymousis23.github.io/UserStudy/ICLR26/Samples/Verifiability2/'")
     parser.add_argument("--seed", type=int, default=1337)
     parser.add_argument("--set_size", type=int, default=5, help="Questions per set/section")
     args = parser.parse_args()
@@ -146,8 +152,13 @@ def main():
         reader = csv.DictReader(fin)
         for row in reader:
             model = row["model"].strip()
+
+            if model not in ("DarkStream", "slt24", "GenVC-small", "DarkStream-bottleneck-TVT-ns", "DarkStream-quant-TVT-ns"):
+                continue
+
             # Some CSVs may include a leading empty column; DictReader handles by names, so we ignore it.
             src_path = Path(row["src"]).expanduser()
+            diff_src_path = Path(row["diff_src"]).expanduser()
             tgt_path = Path(row["tgt"]).expanduser()
             vc_path  = Path(row["vc"]).expanduser()
 
@@ -166,6 +177,11 @@ def main():
             src_dst = src_dir / src_fname
             src_dst = safe_copy(src_path, src_dst)
 
+            # Copy A'' (diff_src) => Samples/Verifiability/src/{diff_src_stem}.wav (dedup if needed)
+            diff_src_fname = f"{diff_src_path.stem}{diff_src_path.suffix}"
+            diff_src_dst = src_dir / diff_src_fname
+            diff_src_dst = safe_copy(diff_src_path, diff_src_dst)
+
             # Copy B (vc) => Samples/Verifiability/vc/{model}/{tgt_stem}__{vc_stem}.wav (unique & traceable)
             vc_sub = vc_dir / model
             vc_fname = f"{tgt_path.stem}__{vc_path.stem}{vc_path.suffix}"
@@ -175,19 +191,23 @@ def main():
             # Public URLs for HTML
             rel_tgt = tgt_dst.relative_to(samples_root)
             rel_vc  = vc_dst.relative_to(samples_root)
+            rel_src = diff_src_dst.relative_to(samples_root)
+
+            url_x = make_audio_url(args.public_base, rel_vc)  # Clip X = vc (uttr_x)
             url_a = make_audio_url(args.public_base, rel_tgt)  # Clip A = tgt (uttr_a)
-            url_b = make_audio_url(args.public_base, rel_vc)   # Clip B = vc  (uttr_b)
+            url_b = make_audio_url(args.public_base, rel_src)   # Clip B = src  (uttr_b)
 
 
             if random.random() < 0.5:
                 # Swap order to avoid bias
                 url_a, url_b = url_b, url_a
-                wav_id = f"VS_{model}_{vc_path.stem}_{tgt_path.stem}"
+                wav_id = f"VS_{model}_VST_{vc_path.stem}_{src_path.stem}_{tgt_path.stem}"
             else:
-                wav_id = f"VS_{model}_{tgt_path.stem}_{vc_path.stem}"
+                wav_id = f"VS_{model}_VTS_{vc_path.stem}_{tgt_path.stem}_{src_path.stem}"
 
             wav_list.append({
                 "id": wav_id,
+                "wav_fpath_x": url_x,
                 "wav_fpath_a": url_a,
                 "wav_fpath_b": url_b,
                 "model": model,
