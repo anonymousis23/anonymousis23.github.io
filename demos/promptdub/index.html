@@ -1,0 +1,1160 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PromptDub</title>
+    <style>
+        :root {
+            color-scheme: light dark;
+            --bg: light-dark(#fafafa, #0b0b0e);
+            --panel: light-dark(#ffffff, #11131a);
+            --text: light-dark(#111, #e8eaed);
+            --muted: light-dark(#6b7280, #9aa0a6);
+            --accent: #4f46e5;
+            --ring: color-mix(in oklab, var(--accent), transparent 70%);
+            --border: light-dark(#e5e7eb, #23262d);
+            --radius: 14px;
+        }
+
+        body {
+            margin: 0;
+            font-family: ui-sans-serif, system-ui;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        table.title {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px auto 0;
+        }
+
+        table.title td {
+            padding: 0;
+        }
+
+        table.title h1 {
+            margin: 0 0 8px;
+            font-size: clamp(24px, 3.4vw, 36px);
+            line-height: 1.15;
+            text-align: center;
+        }
+
+        table.title h2 {
+            margin: 6px 0 0;
+            font-weight: 500;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        main.paper {
+            max-width: 900px;
+            margin: 8px auto 24px;
+            padding: 0 16px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--panel);
+        }
+
+        main.paper>h2 {
+            margin: 16px 0 4px;
+            font-size: 20px;
+        }
+
+        main.paper p {
+            margin: 8px 0 0;
+            text-align: justify;
+        }
+
+        figure {
+            margin: 12px 0 0;
+            text-align: center;
+        }
+
+        figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--panel);
+        }
+
+        figcaption {
+            margin-top: 8px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .wrapper {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 0.3fr 0.7fr;
+            gap: 20px;
+            align-items: start;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+        }
+
+        .video-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px;
+        }
+
+        .video-card h2 {
+            margin: 0 0 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .video-card video {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .panels {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        details.panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        details.panel[open] {
+            box-shadow: 0 0 0 2px var(--ring);
+        }
+
+        .panel summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .panel summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .chev {
+            inline-size: 1.1em;
+            block-size: 1.1em;
+            display: inline-grid;
+            place-items: center;
+            transition: transform .2s ease;
+            color: var(--muted);
+        }
+
+        details[open] .chev {
+            transform: rotate(90deg);
+        }
+
+        .badge {
+            font-size: 12px;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            padding: 2px 8px;
+            border-radius: 999px;
+        }
+
+        .content {
+            padding: 0 16px 14px 44px;
+        }
+
+        /* Audio table */
+        .audio-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .audio-table th,
+        .audio-table td {
+            border: 1px solid var(--border);
+            padding: 8px;
+            text-align: center;
+        }
+
+        .audio-table th {
+            background: var(--panel);
+            font-weight: 600;
+        }
+
+        .audio-table audio {
+            width: 100%;
+        }
+
+        /* Title block styles */
+        table.title {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px auto 0;
+        }
+
+        table.title td {
+            padding: 0;
+        }
+
+        table.title h1 {
+            margin: 0 0 8px;
+            font-size: clamp(24px, 3.4vw, 36px);
+            line-height: 1.15;
+            text-align: center;
+        }
+
+        table.title h2 {
+            margin: 6px 0 0;
+            font-weight: 500;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        main.paper {
+            max-width: 900px;
+            margin: 8px auto 24px;
+            padding: 0 16px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--panel);
+        }
+
+        main.paper>h2 {
+            margin: 16px 0 4px;
+            font-size: 20px;
+        }
+
+        main.paper p {
+            margin: 8px 0 0;
+            text-align: justify;
+        }
+
+        figure {
+            margin: 12px 0 0;
+            text-align: center;
+        }
+
+        figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--panel);
+        }
+
+        figcaption {
+            margin-top: 8px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        /* Audio comparison matrix */
+        .audio-matrix {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--panel);
+        }
+
+        .audio-matrix h2 {
+            margin: 0 0 12px;
+            font-size: 20px;
+        }
+
+        .a-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px 16px;
+            align-items: center;
+        }
+
+        .a-head {
+            font-weight: 700;
+            text-align: center;
+            color: var(--muted);
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .a-cell {
+            text-align: center;
+        }
+
+        .a-cell audio {
+            width: 100%;
+            max-width: 360px;
+        }
+
+        @media (max-width: 900px) {
+            .a-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .a-head {
+                border-bottom: none;
+                padding-bottom: 0;
+                text-align: left;
+            }
+
+            .a-cell {
+                text-align: left;
+            }
+        }
+
+        /* Prompt appendix styling */
+        .prompt-section {
+            max-width: 900px;
+            margin: 32px auto;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--panel);
+        }
+
+        .prompt-section h2 {
+            margin-top: 0;
+            font-size: 22px;
+        }
+
+        .prompt-section h3 {
+            margin: 20px 0 8px;
+            font-size: 18px;
+            color: var(--accent);
+        }
+
+        .prompt-section p {
+            margin: 6px 0 12px;
+            color: var(--muted);
+        }
+
+        pre.prompt-block {
+            background: #0f1220;
+            color: #e8eaed;
+            padding: 14px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.45;
+            border: 1px solid var(--border);
+        }
+
+        pre.prompt-block code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        }
+
+    </style>
+</head>
+
+<body>
+    <table class="title">
+        <tbody>
+            <tr>
+                <td>
+                    <h1>PromptDub: Controllable Expressive Speech Synthesis <br> using Multimodal Foundation Models</h1>
+                    <!-- <h2>Anonymous submission to ICASSP 2026</h2> -->
+                    <h2>Waris Quamer<sup>1,2</sup>, Fanjie Kong<sup>1</sup>, Abhinav Jain<sup>1</sup>, Abhishek Yanamandra<sup>1</sup>, <br> Tuan Dinh<sup>1</sup>, Zhu Liu<sup>1</sup>, Vimal Bhat<sup>1</sup></h2>
+                    <h2><sup>1</sup>Prime Video, Amazon Science, USA</h2>
+                    <h2><sup>2</sup>Department of Computer Science and Engineering, Texas A&amp;M University, USA</h2>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <main class="paper">
+        <h2>Abstract</h2>
+        <p>
+Expressive text-to-speech (TTS) for automated dubbing often misses time-varying emotion and lacks multimodal grounding, which hurts cinematic dubbing quality. We propose PromptDub, the first multimodal controllable dubbing pipeline that integrates vision, audio, and language cues into transparent prompts for expressive TTS. Vision- and audio-language models summarize scene, performance, and delivery; an LLM fuses them into brief, editable directions. We then train a TTS that conditions on these fine-grained prompts and the script to synthesize speech aligned to emotion and timing. We also introduce an emotion-trajectory metric using Dynamic Time Warping (DTW) to assess temporal coherence. Our evaluation showed PromptDub improved global emotion similarity to 0.90 (vs. 0.87), reduces DTW by up to 54%, and is preferred by listeners in ABX tests by 82% for emotion/prosody matching over state-of-the-art baselines.
+        </p>
+        <h2>Block Diagram</h2>
+        <figure>
+            <img width="600" src="figs/archiecture.png" alt="Block Diagram" />
+            <figcaption>PromptDub overview. Multimodal inputs are processed through LMs,
+                extracting relevant scene, emotion, and speaker details. The LLM summarized
+                description along with the target text is consumed by the expressive
+                TTS engine to synthesize the target audio.</figcaption>
+        </figure>
+    </main>
+    <section class="audio-matrix" aria-label="Audio Comparisons">
+        <div class="wrapper">
+            <h2>Descriptions generated through our automated dubbing director pipeline.</h2>
+            <div class="grid">
+                <section class="video-card">
+                    <h2>Video 1</h2><video controls>
+                        <source src="videos/clip_0039.mp4" type="video/mp4">
+                    </video>
+                </section>
+                <section class="panels">
+                    <details class="panel">
+                        <summary><span class="chev">▶</span><span>Audio Description</span><span
+                                class="badge">expand</span>
+                        </summary>
+                        <div class="content">
+                            <p>
+                                1. Speaker Voice Characteristics: The speaker is a male, likely in his mid-twenties, with a voice that is slightly strained and carries a hint of weariness, possibly due to stress or fatigue.<br>
+                                2. Primary Emotional State: The primary emotion conveyed by the speaker is a sense of frustration and irritation, which is palpable through their labored breathing and tense vocal delivery.<br>
+                                3. Emotional Layers and Nuance: Underlying this primary emotion, there is also a noticeable undertone of sadness and disappointment. This is evident from the speaker's slow pace and low pitch, which suggest a more profound emotional state than mere annoyance.<br>
+                                4. Emotional Progression: Throughout the audio, the speaker's frustration appears to escalate, culminating in a moment of heightened emotion where their voice cracks, indicating a breaking point in their emotional state.<br>
+                                5. Supporting Vocal Indicators: Vocal indicators such as the roughness and strain in the speaker's voice, coupled with their labored breathing and fluctuating pitch, support the analysis of a complex emotional landscape.<br>
+                                6. Acoustic Environment: The acoustic environment seems to contribute to the overall emotional tone, with a reverberant quality suggesting a large, open space, possibly indicative of a public or formal setting. The lack of background noise allows for a clear focus on the speaker's voice and emotional expression.<br>
+                                7. Overall Emotional Description: In summary, the speaker's voice conveys a deep-seated combination of frustration, sadness, and weariness, reflecting a complex emotional landscape that is both intense and nuanced.<br>
+                            </p>
+                        </div>
+                    </details>
+                    <details class="panel">
+                        <summary><span class="chev">▶</span><span>Video Description</span><span
+                                class="badge">expand</span>
+                        </summary>
+                        <div class="content">
+                            <p>
+                                1. Scene Setting: The scene is set in a formal office environment with wooden paneling and large windows covered by blinds, creating an atmosphere of seriousness and professionalism.<br>
+                                2. Speaker Demographics: The speaker appears to be a middle-aged man wearing glasses, dressed in a brown suit, white shirt, and striped tie, suggesting a professional or academic background.<br>
+                                3. Actions: The man in the suit is seated at a desk, speaking animatedly while gesturing with his right hand and occasionally taking sips from a glass of water.<br>
+                                4. Character Interactions: The man in the suit is engaged in a conversation with another person who is partially visible on the left side of the frame, indicating a discussion or interview setting.<br>
+                                5. Emotional Expression: The man's facial expressions suggest he is conveying important information or making a point, as indicated by his open mouth and expressive gestures.<br>
+                                6. Visual Composition: The camera is positioned at eye level, focusing on the man in the suit, with a clear view of his upper body and the documents on the desk, emphasizing the importance of the conversation.<br>
+                                7. Environmental Acoustics: The space likely has a quiet, intimate acoustic property, suitable for a professional or academic setting where focused discussions take place.
+                            </p>
+                        </div>
+                    </details>
+                    <details class="panel">
+                        <summary><span class="chev">▶</span><span>Description Summary</span><span
+                                class="badge">expand</span></summary>
+                        <div class="content">
+                            <p>A middle-aged man speaks in a formal office setting. His core emotional state is frustration with undertones of sadness and disappointment, 
+                                escalating to a breaking point. Deliver with a strained, labored voice, fluctuating pitch, and rough volume, set in a quiet, 
+                                intimate space with moderate reverb and minimal background noise.</p>
+                        </div>
+                    </details>
+                </section>
+            </div>
+            <div class="grid">
+                <section class="video-card">
+                    <h2>Video 2</h2><video controls>
+                        <source src="videos/clip_0114.mp4" type="video/mp4">
+                    </video>
+                </section>
+                <section class="panels">
+                    <details class="panel">
+                        <summary><span class="chev">▶</span><span>Audio Description</span><span
+                                class="badge">expand</span>
+                        </summary>
+                        <div class="content">
+                            <p>
+                                1. Speaker Voice Characteristics: The speaker is a female, likely in her mid-twenties, with a voice that is clear and slightly nasal.<br>
+                                2. Primary Emotional State: The primary emotion expressed by the speaker is one of frustration and irritation.<br>
+                                3. Emotional Layers and Nuance: Underlying this primary emotion, there is also a sense of sadness and disappointment. These emotions are evident in the speaker's tone and the way she hesitates before speaking, indicating a complex emotional landscape.<br>
+                                4. Emotional Progression: As the speech progresses, there is a noticeable shift in the speaker's tone. Initially, there is a sense of anger and frustration, which softens into a more resigned and somber mood towards the end of the clip.<br>
+                                5. Supporting Vocal Indicators: Vocal indicators such as pauses, sighs, and changes in pitch and volume suggest a range of emotions, from anger and frustration to sadness and disappointment.<br>
+                                6. Acoustic Environment: The recording was done in a relatively quiet room with minimal background noise. However, the reverberation indicates that it might have been recorded in a medium-sized room or possibly an enclosed space.<br>
+                                7. Overall Emotional Description: The overall emotional state conveyed by the speaker is one of emotional turmoil, characterized by moments of anger and frustration followed by a more subdued, resigned mood. The subtlety of the vocal indicators suggests a depth of emotion beyond surface-level frustration.
+                            </p>
+                        </div>
+                    </details>
+                    <details class="panel">
+                        <summary><span class="chev">▶</span><span>Video Description</span><span
+                                class="badge">expand</span>
+                        </summary>
+                        <div class="content">
+                            <p>
+                                1. Scene Setting: The scene is set in a quiet suburban street with a residential backdrop, featuring well-maintained lawns and trees, suggesting a calm neighborhood environment during daytime.<br>
+                                2. Speaker Demographics: The speaker is an adult female police officer, likely in her middle-aged years, dressed in a standard police uniform.<br>
+                                3. Actions: The officer is standing next to an open police car trunk, engaged in a conversation with another officer, possibly retrieving or storing equipment.<br>
+                                4. Character Interactions: The officer appears to be interacting professionally with another officer, both of whom are part of the same police force, indicated by their uniforms.<br>
+                                5. Emotional Expression: The officer's facial expression suggests attentiveness and professionalism, with a slight smile indicating a friendly but official interaction.<br>
+                                6. Visual Composition: The camera angle is slightly low, focusing on the officer's upper body and face, with the police car and another officer partially visible, creating a sense of depth and context.<br>
+                                7. Environmental Acoustics: The setting likely has ambient noise typical of a suburban area, such as distant traffic or residential sounds, contributing to a peaceful atmosphere.
+                            </p>
+                        </div>
+                    </details>
+                    <details class="panel">
+                        <summary><span class="chev">▶</span><span>Description Summary</span><span
+                                class="badge">expand</span></summary>
+                        <div class="content">
+                            <p>Female officer (mid-30s), interacting with colleague in quiet suburban street. 
+                                Core emotional state: frustration and sadness, with undertones of anger and disappointment. 
+                                Emotional progression: anger gives way to resignation. Vocal qualities: clear, slightly nasal tone, 
+                                with pauses and pitch changes. Simulate reverb and distant background noise.</p>
+                        </div>
+                    </details>
+                </section>
+            </div>
+            <div class="grid">
+                <section class="video-card">
+                    <h2>Video 3</h2><video controls>
+                        <source src="videos/clip_0168.mp4" type="video/mp4">
+                    </video>
+                </section>
+                <section class="panels">
+                    <details class="panel">
+                        <summary><span class="chev">▶</span><span>Audio Description</span><span
+                                class="badge">expand</span>
+                        </summary>
+                        <div class="content">
+                            <p>
+                                1. Speaker Voice Characteristics: The speaker is a female, likely in his twenties, with a voice that is smooth and slightly nasal.<br>
+                                2. Primary Emotional State: The primary emotion conveyed by the speaker is one of intense annoyance or fury.<br>
+                                3. Emotional Layers and Nuance: Underlying this anger is a sense of frustration and helplessness, as if the speaker feels trapped or overwhelmed by the situation.<br>
+                                4. Emotional Progression: Initially, the emotion is clearly communicated through a raised pitch and faster speaking rate. As the speech continues, there is a noticeable softening of the voice and a decrease in pace, indicating a controlled effort to manage the anger.<br>
+                                5. Supporting Vocal Indicators: Vocal indicators such as the harsh tone, quickened breathing, and occasional vocal strain suggest the speaker is struggling to maintain composure.<br>
+                                6. Acoustic Environment: The recording was done in a relatively small, enclosed space with hard surfaces, leading to a reverberant effect. There are no background sounds or ambient noise, allowing for a clear focus on the speaker's emotion.<br>
+                                7. Overall Emotional Description: The speaker exhibits a complex emotional landscape characterized by anger and frustration, coupled with a controlled effort to prevent further escalation. The smooth but nasal tone suggests a struggle to maintain composure under stress.
+                            </p>
+                        </div>
+                    </details>
+                    <details class="panel">
+                        <summary><span class="chev">▶</span><span>Video Description</span><span
+                                class="badge">expand</span>
+                        </summary>
+                        <div class="content">
+                            <p>
+                                1. Scene Setting: The scene takes place in a dimly lit, elegant dining room with ornate wallpaper and framed paintings, creating an intimate and somewhat somber atmosphere.<br>
+                                2. Speaker Demographics: The characters appear to be young adults, with one dressed in a black dress and the other in a white blouse, suggesting a contrast in social status or roles within the setting.<br>
+                                3. Actions: The character in the black dress is carefully pouring tea from a teapot into a cup held by the seated individual in the white blouse.<br>
+                                4. Character Interactions: The standing character is attentively assisting the seated character, indicating a supportive or caring relationship, possibly between a servant and their employer.<br>
+                                5. Emotional Expression: Both characters maintain neutral expressions, with the seated character looking down at the cup and the standing character focused on the task, hinting at a serious or contemplative mood.<br>
+                                6. Visual Composition: The camera is positioned at a low angle, capturing the characters from below, which emphasizes the formality and grandeur of the room while focusing on the interaction at the table.<br>
+                                7. Environmental Acoustics: The space likely has muted acoustics due to its enclosed nature, with any background sounds being subtle and possibly ambient, contributing to the quiet tension of the scene.
+                            </p>
+                        </div>
+                    </details>
+                    <details class="panel">
+                        <summary><span class="chev">▶</span><span>Description Summary</span><span
+                                class="badge">expand</span></summary>
+                        <div class="content">
+                            <p>A young female (20s) serves tea in a dimly lit, elegant dining room. 
+                                She conveys intense annoyance and frustration, with underlying helplessness, 
+                                initially raised and then controlled, speaking at a moderate pace with a smooth but nasal tone, 
+                                set against a reverberant background with no ambient noise.</p>
+                        </div>
+                    </details>
+                </section>
+            </div>
+            <div class="grid">
+                <section class="video-card">
+                    <h2>Video 4</h2><video controls>
+                        <source src="videos/clip_0144.mp4" type="video/mp4">
+                    </video>
+                </section>
+                <section class="panels">
+                    <details class="panel">
+                        <summary><span class="chev">▶</span><span>Audio Description</span><span
+                                class="badge">expand</span>
+                        </summary>
+                        <div class="content">
+                            <p>
+                                1. Speaker Voice Characteristics: The speaker is a male likely in his mid-forties with a smooth and slightly raspy voice.<br>
+                                2. Primary Emotional State: The primary emotion conveyed by the speaker is a mixture of frustration and anger, which is palpable through their tone and inflection.<br>
+                                3. Emotional Layers and Nuance: Underlying these primary emotions, there is also a noticeable undertone of sadness and disappointment. This can be inferred from the speaker's slow pace and low volume, indicating a more subdued emotional state.<br>
+                                4. Emotional Progression: Initially, the speaker exhibits a clear and forceful tone, suggesting anger and frustration. As the speech progresses, however, there is a noticeable softening of the voice and a slight drop in pitch, indicating a more somber and resigned mood.<br>
+                                5. Supporting Vocal Indicators: Vocal indicators such as the softening of the voice, the slowing down of speech, and the lower pitch suggest a shift from anger and frustration towards sadness and disappointment.<br>
+                                6. Acoustic Environment: The acoustic environment appears to be a medium-sized room with minimal background noise, allowing for a clear and distinct analysis of the speaker's emotions. The reverberation indicates a possibly open or sparsely furnished space.<br>
+                                7. Overall Emotional Description: In summary, the speaker's voice reflects a complex emotional landscape dominated by anger and frustration but also carrying undertones of sadness and disappointment. The progression of these emotions throughout the speech provides a nuanced understanding of the speaker's feelings.
+                            </p>
+                        </div>
+                    </details>
+                    <details class="panel">
+                        <summary><span class="chev">▶</span><span>Video Description</span><span
+                                class="badge">expand</span>
+                        </summary>
+                        <div class="content">
+                            <p>
+                                1. Scene Setting: A dimly lit bar with blue neon lights and a bustling background, creating an intimate yet lively atmosphere.<br>
+                                2. Speaker Demographics: The characters appear to be middle-aged men, dressed in dark clothing.<br>
+                                3. Actions: One man gestures with his hand while speaking, and the other listens attentively.<br>
+                                4. Character Interactions: They are engaged in a serious conversation, with the first man taking the lead in the discussion.<br>
+                                5. Emotional Expression: Both men display focused expressions, indicating the importance of their conversation.<br>
+                                6. Visual Composition: The camera is positioned at a low angle, capturing the characters' upper bodies and the surrounding environment.<br>
+                                7. Environmental Acoustics: The space likely has a moderate acoustic quality, with ambient noise from the bar's activities.
+                            </p>
+                        </div>
+                    </details>
+                    <details class="panel">
+                        <summary><span class="chev">▶</span><span>Description Summary</span><span
+                                class="badge">expand</span></summary>
+                        <div class="content">
+                            <p>Male speaker, middle-aged, delivers a frustrated and angry tone with undertones 
+                                of sadness and disappointment in a dimly lit bar. Emotions shift from forceful to 
+                                somber and resigned. Speak with a smooth, raspy voice, moderate pace, and low volume, 
+                                simulating a medium-sized room with minimal background noise and slight reverb.</p>
+                        </div>
+                    </details>
+                </section>
+            </div>
+            <div class="grid">
+                <section class="video-card">
+                    <h2>Video 5</h2><video controls>
+                        <source src="videos/clip_0125.mp4" type="video/mp4">
+                    </video>
+                </section>
+                <section class="panels">
+                    <details class="panel">
+                        <summary><span class="chev">▶</span><span>Audio Description</span><span
+                                class="badge">expand</span>
+                        </summary>
+                        <div class="content">
+                            <p>
+                                1. Speaker Voice Characteristics: The speaker is a male, likely in his mid-fifties, with a voice that is smooth and slightly nasal. <br>
+                                2. Primary Emotional State: The primary emotion conveyed by the speaker is a sense of irritation or annoyance. <br>
+                                3. Emotional Layers and Nuance: Underlying this primary emotion, there is also a hint of frustration and a subtle undertone of desperation. As the speech progresses, these emotions become more pronounced, indicating a rising agitation. <br>
+                                4. Emotional Progression: Initially, the emotion starts with a mild sense of irritation but gradually intensifies into a more animated and frustrated state. This progression suggests that the speaker may be reacting to a situation that has escalated beyond their control.<br>
+                                5. Supporting Vocal Indicators: Vocal indicators such as a faster speaking rate, louder volume, and a slightly tense tone support the analysis of increasing frustration and agitation.<br>
+                                6. Acoustic Environment: The acoustic environment seems to be a quiet and controlled space, as there are no noticeable reverberations or background noises. This could suggest a formal or professional setting where the speaker is trying to convey their message clearly.<br>
+                                7. Overall Emotional Description: In summary, the speaker exhibits a clear sense of irritation and frustration, which progressively intensifies into a state of agitation. The controlled environment and lack of background noise amplify this emotional journey.
+                            </p>
+                        </div>
+                    </details>
+                    <details class="panel">
+                        <summary><span class="chev">▶</span><span>Video Description</span><span
+                                class="badge">expand</span>
+                        </summary>
+                        <div class="content">
+                            <p>
+                                1. Scene Setting: A dimly lit office with a group of people in suits gathered around a central figure, creating an atmosphere of tension and seriousness.<br>
+                                2. Speaker Demographics: Middle-aged men, likely professionals or executives.<br>
+                                3. Actions: The central figure appears to be addressing the group, while others are standing attentively, listening.<br>
+                                4. Character Interactions: The characters are engaged in a serious discussion, with some individuals leaning in for closer attention, indicating a focused and possibly confrontational interaction.<br>
+                                5. Emotional Expression: The facial expressions suggest concern and intensity, with some individuals displaying signs of stress or contemplation.<br>
+                                6. Visual Composition: The camera is positioned at a low angle, emphasizing the stature and presence of the central figure, while the rest of the room is framed to show the group's engagement.<br>
+                                7. Environmental Acoustics: The space likely has an echoey quality due to its size and the lack of visible sound-absorbing materials, suggesting that any dialogue would carry throughout the room.
+                            </p>
+                        </div>
+                    </details>
+                    <details class="panel">
+                        <summary><span class="chev">▶</span><span>Description Summary</span><span
+                                class="badge">expand</span></summary>
+                        <div class="content">
+                            <p>Male, mid-fifties, addresses a tense office gathering with a mix of concern and intensity. 
+                                Irritation and frustration intensify into agitation, conveyed through a faster pace, 
+                                louder volume, and tense tone, with desperation underlying. Simulate a quiet, 
+                                controlled space with minimal reverb.</p>
+                        </div>
+                    </details>
+                </section>
+            </div>
+        </div>
+    </section>
+
+    <!-- Audio comparison matrix -->
+    <section class="audio-matrix" aria-label="Audio Comparisons">
+        <h2>Audio Samples</h2>
+        <div class="a-grid" role="table" aria-label="Three-column audio table with ten rows">
+            <div class="a-head" role="columnheader">Original</div>
+            <div class="a-head" role="columnheader">Baseline (EmoVoice)</div>
+            <div class="a-head" role="columnheader">PromptDub (Ours)</div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0130.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0130.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0130.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0013.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0013.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0013.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0039.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0039.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0039.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0075.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0075.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0075.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0066.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0066.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0066.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0026.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0026.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0026.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0097.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0097.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0097.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0114.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0114.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0114.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0060.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0060.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0060.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0136.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0136.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0136.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0019.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0019.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0019.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0127.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0127.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0127.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0020.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0020.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0020.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0099.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0099.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0099.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0189.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0189.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0189.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0014.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0014.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0014.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0122.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0122.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0122.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0076.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0076.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0076.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0094.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0094.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0094.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0166.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0166.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0166.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0171.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0171.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0171.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0135.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0135.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0135.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0054.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0054.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0054.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0225.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0225.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0225.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0098.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0098.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0098.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0115.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0115.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0115.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0133.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0133.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0133.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0043.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0043.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0043.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0106.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0106.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0106.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0159.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0159.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0159.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0074.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0074.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0074.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0155.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0155.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0155.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0119.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0119.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0119.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0092.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0092.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0092.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0137.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0137.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0137.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0056.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0056.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0056.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0146.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0146.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0146.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0227.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0227.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0227.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0065.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0065.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0065.wav" type="audio/mpeg" />
+            </audio></div>
+
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Original/0030.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Baseline/0030.wav" type="audio/mpeg" />
+            </audio></div>
+            <div class="a-cell" role="cell"><audio controls preload="metadata">
+                <source src="wav/Proposed/0030.wav" type="audio/mpeg" />
+            </audio></div>
+
+        </div>
+    </section>
+
+    <section class="prompt-section">
+        <h2>A. Language Model Prompts</h2>
+
+        <h3>A.1 Vision LM Prompt</h3>
+        <p>Prompt used for structured, observation-grounded video scene analysis.</p>
+
+        <pre class="prompt-block"><code>[
+        {
+            "role": "system",
+            "content": "You are an expert video scene analyst who provides objective, structured descriptions of video content. Your analysis focuses solely on observable details within the frames. You describe scenes using a specific template format, carefully avoiding assumptions or hallucinations about information not directly visible. When analyzing character interactions and emotions, you may make reasonable inferences based only on clear visual cues present in the footage."
+        },
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "video",
+                    "video": {
+                        "video_path": video_path,
+                        "fps": 1,
+                        "max_frames": 180
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": "Please describe the scene in the following structured format:\nScene Setting: Describe the physical location, lighting conditions, and overall atmosphere in one sentence.\nSpeaker Demographics: Describe the approximate age range (child, teenager, young adult, middle-aged, elderly) and gender presentation of any speaking characters.\nActions: Describe the primary movements and actions of the characters in one sentence, focusing on what they are physically doing.\nCharacter Interactions: Describe how the characters relate to and engage with each other in one sentence, including eye contact, spatial relationships, and non-verbal communication.\nEmotional Expression: Describe the facial expressions, body language, and emotional cues displayed by the characters in one sentence.\nVisual Composition: Describe the camera angle, framing, and any notable cinematographic techniques used in one sentence.\nEnvironmental Acoustics: Describe the likely acoustic properties of the space and any visible sources of background sound.\n\n### ANSWER TEMPLATE ###\n1. Scene Setting: '';\n2. Speaker Demographics: '';\n3. Actions: '';\n4. Character Interactions: '';\n5. Emotional Expression: '';\n6. Visual Composition: '';\n7. Environmental Acoustics: ''.\n\nNote: Focus only on observable details and avoid hallucinations."
+                }
+            ]
+        }
+    ]</code></pre>
+
+        <h3>A.2 Audio LM Prompt</h3>
+        <p>Prompt used for layered emotional and acoustic analysis from speech.</p>
+
+        <pre class="prompt-block"><code>[
+        {
+            "role": "system",
+            "content": "You are an expert in audio-based emotional analysis with exceptional ability to detect nuanced emotional states from speech patterns, vocal tones, and audio cues. Your task is to provide detailed, layered emotional descriptions from the audio input. Do not hallucinate information."
+        },
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "audio",
+                    "audio_url": audio_path
+                },
+                {
+                    "type": "text",
+                    "text": "When analyzing the provided audio, please:\n1. Identify the primary emotional state expressed\n2. Detect underlying or secondary emotions present\n3. Note the intensity and progression of emotions\n4. Analyze vocal qualities (pitch, pacing, volume, strain)\n5. Use rich emotional vocabulary\n6. Identify speaker age range and gender\n7. Analyze the acoustic environment\n\nStructure the response as:\n## Speaker Voice Characteristics\n## Primary Emotional State\n## Emotional Layers and Nuance\n## Emotional Progression\n## Supporting Vocal Indicators\n## Acoustic Environment\n## Overall Emotional Description"
+                }
+            ]
+        }
+    ]</code></pre>
+
+        <h3>A.3 LLM Prompt (Dubbing Director)</h3>
+        <p>Prompt used to fuse multimodal analyses into concise, TTS-ready performance instructions.</p>
+
+        <pre class="prompt-block"><code>[
+        {
+            "role": "assistant",
+            "content": [
+                {
+                    "text": "You are an expert dubbing director creating concise TTS-ready performance instructions."
+                }
+            ]
+        },
+        {
+            "role": "user",
+            "content": [
+                {
+                    "text": "Synthesize the provided video and audio analysis into extremely brief performance guidance (maximum 45 words).\n\n## INPUT:\n1. VIDEO ANALYSIS\n{video_desc}\n\n2. AUDIO ANALYSIS\n{audio_desc}\n\n## OUTPUT REQUIREMENTS:\n- Speaker demographics\n- Brief scene context\n- Core emotional state and nuance\n- Emotional progression\n- Vocal qualities (pace, pitch, volume)\n- Environmental acoustics\n\nUse only TTS-compatible notation and avoid complex formatting."
+                }
+            ]
+        }
+    ]</code></pre>
+    </section>
+
+<div class="disclaimer" style="background-color: #f9f9f9; border-left: 4px solid #ccc; padding: 15px; margin: 20px 0; font-size: 14px;">
+  <p><strong>Disclaimer:</strong> The comparisons presented on this website are for research purposes only and serve as an instantiation of the associated paper.</p>
+  
+  <p><strong>Dataset Citations:</strong></p>
+  <ul style="margin: 10px 0; padding-left: 20px;">
+    <li>
+      <strong>MELD-ST:</strong> Sirou Chen, Sakiko Yahata, Shuichiro Shimizu, Zhengdong Yang, Yihang Li, Chenhui Chu, and Sadao Kurohashi, "MELD-ST: An Emotion-Aware Speech Translation Dataset," <em>arXiv preprint arXiv:2405.13233</em>, 2024.
+      [<a href="https://arxiv.org/abs/2405.13233" target="_blank">Paper</a>]
+    </li>
+    <li>
+      <strong>EmoVoiceDB:</strong> Guanrou Yang, Chen Yang, Qian Chen, Ziyang Ma, Wenxi Chen, Wen Wang, Tianrui Wang, Yifan Yang, Zhikang Niu, Wenrui Liu, et al., "EmoVoice: LLM-Based Emotional Text-to-Speech Model with Freestyle Text Prompting," <em>arXiv preprint arXiv:2504.12867</em>, 2025.
+      [<a href="https://arxiv.org/abs/2504.12867" target="_blank">Paper</a>]
+    </li>
+  </ul>
+</div>
+</body>
+
+</html>
