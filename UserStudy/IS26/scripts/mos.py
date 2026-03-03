@@ -17,7 +17,9 @@ import glob
 import urllib.request
 from dataclasses import dataclass
 from typing import List, Tuple
-
+from collections import defaultdict
+from pathlib import Path
+import random
 
 # ----------------------------- CONFIG -----------------------------
 
@@ -36,7 +38,7 @@ REPO_SUBDIR = "IS26/samples/accentedness"
 LOCAL_ROOT = "/data/waris/code/anonymousis23.github.io/UserStudy/IS26/samples/accentedness"  # set to a string to use local glob mode
 
 # If you *must* enforce 80:
-EXPECTED_COUNT = 80
+EXPECTED_COUNT = 90
 
 # -----------------------------------------------------------------
 
@@ -114,20 +116,72 @@ def list_clips_via_github_api() -> List[Clip]:
     return clips
 
 
-def list_clips_via_local_glob(local_root: str) -> List[Clip]:
+# def list_clips_via_local_glob(local_root: str) -> List[Clip]:
+#     """
+#     List wav files locally with glob and map to GitHub Pages URLs with same relative path.
+#     """
+#     pattern = os.path.join(local_root, "*", "*", "*.wav")
+#     paths = glob.glob(pattern)
+#     clips: List[Clip] = []
+
+#     for p in sorted(paths):
+#         rel = os.path.relpath(p, local_root)  # accent/speaker/file.wav
+#         parts = rel.split(os.sep)
+#         if len(parts) != 3:
+#             continue
+#         accent, speaker, fname = parts
+#         utter_id = os.path.splitext(fname)[0]
+#         url = f"{GHPAGES_BASE}/{accent}/{speaker}/{fname}"
+#         clips.append(Clip(accent=accent, speaker=speaker, utter_id=utter_id, url=url))
+
+#     clips.sort(key=lambda c: (c.accent.lower(), c.speaker.lower(), c.utter_id.lower()))
+#     return clips
+  
+def list_clips_via_local_glob(
+    local_root: str,
+    samples_per_accent: int = 15,
+    seed: int = 1337,
+    strict: bool = True,
+) -> List[Clip]:
     """
-    List wav files locally with glob and map to GitHub Pages URLs with same relative path.
+    List wav files locally, then for each accent randomly sample `samples_per_accent` files.
+    Map to GitHub Pages URLs with same relative path.
+
+    strict=True  -> error if an accent has < samples_per_accent files
+    strict=False -> take all available if fewer than requested
     """
     pattern = os.path.join(local_root, "*", "*", "*.wav")
     paths = glob.glob(pattern)
-    clips: List[Clip] = []
 
-    for p in sorted(paths):
+    # group filepaths by accent
+    by_accent = defaultdict(list)
+    for p in paths:
         rel = os.path.relpath(p, local_root)  # accent/speaker/file.wav
         parts = rel.split(os.sep)
         if len(parts) != 3:
             continue
-        accent, speaker, fname = parts
+        accent = parts[0]
+        by_accent[accent].append(p)
+
+    rng = random.Random(seed)
+
+    # sample per accent
+    selected_paths = []
+    for accent, accent_paths in sorted(by_accent.items(), key=lambda x: x[0].lower()):
+        accent_paths = sorted(accent_paths)
+        if strict and len(accent_paths) < samples_per_accent:
+            raise RuntimeError(
+                f"Accent '{accent}' has only {len(accent_paths)} files, "
+                f"but samples_per_accent={samples_per_accent}."
+            )
+        k = min(samples_per_accent, len(accent_paths))
+        selected_paths.extend(rng.sample(accent_paths, k))
+
+    # build Clip objects
+    clips: List[Clip] = []
+    for p in sorted(selected_paths):
+        rel = os.path.relpath(p, local_root)  # accent/speaker/file.wav
+        accent, speaker, fname = rel.split(os.sep)
         utter_id = os.path.splitext(fname)[0]
         url = f"{GHPAGES_BASE}/{accent}/{speaker}/{fname}"
         clips.append(Clip(accent=accent, speaker=speaker, utter_id=utter_id, url=url))
@@ -212,7 +266,7 @@ def render_full_html(clips: List[Clip], per_set: int = 5) -> str:
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>MOS Study - Accentedness Samples</title>
+  <title>MOS Study</title>
   <style>
     table.tests {{
       border-collapse: collapse;
@@ -247,7 +301,7 @@ def render_full_html(clips: List[Clip], per_set: int = 5) -> str:
     return html
 
 
-def main(out_html: str = "mos_accentedness.html"):
+def main(out_html: str = "mos.html"):
     if LOCAL_ROOT:
         clips = list_clips_via_local_glob(LOCAL_ROOT)
     else:
