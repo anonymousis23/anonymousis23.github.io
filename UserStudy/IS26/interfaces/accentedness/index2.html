@@ -1,0 +1,2458 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Accentedness Study</title>
+  <style type="text/css">
+    table.instructions_post {
+      float: left;
+    }
+
+    table.instructions_post tr {
+      border: 2px solid #500000;
+      height: 65px;
+      vertical-align: middle;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    table.instructions_post td {
+      text-align: center;
+      vertical-align: middle;
+      border: 2px solid #000000;
+    }
+
+    table.instructions_post tr:nth-child(even) {
+      background-color: #F8F5E6;
+    }
+
+    table.instructions_post tr:nth-child(odd) {
+      background: #EEE;
+    }
+
+    table.instructions_post tr:first-child {
+      background-color: #500000;
+      color: #FFF;
+      font-weight: bold;
+      font-size: 1.25em;
+    }
+
+    table.instructions_post tr:first-child:hover {
+      background-color: #500000;
+    }
+
+    table.instructions {
+      width: 45%;
+      border-collapse: collapse;
+    }
+
+    table.instructions td {
+      text-align: center;
+      border: 2px solid #000000;
+      width: 9%;
+    }
+
+    table.instructions td+td {
+      width: 16%;
+    }
+
+    table.instructions tr {
+      border: 2px solid #500000;
+      height: 50px;
+      vertical-align: middle;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    table.tests {
+      width: 75%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      display: inline-block;
+    }
+
+    table.tests th {
+      text-align: center;
+    }
+
+    table.tests td {
+      text-align: center;
+      vertical-align: middle;
+      border: 2px solid #000000;
+      width: 10%;
+    }
+
+    table.tests td+td {
+      width: 16%;
+    }
+
+    table.tests td+td+td {
+      width: auto;
+    }
+
+    table.tests tr {
+      border: 2px solid #500000;
+      height: 60px;
+      vertical-align: middle;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    table.tests tr {
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    table.tests tr:nth-child(even) {
+      background-color: #F8F5E6;
+    }
+
+    table.tests tr:nth-child(odd) {
+      background: #EEE;
+    }
+
+    table.tests tr:first-child {
+      background-color: #500000;
+      color: #FFF;
+      font-weight: bold;
+      font-size: 1.25em;
+    }
+
+    table.tests tr:first-child:hover {
+      background-color: #500000;
+    }
+
+    table.tests tr:nth-child(2) {
+      background-color: #500000;
+      color: #FFF;
+      font-weight: bold;
+      font-size: 1.25em;
+    }
+
+    table.tests tr:nth-child(2):hover {
+      background-color: #500000;
+    }
+
+    table.tests tr:hover {
+      background-color: #336FA4
+    }
+
+    table.tests tr.complete {
+      background-color: #6FB89B;
+    }
+
+    table.tests input.mos {
+      display: block;
+      width: 100%;
+      height: 20px;
+    }
+
+    table.tests .question_id {
+      width: 21%;
+    }
+
+    table.tests td.A,
+    table.tests td.B,
+    table.tests td.X {
+      width: 27%;
+    }
+
+    table.tests .X {
+      border-right: 3px solid #500000;
+    }
+
+    input[type=radio] {
+      width: 20px;
+      height: 60px;
+      border: 10px solid #CCC;
+      border-radius: 50%;
+      vertical-align: middle;
+    }
+
+    input[type=radio].A {
+      float: right;
+    }
+
+    input[type=radio].B {
+      float: left;
+    }
+
+    audio {
+      vertical-align: middle;
+      width: 150px;
+    }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script>
+    //The magic that lets us find the unselected questions
+
+    $(document).ready(function () {
+      $('#submitButton').click(check_buttons);
+    });
+
+    var check_buttons = function () {
+      //Get all the radio buttons
+      n_ckd = $('input[type=radio]:not(:checked)').toArray().reduce((acc, val) => acc.includes(val.name) ? acc : acc.concat(val.name), []);
+
+      //Get all the checked buttons
+      ckd = $('input[type=radio]:checked').toArray().reduce((acc, val) => acc.includes(val.name) ? acc : acc.concat(val.name), []);
+
+      //Filter out all the checked radio buttons from the not checked list
+      //We should get NOTHING if we've filled in every option
+      var unfilled = n_ckd.filter(function (x) { return !ckd.includes(x) });
+
+      if (unfilled.length > 0) {
+        alert("You have not rated your confidence for one or more of the questions.\nThe first one missing an answer is: " + unfilled[0].substring(5, 8));
+        var any_unfilled = true;
+      }
+      else {
+        var any_unfilled = false;
+      }
+
+      var unselected = $('select.overall').toArray().filter(function (x) { return x.value == 0 })
+
+      if (unselected.length > 0) {
+        alert("You have not rated 'Same or different?' for one or more of the questions.\nThe first one missing an answer is: " + unselected[0].name.substring(5, 8))
+      }
+
+      return !any_unfilled && !(unselected.length)
+    }
+  </script>
+  <script>
+    var reload_audio = function (e) {
+      console.log(e)
+
+
+      //Add in a nocache cheat
+      var src_selector = 'audio[id=' + e + '] > source';
+      $(src_selector)[0].src = $(src_selector)[0].src + "?nocache=" + new Date().getTime()
+      $('audio[id=' + e + ']')[0].load()
+      console.log($('audio[id=' + e + ']')[0].currentSrc)
+    }
+  </script>
+  <script>
+    var onclick_nocache = function (e) {
+      var currentSrc = $('audio[id=' + e + ']')[0].currentSrc;
+      $('audio[id=' + e + ']')[0].currentSrc = currentSrc + "?nocache=" + new Date().getTime();
+      $('audio[id=' + e + ']>source')[0].src = currentSrc + "?nocache=" + new Date().getTime();
+      $('audio[id=' + e + ']>a')[0].href = currentSrc + "?nocache=" + new Date().getTime();
+    }
+  </script>
+  <style type="text/css">
+    table,
+    th,
+    td {
+      border: 1px solid black;
+    }
+  </style>
+</head>
+
+<body>
+  <h1><strong>Audio Accentedness Evaluation</strong></h1>
+  <hr>
+
+  <h3>In the question set 1 to 16, a list of recordings are organized in rows. In each row, you will see an audio clip.
+    Please listen to the recording and rate its <em><strong><span style="color:red">degree of foreign
+          accentedness</span></strong></em>.
+    The native accent in this task is <em><strong>General American</strong></em>.
+  </h3>
+
+  <ul>
+    <li>There are nine (9) levels of accentedness as shown in the tables below.
+      "|" means that the degree of accentedness is between two levels.
+      For example, the "|" between "No foreign accent" and "Some foreign accent" means that
+      the accentedness level is more than "No foreign accent" but less than "Some foreign accent"</li>
+    <li>Try to <em><strong><span style="color:red">ignore</span></strong></em> the speaking rate and audio quality
+      (noises, distortions). Please focus only on the <em><strong><span style="color:red">accent of the
+            speaker</span></strong></em></li>
+    <li>You may listen to each clip more than once if needed; just click the play button to replay.</li>
+    <li>Your responses will be manually screened to ensure that you made a serious effort to rate the recordings. If
+      your answers are determined to be random or contain inconsistent answers, the task may be rejected and you may not
+      receive payment</li>
+    <li>Please perform these tasks in a quiet place using a pair of good headphones. It is recommended that you set the
+      volume a bit higher than normal for these tasks.</li>
+    <li>If you are having trouble viewing or listening to the sound clips, please try completing the test in Google
+      Chrome.</li>
+    <li>Please make sure that you've finished all the questions before submitting.</li>
+  </ul>
+  <hr>
+
+  <h2><strong>In each question, please rate the degree of foreign accentedness in the recording. The native accent in
+      this task is General American.</strong></h2>
+
+  <h2>Set 1</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q1</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/GS/TNI/arctic_b0497.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0497" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0497" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0497" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0497" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0497" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0497" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0497" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0497" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0497" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q2</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/american/SLT/arctic_b0459.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0459" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0459" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0459" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0459" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0459" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0459" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0459" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0459" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0459" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q3</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/FAC/TNI/arctic_b0470.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0470" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0470" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0470" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0470" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0470" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0470" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0470" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0470" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0470" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q4</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/american/BDL/arctic_b0500.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0500" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0500" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0500" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0500" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0500" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0500" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0500" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0500" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0500" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q5</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indian/TNI/arctic_b0465.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0465" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0465" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0465" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0465" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0465" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0465" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0465" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0465" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0465" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Set 2</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q6</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indian/RRBI/arctic_b0505.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0505" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0505" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0505" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0505" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0505" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0505" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0505" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0505" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0505" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q7</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/americanrecon/BDL/arctic_b0479.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0479" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0479" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0479" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0479" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0479" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0479" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0479" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0479" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0479" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q8</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/americanrecon/SLT/arctic_b0486.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0486" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0486" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0486" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0486" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0486" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0486" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0486" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0486" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0486" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q9</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/FAC/SVBI/arctic_b0516.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0516" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0516" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0516" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0516" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0516" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0516" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0516" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0516" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0516" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q10</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/FAC/ASI/arctic_b0523.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0523" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0523" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0523" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0523" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0523" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0523" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0523" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0523" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0523" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Set 3</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q11</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/GS/ASI/arctic_b0443.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0443" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0443" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0443" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0443" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0443" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0443" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0443" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0443" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0443" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q12</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/GS/ASI/arctic_b0508.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0508" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0508" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0508" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0508" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0508" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0508" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0508" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0508" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0508" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q13</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indian/RRBI/arctic_b0530.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0530" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0530" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0530" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0530" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0530" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0530" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0530" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0530" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0530" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q14</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/americanrecon/BDL/arctic_b0515.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0515" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0515" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0515" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0515" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0515" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0515" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0515" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0515" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0515" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q15</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/GS/TNI/arctic_b0511.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0511" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0511" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0511" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0511" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0511" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0511" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0511" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0511" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0511" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Set 4</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q16</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/GS/SVBI/arctic_b0514.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0514" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0514" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0514" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0514" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0514" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0514" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0514" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0514" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0514" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q17</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indian/ASI/arctic_b0465.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0465" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0465" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0465" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0465" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0465" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0465" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0465" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0465" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0465" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q18</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indian/SVBI/arctic_b0525.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0525" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0525" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0525" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0525" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0525" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0525" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0525" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0525" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0525" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q19</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/GS/RRBI/arctic_b0473.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0473" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0473" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0473" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0473" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0473" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0473" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0473" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0473" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0473" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q20</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/GS/TNI/arctic_b0468.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0468" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0468" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0468" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0468" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0468" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0468" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0468" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0468" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0468" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Set 5</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q21</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/GS/RRBI/arctic_b0449.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0449" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0449" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0449" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0449" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0449" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0449" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0449" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0449" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0449" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q22</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indianrecon/TNI/arctic_b0445.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0445" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0445" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0445" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0445" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0445" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0445" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0445" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0445" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0445" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q23</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indianrecon/RRBI/arctic_b0532.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0532" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0532" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0532" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0532" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0532" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0532" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0532" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0532" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0532" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q24</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indian/RRBI/arctic_b0459.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0459" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0459" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0459" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0459" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0459" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0459" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0459" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0459" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0459" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q25</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/FAC/RRBI/arctic_b0509.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0509" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0509" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0509" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0509" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0509" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0509" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0509" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0509" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0509" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Set 6</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q26</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/american/RMS/arctic_b0451.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0451" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0451" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0451" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0451" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0451" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0451" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0451" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0451" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0451" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q27</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/FAC/SVBI/arctic_b0470.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0470" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0470" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0470" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0470" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0470" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0470" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0470" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0470" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0470" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q28</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indian/TNI/arctic_b0445.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0445" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0445" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0445" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0445" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0445" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0445" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0445" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0445" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0445" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q29</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/FAC/ASI/arctic_b0443.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0443" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0443" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0443" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0443" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0443" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0443" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0443" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0443" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0443" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q30</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/FAC/TNI/arctic_b0495.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0495" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0495" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0495" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0495" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0495" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0495" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0495" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0495" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0495" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Set 7</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q31</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indian/ASI/arctic_b0464.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0464" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0464" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0464" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0464" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0464" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0464" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0464" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0464" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0464" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q32</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/FAC/TNI/arctic_b0443.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0443" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0443" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0443" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0443" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0443" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0443" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0443" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0443" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0443" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q33</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/FAC/SVBI/arctic_b0497.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0497" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0497" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0497" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0497" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0497" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0497" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0497" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0497" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0497" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q34</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indianrecon/TNI/arctic_b0489.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0489" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0489" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0489" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0489" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0489" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0489" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0489" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0489" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0489" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q35</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/GS/ASI/arctic_b0449.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0449" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0449" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0449" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0449" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0449" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0449" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0449" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0449" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0449" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Set 8</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q36</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indianrecon/RRBI/arctic_b0446.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0446" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0446" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0446" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0446" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0446" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0446" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0446" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0446" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0446" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q37</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/american/SLT/arctic_b0511.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0511" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0511" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0511" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0511" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0511" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0511" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0511" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0511" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0511" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q38</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/FAC/RRBI/arctic_b0539.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0539" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0539" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0539" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0539" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0539" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0539" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0539" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0539" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0539" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q39</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/americanrecon/RMS/arctic_b0448.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0448" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0448" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0448" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0448" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0448" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0448" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0448" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0448" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0448" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q40</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/americanrecon/BDL/arctic_b0495.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0495" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0495" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0495" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0495" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0495" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0495" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0495" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0495" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0495" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Set 9</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q41</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indian/RRBI/arctic_b0494.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0494" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0494" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0494" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0494" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0494" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0494" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0494" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0494" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0494" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q42</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indian/SVBI/arctic_b0513.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0513" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0513" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0513" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0513" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0513" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0513" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0513" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0513" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0513" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q43</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/GS/RRBI/arctic_b0497.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0497" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0497" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0497" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0497" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0497" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0497" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0497" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0497" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0497" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q44</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/american/RMS/arctic_b0444.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0444" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0444" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0444" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0444" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0444" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0444" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0444" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0444" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0444" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q45</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/FAC/RRBI/arctic_b0529.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0529" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0529" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0529" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0529" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0529" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0529" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0529" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0529" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0529" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Set 10</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q46</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indian/TNI/arctic_b0485.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0485" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0485" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0485" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0485" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0485" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0485" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0485" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0485" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0485" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q47</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/american/BDL/arctic_b0529.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0529" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0529" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0529" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0529" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0529" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0529" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0529" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0529" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0529" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q48</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/americanrecon/BDL/arctic_b0483.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0483" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0483" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0483" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0483" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0483" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0483" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0483" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0483" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0483" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q49</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/FAC/SVBI/arctic_b0494.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0494" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0494" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0494" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0494" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0494" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0494" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0494" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0494" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_SVBI_arctic_b0494" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q50</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/GS/RRBI/arctic_b0454.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0454" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0454" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0454" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0454" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0454" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0454" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0454" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0454" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_RRBI_arctic_b0454" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Set 11</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q51</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/americanrecon/CLB/arctic_b0486.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0486" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0486" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0486" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0486" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0486" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0486" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0486" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0486" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0486" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q52</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indianrecon/RRBI/arctic_b0521.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0521" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0521" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0521" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0521" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0521" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0521" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0521" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0521" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_RRBI_arctic_b0521" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q53</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/americanrecon/RMS/arctic_b0451.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0451" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0451" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0451" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0451" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0451" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0451" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0451" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0451" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0451" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q54</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/american/CLB/arctic_b0487.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0487" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0487" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0487" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0487" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0487" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0487" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0487" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0487" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0487" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q55</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/american/RMS/arctic_b0441.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0441" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0441" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0441" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0441" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0441" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0441" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0441" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0441" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0441" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Set 12</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q56</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indian/ASI/arctic_b0457.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0457" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0457" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0457" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0457" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0457" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0457" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0457" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0457" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_ASI_arctic_b0457" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q57</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/GS/ASI/arctic_b0530.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0530" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0530" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0530" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0530" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0530" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0530" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0530" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0530" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_ASI_arctic_b0530" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q58</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indianrecon/SVBI/arctic_b0466.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0466" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0466" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0466" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0466" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0466" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0466" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0466" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0466" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0466" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q59</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/american/RMS/arctic_b0532.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0532" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0532" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0532" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0532" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0532" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0532" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0532" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0532" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_american_RMS_arctic_b0532" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q60</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indianrecon/SVBI/arctic_b0498.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0498" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0498" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0498" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0498" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0498" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0498" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0498" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0498" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0498" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Set 13</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q61</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/americanrecon/CLB/arctic_b0483.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0483" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0483" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0483" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0483" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0483" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0483" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0483" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0483" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0483" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q62</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indian/TNI/arctic_b0535.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0535" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0535" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0535" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0535" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0535" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0535" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0535" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0535" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_TNI_arctic_b0535" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q63</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/FAC/TNI/arctic_b0532.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0532" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0532" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0532" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0532" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0532" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0532" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0532" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0532" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_TNI_arctic_b0532" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q64</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/americanrecon/CLB/arctic_b0444.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0444" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0444" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0444" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0444" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0444" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0444" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0444" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0444" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_CLB_arctic_b0444" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q65</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/american/BDL/arctic_b0442.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0442" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0442" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0442" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0442" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0442" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0442" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0442" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0442" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_american_BDL_arctic_b0442" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Set 14</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q66</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indianrecon/TNI/arctic_b0448.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0448" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0448" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0448" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0448" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0448" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0448" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0448" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0448" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0448" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q67</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/GS/TNI/arctic_b0489.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0489" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0489" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0489" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0489" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0489" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0489" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0489" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0489" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_TNI_arctic_b0489" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q68</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indianrecon/SVBI/arctic_b0500.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0500" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0500" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0500" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0500" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0500" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0500" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0500" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0500" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0500" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q69</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/GS/SVBI/arctic_b0445.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0445" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0445" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0445" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0445" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0445" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0445" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0445" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0445" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0445" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q70</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indianrecon/TNI/arctic_b0497.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0497" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0497" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0497" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0497" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0497" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0497" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0497" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0497" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0497" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Set 15</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q71</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/americanrecon/RMS/arctic_b0475.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0475" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0475" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0475" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0475" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0475" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0475" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0475" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0475" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_RMS_arctic_b0475" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q72</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indianrecon/ASI/arctic_b0532.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0532" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0532" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0532" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0532" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0532" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0532" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0532" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0532" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0532" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q73</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indian/RRBI/arctic_b0469.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0469" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0469" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0469" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0469" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0469" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0469" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0469" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0469" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_RRBI_arctic_b0469" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q74</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/americanrecon/SLT/arctic_b0518.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0518" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0518" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0518" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0518" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0518" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0518" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0518" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0518" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0518" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q75</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/americanrecon/SLT/arctic_b0490.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0490" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0490" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0490" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0490" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0490" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0490" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0490" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0490" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0490" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Set 16</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q76</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indianrecon/SVBI/arctic_b0444.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0444" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0444" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0444" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0444" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0444" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0444" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0444" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0444" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0444" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q77</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indianrecon/TNI/arctic_b0451.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0451" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0451" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0451" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0451" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0451" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0451" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0451" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0451" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_TNI_arctic_b0451" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q78</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/american/CLB/arctic_b0465.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0465" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0465" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0465" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0465" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0465" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0465" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0465" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0465" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0465" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q79</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/GS/SVBI/arctic_b0482.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0482" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0482" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0482" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0482" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0482" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0482" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0482" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0482" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_GS_SVBI_arctic_b0482" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q80</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indianrecon/ASI/arctic_b0470.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0470" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0470" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0470" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0470" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0470" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0470" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0470" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0470" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_ASI_arctic_b0470" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Set 17</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q81</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/american/SLT/arctic_b0469.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0469" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0469" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0469" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0469" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0469" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0469" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0469" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0469" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0469" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q82</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indian/SVBI/arctic_b0514.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0514" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0514" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0514" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0514" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0514" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0514" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0514" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0514" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indian_SVBI_arctic_b0514" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q83</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/american/SLT/arctic_b0513.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0513" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0513" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0513" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0513" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0513" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0513" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0513" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0513" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0513" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q84</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/americanrecon/BDL/arctic_b0492.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0492" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0492" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0492" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0492" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0492" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0492" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0492" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0492" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_BDL_arctic_b0492" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q85</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/americanrecon/SLT/arctic_b0505.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0505" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0505" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0505" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0505" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0505" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0505" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0505" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0505" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_americanrecon_SLT_arctic_b0505" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Set 18</h2>
+  <table class="tests">
+    <tbody>
+      <tr>
+        <td><strong>Q ID</strong></td>
+        <td><strong>&nbsp; &nbsp;Clip &nbsp;&nbsp;</strong></td>
+        <td><strong>No foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Some foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Quite a bit foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Strong foreign accent</strong></td>
+        <td><strong>|</strong></td>
+        <td><strong>Very strong foreign accent</strong></td>
+      </tr>
+
+      <tr>
+        <td>Q86</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/FAC/ASI/arctic_b0514.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0514" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0514" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0514" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0514" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0514" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0514" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0514" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0514" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_ASI_arctic_b0514" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q87</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/FAC/RRBI/arctic_b0534.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0534" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0534" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0534" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0534" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0534" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0534" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0534" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0534" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_FAC_RRBI_arctic_b0534" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q88</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/american/CLB/arctic_b0442.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0442" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0442" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0442" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0442" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0442" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0442" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0442" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0442" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_american_CLB_arctic_b0442" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q89</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/american/SLT/arctic_b0524.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0524" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0524" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0524" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0524" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0524" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0524" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0524" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0524" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_american_SLT_arctic_b0524" type="radio" value="9" /></td>
+      </tr>
+
+      <tr>
+        <td>Q90</td>
+        <td>
+          <audio controls="controls" preload="none">
+            <source preload="none"
+              src="https://anonymousis23.github.io/UserStudy/IS26/samples/accentedness/indianrecon/SVBI/arctic_b0452.wav"
+              type="audio/wav" />
+          </audio>
+        </td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0452" type="radio" value="1" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0452" type="radio" value="2" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0452" type="radio" value="3" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0452" type="radio" value="4" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0452" type="radio" value="5" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0452" type="radio" value="6" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0452" type="radio" value="7" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0452" type="radio" value="8" /></td>
+        <td style="text-align: center;"><input name="ACC_indianrecon_SVBI_arctic_b0452" type="radio" value="9" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+
+  <br />
+  <br />
+  <h2>Post-survey</h2>
+
+
+  <p>Have you participated in any such speech tasks before? <select class="post-survey" name="ACC_PT_Experience">
+      <option selected="selected" value="0">- select one -</option>
+      <option value="1">Yes</option>
+      <option value="-1">No</option>
+    </select></p>
+
+  <p>How did you listen to the audio clips in this task? <select class="post-survey" name="ACC_PT_listening">
+      <option selected="selected" value="0">- select one -</option>
+      <option value="1">Laptop speaker</option>
+      <option value="2">Headphones</option>
+      <option value="3">Desktop speaker</option>
+      <option value="4">Other</option>
+    </select></p>
+
+  <p>What is your native language? <input class="post-survey" maxlength="100" name="ACC_PT_nativeLanguage" size="20"
+      type="text" /></p>
+
+  <p>What other languages do you speak? <input class="post-survey" maxlength="100" name="ACC_PT_otherLanguages"
+      size="50" type="text" /></p>
+
+  <p>Please suggest comments for improving this study:</p>
+
+  <p><textarea class="post-survey" cols="120" name="ACC_PT_comments" rows="5"></textarea></p>
+
+</body>
+
+</html>
