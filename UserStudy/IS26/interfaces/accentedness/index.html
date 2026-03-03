@@ -5,66 +5,6 @@
   <meta charset="utf-8" />
   <title>Accentedness Study</title>
   <style type="text/css">
-    table.instructions_post {
-      float: left;
-    }
-
-    table.instructions_post tr {
-      border: 2px solid #500000;
-      height: 65px;
-      vertical-align: middle;
-      margin: 0 auto;
-      padding: 0;
-    }
-
-    table.instructions_post td {
-      text-align: center;
-      vertical-align: middle;
-      border: 2px solid #000000;
-    }
-
-    table.instructions_post tr:nth-child(even) {
-      background-color: #F8F5E6;
-    }
-
-    table.instructions_post tr:nth-child(odd) {
-      background: #EEE;
-    }
-
-    table.instructions_post tr:first-child {
-      background-color: #500000;
-      color: #FFF;
-      font-weight: bold;
-      font-size: 1.25em;
-    }
-
-    table.instructions_post tr:first-child:hover {
-      background-color: #500000;
-    }
-
-    table.instructions {
-      width: 45%;
-      border-collapse: collapse;
-    }
-
-    table.instructions td {
-      text-align: center;
-      border: 2px solid #000000;
-      width: 9%;
-    }
-
-    table.instructions td+td {
-      width: 16%;
-    }
-
-    table.instructions tr {
-      border: 2px solid #500000;
-      height: 50px;
-      vertical-align: middle;
-      margin: 0 auto;
-      padding: 0;
-    }
-
     table.tests {
       width: 75%;
       border-collapse: collapse;
@@ -197,7 +137,7 @@
       var unfilled = n_ckd.filter(function (x) { return !ckd.includes(x) });
 
       if (unfilled.length > 0) {
-        alert("You have not rated your confidence for one or more of the questions.\nThe first one missing an answer is: " + unfilled[0].substring(5, 8));
+        alert("You have not provided your rating for one or more of the questions.");
         var any_unfilled = true;
       }
       else {
