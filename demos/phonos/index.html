@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PHONOS Demo</title>
+  <style>
+    :root{
+      --bg: #0b0f17;
+      --card: #121a27;
+      --text: #e7eefc;
+      --muted: #a7b4cc;
+      --accent: #79a6ff;
+      --border: rgba(255,255,255,0.10);
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body{
+      margin: 0;
+      font-family: var(--sans);
+      background: radial-gradient(1200px 600px at 30% 0%, rgba(121,166,255,0.18), transparent 60%),
+                  radial-gradient(1000px 500px at 70% 20%, rgba(121,255,209,0.10), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    a{ color: var(--accent); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 18px 80px;
+    }
+
+    header{
+      padding: 26px 22px;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    h1{
+      margin: 0 0 6px;
+      font-size: 30px;
+      letter-spacing: 0.2px;
+    }
+    .sub{
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .pill-row{
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .pill{
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 13px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    section{
+      margin-top: 18px;
+      padding: 22px;
+      border: 1px solid var(--border);
+      background: rgba(18,26,39,0.72);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    section h2{
+      margin: 0 0 12px;
+      font-size: 18px;
+      letter-spacing: 0.2px;
+    }
+    section p{
+      margin: 0;
+      color: var(--text);
+    }
+    .muted{ color: var(--muted); }
+    .small{ font-size: 13px; }
+    .mono{ font-family: var(--mono); }
+
+    /* Figures */
+    .fig-grid{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    figure{
+      margin: 0;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.02);
+    }
+    .imgph{
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      display: grid;
+      place-items: center;
+      color: rgba(231,238,252,0.70);
+      background:
+        linear-gradient(135deg, rgba(121,166,255,0.18), transparent 60%),
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.07) 0, rgba(255,255,255,0.07) 10px, transparent 10px, transparent 20px);
+      font-family: var(--mono);
+      font-size: 14px;
+      padding: 18px;
+      text-align: center;
+    }
+    figure img{
+      width: 100%;
+      display: block;
+      background: #0c121d;
+    }
+    figcaption{
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* Audio tables */
+    .table-wrap{
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    table{
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+
+    thead th{
+      position: sticky;
+      top: 0;
+      background: rgba(18,26,39,0.95);
+      color: var(--text);
+      text-align: left;
+      font-size: 13px;
+      letter-spacing: 0.25px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    tbody td{
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      vertical-align: middle;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    tbody tr:hover td{
+      background: rgba(121,166,255,0.06);
+      color: var(--text);
+    }
+
+    .spk{
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .utt{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(231,238,252,0.75);
+      white-space: nowrap;
+    }
+
+    audio{
+      width: 220px;
+      max-width: 100%;
+      height: 32px;
+    }
+
+    .hint{
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px dashed rgba(255,255,255,0.18);
+      border-radius: 12px;
+      background: rgba(0,0,0,0.18);
+      color: var(--muted);
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <h1>PHONOS: PHOnetic Neutralization for Online Streaming applications</h1>
+      <p class="sub">Anonymous submission to Interspeech 2026</p>
+      <div class="pill-row">
+        <span class="pill">Streaming FAC</span>
+        <span class="pill">Speaker anonymization</span>
+        <span class="pill">≤ 241 ms GPU latency</span>
+        <!-- <span class="pill">Demo page</span> -->
+      </div>
+    </header>
+
+    <!-- ABSTRACT -->
+    <section id="abstract">
+      <h2>Abstract</h2>
+      <p>
+        Speaker anonymization (SA) systems typically modify voice identity (e.g., timbre) while leaving regional or non-native accents
+        intact, which is problematic because accents can substantially narrow the anonymity set. To address this issue, we present PHONOS,
+        a streaming module for real-time SA that also replace/mask accented speech to match that of a target speaker. Our approach pre-generates
+        golden speaker utterances that preserve source timbre and rhythm but replace foreign content tokens with native ones using silence-aware
+        DTW alignment and zero-shot voice conversion. These utterances supervise a causal accent translator that maps non-native content tokens
+        to native equivalents with at most 40ms look-ahead, trained using joint cross-entropy and CTC losses. Built on TVTSyn, our method achieves
+        under 241 ms end-to-end GPU latency. Our evaluations show an 81% reduction in non-native accent confidence, with listening-test ratings
+        consistent with this shift, and reduced speaker linkability as accent-neutralized utterances move away from the original speaker in embedding space.
+      </p>
+    </section>
+
+    <!-- FIGURES -->
+    <section id="figures">
+      <h2>Figures</h2>
+      <p class="muted small" style="margin-bottom:12px;">
+        Replace <span class="mono">assets/fig*.png</span> with your exported paper figures (or keep placeholders).
+      </p>
+
+      <div class="fig-grid">
+        <figure>
+          <!-- Option A: use a real image -->
+          <img src="./assets/fig1.png" alt="Figure 1" />
+
+          <!-- Option B: placeholder block (default) -->
+          <!-- <div class="imgph">Placeholder for Figure 1 (e.g., assets/fig1.png)</div> -->
+
+          <figcaption>
+            <strong>Figure 1:</strong> PHONOS inference pipeline. Non-native speech is encoded into content tokens, accent-translated to native tokens,
+            and decoded into a waveform conditioned on the original or pseudo-speaker embedding.
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img src="./assets/fig2.png" alt="Figure 2" />
+          <!-- <div class="imgph">Placeholder for Figure 2 (e.g., assets/fig2.png)</div> -->
+          <figcaption>
+            <strong>Figure 2:</strong> TVTSyn training workflow. (a) content encoder trained against HuBERT k-means pseudo-labels,
+            and (b) wav decoder conditioned on speaker embedding trained with self-supervision and discriminator objectives.
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img src="./assets/fig3.png" alt="Figure 3" />
+          <!-- <div class="imgph">Placeholder for Figure 3 (e.g., assets/fig3.png)</div> -->
+          <figcaption>
+            <strong>Figure 3:</strong> Golden speaker generation. Native and non-native content embeddings are duration-aligned via silence-aware DTW,
+            then synthesized with the non-native speaker’s identity.
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img src="./assets/fig4.png" alt="Figure 4" />
+          <!-- <div class="imgph">Placeholder for Figure 4 (e.g., assets/fig4.png)</div> -->
+          <figcaption>
+            <strong>Figure 4:</strong> PHONOS’s accent translator architecture. Non-native content tokens pass through ConvNeXt and limited-context
+            transformer layers to produce native content tokens.
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="hint">
+        <div><strong>Tip:</strong> If you export figures from LaTeX/PDF, name them consistently (e.g., <span class="mono">fig1.png</span> … <span class="mono">fig4.png</span>) and put them under <span class="mono">assets/</span>.</div>
+      </div>
+    </section>
+
+    <!-- AUDIO: IndicTTS -->
+    <section id="audio-indictts">
+      <h2>Audio Samples: IndicTTS</h2>
+      <p class="muted small" style="margin-bottom:12px;">
+        Two speakers × four utterances. Columns: Original / Parallel Native / Golden Speaker / FAC.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Speaker</th>
+              <th>Utterance</th>
+              <th>Original</th>
+              <th>Parallel Native</th>
+              <th>Golden Speaker</th>
+              <th>FAC (PHONOS)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Speaker 1 -->
+            <tr>
+              <td class="spk" rowspan="4">IndicTTS_SPK1</td>
+              <td class="utt">utt_001</td>
+              <td><audio controls src="audio/indictts/spk1/utt_001/original.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk1/utt_001/parallel_native.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk1/utt_001/golden_speaker.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk1/utt_001/fac.wav"></audio></td>
+            </tr>
+            <tr>
+              <td class="utt">utt_002</td>
+              <td><audio controls src="audio/indictts/spk1/utt_002/original.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk1/utt_002/parallel_native.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk1/utt_002/golden_speaker.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk1/utt_002/fac.wav"></audio></td>
+            </tr>
+            <tr>
+              <td class="utt">utt_003</td>
+              <td><audio controls src="audio/indictts/spk1/utt_003/original.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk1/utt_003/parallel_native.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk1/utt_003/golden_speaker.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk1/utt_003/fac.wav"></audio></td>
+            </tr>
+            <tr>
+              <td class="utt">utt_004</td>
+              <td><audio controls src="audio/indictts/spk1/utt_004/original.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk1/utt_004/parallel_native.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk1/utt_004/golden_speaker.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk1/utt_004/fac.wav"></audio></td>
+            </tr>
+
+            <!-- Speaker 2 -->
+            <tr>
+              <td class="spk" rowspan="4">IndicTTS_SPK2</td>
+              <td class="utt">utt_001</td>
+              <td><audio controls src="audio/indictts/spk2/utt_001/original.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk2/utt_001/parallel_native.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk2/utt_001/golden_speaker.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk2/utt_001/fac.wav"></audio></td>
+            </tr>
+            <tr>
+              <td class="utt">utt_002</td>
+              <td><audio controls src="audio/indictts/spk2/utt_002/original.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk2/utt_002/parallel_native.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk2/utt_002/golden_speaker.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk2/utt_002/fac.wav"></audio></td>
+            </tr>
+            <tr>
+              <td class="utt">utt_003</td>
+              <td><audio controls src="audio/indictts/spk2/utt_003/original.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk2/utt_003/parallel_native.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk2/utt_003/golden_speaker.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk2/utt_003/fac.wav"></audio></td>
+            </tr>
+            <tr>
+              <td class="utt">utt_004</td>
+              <td><audio controls src="audio/indictts/spk2/utt_004/original.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk2/utt_004/parallel_native.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk2/utt_004/golden_speaker.wav"></audio></td>
+              <td><audio controls src="audio/indictts/spk2/utt_004/fac.wav"></audio></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="hint">
+        <div><strong>Paths:</strong> This assumes a structure like:</div>
+        <div class="mono small" style="margin-top:6px;">
+          audio/indictts/spk1/utt_001/original.wav<br/>
+          audio/indictts/spk1/utt_001/parallel_native.wav<br/>
+          audio/indictts/spk1/utt_001/golden_speaker.wav<br/>
+          audio/indictts/spk1/utt_001/fac.wav
+        </div>
+      </div>
+    </section>
+
+    <!-- AUDIO: L2-ARCTIC -->
+    <section id="audio-l2arctic">
+      <h2>Audio Samples: L2-ARCTIC</h2>
+      <p class="muted small" style="margin-bottom:12px;">
+        Two speakers × four utterances. Columns: Original / Parallel Native / Golden Speaker / FAC.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Speaker</th>
+              <th>Utterance</th>
+              <th>Original</th>
+              <th>Parallel Native</th>
+              <th>Golden Speaker</th>
+              <th>FAC (PHONOS)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Speaker 1 -->
+            <tr>
+              <td class="spk" rowspan="4">L2ARCTIC_SPK1</td>
+              <td class="utt">utt_001</td>
+              <td><audio controls src="audio/l2arctic/spk1/utt_001/original.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk1/utt_001/parallel_native.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk1/utt_001/golden_speaker.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk1/utt_001/fac.wav"></audio></td>
+            </tr>
+            <tr>
+              <td class="utt">utt_002</td>
+              <td><audio controls src="audio/l2arctic/spk1/utt_002/original.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk1/utt_002/parallel_native.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk1/utt_002/golden_speaker.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk1/utt_002/fac.wav"></audio></td>
+            </tr>
+            <tr>
+              <td class="utt">utt_003</td>
+              <td><audio controls src="audio/l2arctic/spk1/utt_003/original.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk1/utt_003/parallel_native.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk1/utt_003/golden_speaker.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk1/utt_003/fac.wav"></audio></td>
+            </tr>
+            <tr>
+              <td class="utt">utt_004</td>
+              <td><audio controls src="audio/l2arctic/spk1/utt_004/original.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk1/utt_004/parallel_native.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk1/utt_004/golden_speaker.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk1/utt_004/fac.wav"></audio></td>
+            </tr>
+
+            <!-- Speaker 2 -->
+            <tr>
+              <td class="spk" rowspan="4">L2ARCTIC_SPK2</td>
+              <td class="utt">utt_001</td>
+              <td><audio controls src="audio/l2arctic/spk2/utt_001/original.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk2/utt_001/parallel_native.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk2/utt_001/golden_speaker.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk2/utt_001/fac.wav"></audio></td>
+            </tr>
+            <tr>
+              <td class="utt">utt_002</td>
+              <td><audio controls src="audio/l2arctic/spk2/utt_002/original.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk2/utt_002/parallel_native.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk2/utt_002/golden_speaker.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk2/utt_002/fac.wav"></audio></td>
+            </tr>
+            <tr>
+              <td class="utt">utt_003</td>
+              <td><audio controls src="audio/l2arctic/spk2/utt_003/original.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk2/utt_003/parallel_native.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk2/utt_003/golden_speaker.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk2/utt_003/fac.wav"></audio></td>
+            </tr>
+            <tr>
+              <td class="utt">utt_004</td>
+              <td><audio controls src="audio/l2arctic/spk2/utt_004/original.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk2/utt_004/parallel_native.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk2/utt_004/golden_speaker.wav"></audio></td>
+              <td><audio controls src="audio/l2arctic/spk2/utt_004/fac.wav"></audio></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="hint">
+        <div><strong>GitHub Pages tip:</strong> if your site root is <span class="mono">https://&lt;user&gt;.github.io/demos/phonos/</span>,
+        then put this file as <span class="mono">index.html</span> and keep <span class="mono">assets/</span> and <span class="mono">audio/</span> folders beside it.</div>
+      </div>
+    </section>
+
+    <section class="small muted">
+      <h2>Notes</h2>
+      <ul>
+        <li>This page is intentionally “anonymous-friendly”: no author list beyond the anonymous submission line.</li>
+        <li>Swap the figure placeholders for actual images by uncommenting the <span class="mono">&lt;img&gt;</span> tags and setting valid paths.</li>
+        <li>Audio will play once the <span class="mono">src</span> files exist at those paths (WAV recommended for simplicity).</li>
+      </ul>
+    </section>
+  </div>
+</body>
+</html>
