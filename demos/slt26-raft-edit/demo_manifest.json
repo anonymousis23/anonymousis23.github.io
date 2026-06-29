@@ -1,0 +1,13 @@
+{
+  "demo_dir": "/data/waris/code/warisqr007.github.io/demos/rectified-flow/slt26-raft-edit",
+  "source_export": "/data/waris/code/TVTSynCtrl/results/subjective_eval_curation/20260627_235700_raft_edit_no_adversarial_subjective_candidates/exported.json",
+  "source_metrics": "/data/waris/code/TVTSynCtrl/results/relgan_raft_hnr_fixed_ablation_paper_v2/20260622_114538/hnr_fixed_no_adversarial_paper_v2_20260622_114538/posthoc_audio_metrics/metrics/audio_metrics_with_original.parquet",
+  "delta_columns": [
+    -2.0,
+    -1.0,
+    0.0,
+    1.0,
+    2.0
+  ],
+  "note": "Combined gender+pitch section is scaffolded pending multi-axis audio generation."
+}
