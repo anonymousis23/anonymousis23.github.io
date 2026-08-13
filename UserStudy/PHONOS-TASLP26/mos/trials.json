@@ -1,0 +1,680 @@
+{
+  "study_id": "phonos_taslp26_mos",
+  "task_type": "mos",
+  "title": "Audio Quality Evaluation",
+  "subtitle": "Please listen carefully and rate the audio quality of each clip.",
+  "target_accent": "",
+  "randomized_order_seed": 260813,
+  "page_size": 5,
+  "cooldown_every_samples": 15,
+  "cooldown_seconds": 12,
+  "response_api_url": "https://abc123.ngrok-free.app/api/submissions",
+  "apps_script_webapp_url": "",
+  "prolific_completion_url": "TODO_PROLIFIC_COMPLETION_URL",
+  "mos_scale": [
+    {
+      "value": 5,
+      "label": "Excellent",
+      "distortion": "Imperceptible"
+    },
+    {
+      "value": 4,
+      "label": "Good",
+      "distortion": "Just perceptible, but not annoying"
+    },
+    {
+      "value": 3,
+      "label": "Fair",
+      "distortion": "Perceptible and slightly annoying"
+    },
+    {
+      "value": 2,
+      "label": "Poor",
+      "distortion": "Annoying, but not objectionable"
+    },
+    {
+      "value": 1,
+      "label": "Bad",
+      "distortion": "Very annoying and objectionable"
+    }
+  ],
+  "reference_samples": [
+    {
+      "value": 5,
+      "label": "Excellent",
+      "distortion": "Imperceptible",
+      "clip_a": "../../../commons/reference_samples_mos/Reference/5A.wav",
+      "clip_b": "../../../commons/reference_samples_mos/Reference/5B.wav"
+    },
+    {
+      "value": 4,
+      "label": "Good",
+      "distortion": "Just perceptible, but not annoying",
+      "clip_a": "../../../commons/reference_samples_mos/Reference/4A.wav",
+      "clip_b": "../../../commons/reference_samples_mos/Reference/4B.wav"
+    },
+    {
+      "value": 3,
+      "label": "Fair",
+      "distortion": "Perceptible and slightly annoying",
+      "clip_a": "../../../commons/reference_samples_mos/Reference/3A.wav",
+      "clip_b": "../../../commons/reference_samples_mos/Reference/3B.wav"
+    },
+    {
+      "value": 2,
+      "label": "Poor",
+      "distortion": "Annoying, but not objectionable",
+      "clip_a": "../../../commons/reference_samples_mos/Reference/2A.wav",
+      "clip_b": "../../../commons/reference_samples_mos/Reference/2B.wav"
+    },
+    {
+      "value": 1,
+      "label": "Bad",
+      "distortion": "Very annoying and objectionable",
+      "clip_a": "../../../commons/reference_samples_mos/Reference/1A.wav",
+      "clip_b": "../../../commons/reference_samples_mos/Reference/1B.wav"
+    }
+  ],
+  "trials": [
+    {
+      "condition": "seedvc",
+      "condition_label": "SeedVC",
+      "source_index": 3,
+      "audio": "audio/seedvc_03.wav",
+      "qid": "Q001",
+      "display_index": 1,
+      "page": 1,
+      "cooldown_block": 1
+    },
+    {
+      "condition": "TVTSyn",
+      "condition_label": "TVTSyn",
+      "source_index": 3,
+      "audio": "audio/TVTSyn_03.wav",
+      "qid": "Q002",
+      "display_index": 2,
+      "page": 1,
+      "cooldown_block": 1
+    },
+    {
+      "condition": "seedvc",
+      "condition_label": "SeedVC",
+      "source_index": 14,
+      "audio": "audio/seedvc_14.wav",
+      "qid": "Q003",
+      "display_index": 3,
+      "page": 1,
+      "cooldown_block": 1
+    },
+    {
+      "condition": "TVTSyn",
+      "condition_label": "TVTSyn",
+      "source_index": 10,
+      "audio": "audio/TVTSyn_10.wav",
+      "qid": "Q004",
+      "display_index": 4,
+      "page": 1,
+      "cooldown_block": 1
+    },
+    {
+      "condition": "original",
+      "condition_label": "Original speech",
+      "source_index": 10,
+      "audio": "audio/original_10.wav",
+      "qid": "Q005",
+      "display_index": 5,
+      "page": 1,
+      "cooldown_block": 1
+    },
+    {
+      "condition": "PHONOS",
+      "condition_label": "PHONOS",
+      "source_index": 6,
+      "audio": "audio/PHONOS_06.wav",
+      "qid": "Q006",
+      "display_index": 6,
+      "page": 2,
+      "cooldown_block": 1
+    },
+    {
+      "condition": "PHONOS",
+      "condition_label": "PHONOS",
+      "source_index": 3,
+      "audio": "audio/PHONOS_03.wav",
+      "qid": "Q007",
+      "display_index": 7,
+      "page": 2,
+      "cooldown_block": 1
+    },
+    {
+      "condition": "original",
+      "condition_label": "Original speech",
+      "source_index": 15,
+      "audio": "audio/original_15.wav",
+      "qid": "Q008",
+      "display_index": 8,
+      "page": 2,
+      "cooldown_block": 1
+    },
+    {
+      "condition": "TVTSyn",
+      "condition_label": "TVTSyn",
+      "source_index": 14,
+      "audio": "audio/TVTSyn_14.wav",
+      "qid": "Q009",
+      "display_index": 9,
+      "page": 2,
+      "cooldown_block": 1
+    },
+    {
+      "condition": "seedvc",
+      "condition_label": "SeedVC",
+      "source_index": 11,
+      "audio": "audio/seedvc_11.wav",
+      "qid": "Q010",
+      "display_index": 10,
+      "page": 2,
+      "cooldown_block": 1
+    },
+    {
+      "condition": "TVTSyn",
+      "condition_label": "TVTSyn",
+      "source_index": 6,
+      "audio": "audio/TVTSyn_06.wav",
+      "qid": "Q011",
+      "display_index": 11,
+      "page": 3,
+      "cooldown_block": 1
+    },
+    {
+      "condition": "seedvc",
+      "condition_label": "SeedVC",
+      "source_index": 15,
+      "audio": "audio/seedvc_15.wav",
+      "qid": "Q012",
+      "display_index": 12,
+      "page": 3,
+      "cooldown_block": 1
+    },
+    {
+      "condition": "PHONOS",
+      "condition_label": "PHONOS",
+      "source_index": 9,
+      "audio": "audio/PHONOS_09.wav",
+      "qid": "Q013",
+      "display_index": 13,
+      "page": 3,
+      "cooldown_block": 1
+    },
+    {
+      "condition": "PHONOS",
+      "condition_label": "PHONOS",
+      "source_index": 14,
+      "audio": "audio/PHONOS_14.wav",
+      "qid": "Q014",
+      "display_index": 14,
+      "page": 3,
+      "cooldown_block": 1
+    },
+    {
+      "condition": "original",
+      "condition_label": "Original speech",
+      "source_index": 6,
+      "audio": "audio/original_06.wav",
+      "qid": "Q015",
+      "display_index": 15,
+      "page": 3,
+      "cooldown_block": 1
+    },
+    {
+      "condition": "TVTSyn",
+      "condition_label": "TVTSyn",
+      "source_index": 1,
+      "audio": "audio/TVTSyn_01.wav",
+      "qid": "Q016",
+      "display_index": 16,
+      "page": 4,
+      "cooldown_block": 2
+    },
+    {
+      "condition": "PHONOS",
+      "condition_label": "PHONOS",
+      "source_index": 11,
+      "audio": "audio/PHONOS_11.wav",
+      "qid": "Q017",
+      "display_index": 17,
+      "page": 4,
+      "cooldown_block": 2
+    },
+    {
+      "condition": "PHONOS",
+      "condition_label": "PHONOS",
+      "source_index": 7,
+      "audio": "audio/PHONOS_07.wav",
+      "qid": "Q018",
+      "display_index": 18,
+      "page": 4,
+      "cooldown_block": 2
+    },
+    {
+      "condition": "TVTSyn",
+      "condition_label": "TVTSyn",
+      "source_index": 13,
+      "audio": "audio/TVTSyn_13.wav",
+      "qid": "Q019",
+      "display_index": 19,
+      "page": 4,
+      "cooldown_block": 2
+    },
+    {
+      "condition": "original",
+      "condition_label": "Original speech",
+      "source_index": 13,
+      "audio": "audio/original_13.wav",
+      "qid": "Q020",
+      "display_index": 20,
+      "page": 4,
+      "cooldown_block": 2
+    },
+    {
+      "condition": "seedvc",
+      "condition_label": "SeedVC",
+      "source_index": 4,
+      "audio": "audio/seedvc_04.wav",
+      "qid": "Q021",
+      "display_index": 21,
+      "page": 5,
+      "cooldown_block": 2
+    },
+    {
+      "condition": "TVTSyn",
+      "condition_label": "TVTSyn",
+      "source_index": 8,
+      "audio": "audio/TVTSyn_08.wav",
+      "qid": "Q022",
+      "display_index": 22,
+      "page": 5,
+      "cooldown_block": 2
+    },
+    {
+      "condition": "original",
+      "condition_label": "Original speech",
+      "source_index": 2,
+      "audio": "audio/original_02.wav",
+      "qid": "Q023",
+      "display_index": 23,
+      "page": 5,
+      "cooldown_block": 2
+    },
+    {
+      "condition": "PHONOS",
+      "condition_label": "PHONOS",
+      "source_index": 4,
+      "audio": "audio/PHONOS_04.wav",
+      "qid": "Q024",
+      "display_index": 24,
+      "page": 5,
+      "cooldown_block": 2
+    },
+    {
+      "condition": "seedvc",
+      "condition_label": "SeedVC",
+      "source_index": 7,
+      "audio": "audio/seedvc_07.wav",
+      "qid": "Q025",
+      "display_index": 25,
+      "page": 5,
+      "cooldown_block": 2
+    },
+    {
+      "condition": "PHONOS",
+      "condition_label": "PHONOS",
+      "source_index": 5,
+      "audio": "audio/PHONOS_05.wav",
+      "qid": "Q026",
+      "display_index": 26,
+      "page": 6,
+      "cooldown_block": 2
+    },
+    {
+      "condition": "seedvc",
+      "condition_label": "SeedVC",
+      "source_index": 12,
+      "audio": "audio/seedvc_12.wav",
+      "qid": "Q027",
+      "display_index": 27,
+      "page": 6,
+      "cooldown_block": 2
+    },
+    {
+      "condition": "TVTSyn",
+      "condition_label": "TVTSyn",
+      "source_index": 15,
+      "audio": "audio/TVTSyn_15.wav",
+      "qid": "Q028",
+      "display_index": 28,
+      "page": 6,
+      "cooldown_block": 2
+    },
+    {
+      "condition": "seedvc",
+      "condition_label": "SeedVC",
+      "source_index": 10,
+      "audio": "audio/seedvc_10.wav",
+      "qid": "Q029",
+      "display_index": 29,
+      "page": 6,
+      "cooldown_block": 2
+    },
+    {
+      "condition": "PHONOS",
+      "condition_label": "PHONOS",
+      "source_index": 2,
+      "audio": "audio/PHONOS_02.wav",
+      "qid": "Q030",
+      "display_index": 30,
+      "page": 6,
+      "cooldown_block": 2
+    },
+    {
+      "condition": "TVTSyn",
+      "condition_label": "TVTSyn",
+      "source_index": 9,
+      "audio": "audio/TVTSyn_09.wav",
+      "qid": "Q031",
+      "display_index": 31,
+      "page": 7,
+      "cooldown_block": 3
+    },
+    {
+      "condition": "original",
+      "condition_label": "Original speech",
+      "source_index": 9,
+      "audio": "audio/original_09.wav",
+      "qid": "Q032",
+      "display_index": 32,
+      "page": 7,
+      "cooldown_block": 3
+    },
+    {
+      "condition": "seedvc",
+      "condition_label": "SeedVC",
+      "source_index": 8,
+      "audio": "audio/seedvc_08.wav",
+      "qid": "Q033",
+      "display_index": 33,
+      "page": 7,
+      "cooldown_block": 3
+    },
+    {
+      "condition": "original",
+      "condition_label": "Original speech",
+      "source_index": 5,
+      "audio": "audio/original_05.wav",
+      "qid": "Q034",
+      "display_index": 34,
+      "page": 7,
+      "cooldown_block": 3
+    },
+    {
+      "condition": "seedvc",
+      "condition_label": "SeedVC",
+      "source_index": 9,
+      "audio": "audio/seedvc_09.wav",
+      "qid": "Q035",
+      "display_index": 35,
+      "page": 7,
+      "cooldown_block": 3
+    },
+    {
+      "condition": "original",
+      "condition_label": "Original speech",
+      "source_index": 11,
+      "audio": "audio/original_11.wav",
+      "qid": "Q036",
+      "display_index": 36,
+      "page": 8,
+      "cooldown_block": 3
+    },
+    {
+      "condition": "original",
+      "condition_label": "Original speech",
+      "source_index": 14,
+      "audio": "audio/original_14.wav",
+      "qid": "Q037",
+      "display_index": 37,
+      "page": 8,
+      "cooldown_block": 3
+    },
+    {
+      "condition": "TVTSyn",
+      "condition_label": "TVTSyn",
+      "source_index": 2,
+      "audio": "audio/TVTSyn_02.wav",
+      "qid": "Q038",
+      "display_index": 38,
+      "page": 8,
+      "cooldown_block": 3
+    },
+    {
+      "condition": "seedvc",
+      "condition_label": "SeedVC",
+      "source_index": 6,
+      "audio": "audio/seedvc_06.wav",
+      "qid": "Q039",
+      "display_index": 39,
+      "page": 8,
+      "cooldown_block": 3
+    },
+    {
+      "condition": "TVTSyn",
+      "condition_label": "TVTSyn",
+      "source_index": 7,
+      "audio": "audio/TVTSyn_07.wav",
+      "qid": "Q040",
+      "display_index": 40,
+      "page": 8,
+      "cooldown_block": 3
+    },
+    {
+      "condition": "TVTSyn",
+      "condition_label": "TVTSyn",
+      "source_index": 11,
+      "audio": "audio/TVTSyn_11.wav",
+      "qid": "Q041",
+      "display_index": 41,
+      "page": 9,
+      "cooldown_block": 3
+    },
+    {
+      "condition": "PHONOS",
+      "condition_label": "PHONOS",
+      "source_index": 1,
+      "audio": "audio/PHONOS_01.wav",
+      "qid": "Q042",
+      "display_index": 42,
+      "page": 9,
+      "cooldown_block": 3
+    },
+    {
+      "condition": "seedvc",
+      "condition_label": "SeedVC",
+      "source_index": 2,
+      "audio": "audio/seedvc_02.wav",
+      "qid": "Q043",
+      "display_index": 43,
+      "page": 9,
+      "cooldown_block": 3
+    },
+    {
+      "condition": "PHONOS",
+      "condition_label": "PHONOS",
+      "source_index": 13,
+      "audio": "audio/PHONOS_13.wav",
+      "qid": "Q044",
+      "display_index": 44,
+      "page": 9,
+      "cooldown_block": 3
+    },
+    {
+      "condition": "TVTSyn",
+      "condition_label": "TVTSyn",
+      "source_index": 5,
+      "audio": "audio/TVTSyn_05.wav",
+      "qid": "Q045",
+      "display_index": 45,
+      "page": 9,
+      "cooldown_block": 3
+    },
+    {
+      "condition": "original",
+      "condition_label": "Original speech",
+      "source_index": 3,
+      "audio": "audio/original_03.wav",
+      "qid": "Q046",
+      "display_index": 46,
+      "page": 10,
+      "cooldown_block": 4
+    },
+    {
+      "condition": "TVTSyn",
+      "condition_label": "TVTSyn",
+      "source_index": 12,
+      "audio": "audio/TVTSyn_12.wav",
+      "qid": "Q047",
+      "display_index": 47,
+      "page": 10,
+      "cooldown_block": 4
+    },
+    {
+      "condition": "TVTSyn",
+      "condition_label": "TVTSyn",
+      "source_index": 4,
+      "audio": "audio/TVTSyn_04.wav",
+      "qid": "Q048",
+      "display_index": 48,
+      "page": 10,
+      "cooldown_block": 4
+    },
+    {
+      "condition": "PHONOS",
+      "condition_label": "PHONOS",
+      "source_index": 15,
+      "audio": "audio/PHONOS_15.wav",
+      "qid": "Q049",
+      "display_index": 49,
+      "page": 10,
+      "cooldown_block": 4
+    },
+    {
+      "condition": "original",
+      "condition_label": "Original speech",
+      "source_index": 8,
+      "audio": "audio/original_08.wav",
+      "qid": "Q050",
+      "display_index": 50,
+      "page": 10,
+      "cooldown_block": 4
+    },
+    {
+      "condition": "original",
+      "condition_label": "Original speech",
+      "source_index": 7,
+      "audio": "audio/original_07.wav",
+      "qid": "Q051",
+      "display_index": 51,
+      "page": 11,
+      "cooldown_block": 4
+    },
+    {
+      "condition": "seedvc",
+      "condition_label": "SeedVC",
+      "source_index": 13,
+      "audio": "audio/seedvc_13.wav",
+      "qid": "Q052",
+      "display_index": 52,
+      "page": 11,
+      "cooldown_block": 4
+    },
+    {
+      "condition": "original",
+      "condition_label": "Original speech",
+      "source_index": 1,
+      "audio": "audio/original_01.wav",
+      "qid": "Q053",
+      "display_index": 53,
+      "page": 11,
+      "cooldown_block": 4
+    },
+    {
+      "condition": "original",
+      "condition_label": "Original speech",
+      "source_index": 4,
+      "audio": "audio/original_04.wav",
+      "qid": "Q054",
+      "display_index": 54,
+      "page": 11,
+      "cooldown_block": 4
+    },
+    {
+      "condition": "PHONOS",
+      "condition_label": "PHONOS",
+      "source_index": 12,
+      "audio": "audio/PHONOS_12.wav",
+      "qid": "Q055",
+      "display_index": 55,
+      "page": 11,
+      "cooldown_block": 4
+    },
+    {
+      "condition": "seedvc",
+      "condition_label": "SeedVC",
+      "source_index": 5,
+      "audio": "audio/seedvc_05.wav",
+      "qid": "Q056",
+      "display_index": 56,
+      "page": 12,
+      "cooldown_block": 4
+    },
+    {
+      "condition": "original",
+      "condition_label": "Original speech",
+      "source_index": 12,
+      "audio": "audio/original_12.wav",
+      "qid": "Q057",
+      "display_index": 57,
+      "page": 12,
+      "cooldown_block": 4
+    },
+    {
+      "condition": "seedvc",
+      "condition_label": "SeedVC",
+      "source_index": 1,
+      "audio": "audio/seedvc_01.wav",
+      "qid": "Q058",
+      "display_index": 58,
+      "page": 12,
+      "cooldown_block": 4
+    },
+    {
+      "condition": "PHONOS",
+      "condition_label": "PHONOS",
+      "source_index": 8,
+      "audio": "audio/PHONOS_08.wav",
+      "qid": "Q059",
+      "display_index": 59,
+      "page": 12,
+      "cooldown_block": 4
+    },
+    {
+      "condition": "PHONOS",
+      "condition_label": "PHONOS",
+      "source_index": 10,
+      "audio": "audio/PHONOS_10.wav",
+      "qid": "Q060",
+      "display_index": 60,
+      "page": 12,
+      "cooldown_block": 4
+    }
+  ]
+}

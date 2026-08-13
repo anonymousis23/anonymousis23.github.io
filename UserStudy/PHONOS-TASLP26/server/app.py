@@ -34,6 +34,7 @@ class Submission(Base):
 
     id = Column(String, primary_key=True)
     study_id = Column(String, index=True, nullable=False)
+    task_type = Column(String, index=True, default="")
     target_accent = Column(String, index=True, default="")
     prolific_pid = Column(String, index=True, default="")
     participant_id = Column(String, index=True, default="")
@@ -51,6 +52,7 @@ class TrialResponse(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     submission_id = Column(String, index=True, nullable=False)
     study_id = Column(String, index=True, nullable=False)
+    task_type = Column(String, index=True, default="")
     qid = Column(String, index=True, default="")
     display_index = Column(Integer, nullable=True)
     page = Column(Integer, nullable=True)
@@ -61,11 +63,15 @@ class TrialResponse(Base):
     source_index = Column(Integer, nullable=True)
     accent_choice = Column(String, index=True, default="")
     confidence = Column(Integer, nullable=True)
+    mos_rating = Column(Integer, nullable=True)
+    mos_label = Column(String, index=True, default="")
+    distortion_label = Column(Text, default="")
     response_ts_ms = Column(Float, nullable=True)
 
 
 class SubmissionPayload(BaseModel):
     study_id: str = Field(..., min_length=1)
+    task_type: str | None = ""
     title: str | None = ""
     target_accent: str | None = ""
     randomized_order_seed: int | None = None
@@ -118,7 +124,7 @@ def as_float(value: Any) -> float | None:
         return None
 
 
-app = FastAPI(title="PHONOS Accent Study Response API")
+app = FastAPI(title="PHONOS Listening Study Response API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
@@ -157,6 +163,7 @@ async def create_submission(payload: SubmissionPayload, request: Request, db: Se
         Submission(
             id=submission_id,
             study_id=payload.study_id,
+            task_type=payload.task_type or "",
             target_accent=payload.target_accent or "",
             prolific_pid=prolific_pid,
             participant_id=participant_id,
@@ -173,6 +180,7 @@ async def create_submission(payload: SubmissionPayload, request: Request, db: Se
             TrialResponse(
                 submission_id=submission_id,
                 study_id=payload.study_id,
+                task_type=payload.task_type or str(row.get("task_type") or ""),
                 qid=str(row.get("qid") or ""),
                 display_index=as_int(row.get("display_index")),
                 page=as_int(row.get("page")),
@@ -183,6 +191,9 @@ async def create_submission(payload: SubmissionPayload, request: Request, db: Se
                 source_index=as_int(row.get("source_index")),
                 accent_choice=str(row.get("accent_choice") or ""),
                 confidence=as_int(row.get("confidence")),
+                mos_rating=as_int(row.get("mos_rating")),
+                mos_label=str(row.get("mos_label") or ""),
+                distortion_label=str(row.get("distortion_label") or ""),
                 response_ts_ms=as_float(row.get("response_ts")),
             )
         )
@@ -198,6 +209,7 @@ def list_submissions(_: None = Depends(require_admin), db: Session = Depends(get
         {
             "id": r.id,
             "study_id": r.study_id,
+            "task_type": r.task_type,
             "target_accent": r.target_accent,
             "prolific_pid": r.prolific_pid,
             "participant_id": r.participant_id,
@@ -227,6 +239,7 @@ def export_submissions(_: None = Depends(require_admin), db: Session = Depends(g
         {
             "submission_id": r.id,
             "study_id": r.study_id,
+            "task_type": r.task_type,
             "target_accent": r.target_accent,
             "prolific_pid": r.prolific_pid,
             "participant_id": r.participant_id,
@@ -248,6 +261,7 @@ def export_trial_responses(_: None = Depends(require_admin), db: Session = Depen
         {
             "submission_id": r.submission_id,
             "study_id": r.study_id,
+            "task_type": r.task_type,
             "qid": r.qid,
             "display_index": r.display_index,
             "page": r.page,
@@ -258,6 +272,9 @@ def export_trial_responses(_: None = Depends(require_admin), db: Session = Depen
             "source_index": r.source_index,
             "accent_choice": r.accent_choice,
             "confidence": r.confidence,
+            "mos_rating": r.mos_rating,
+            "mos_label": r.mos_label,
+            "distortion_label": r.distortion_label,
             "response_ts_ms": r.response_ts_ms,
         }
         for r in records

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PHONOS MOS Listening Test</title>
+  <link rel="stylesheet" href="assets/style.css?v=20260813a">
+</head>
+<body data-config="trials.json">
+  <main>
+    <header>
+      <h1 id="title">Audio Quality Evaluation</h1>
+      <p id="subtitle">Please listen carefully and rate the audio quality of each clip.</p>
+    </header>
+
+    <section class="panel instructions-panel" aria-labelledby="instructionsTitle">
+      <h2 id="instructionsTitle">Instructions</h2>
+      <h3>In the question set 1 to 12, a list of recordings are organized in rows. In each row, you will see an audio clip.
+        Please listen to the recording and rate its <em><strong><span style="color:red">audio quality</span></strong></em>
+        using the scale: "Excellent", "Good", 'Fair", "Poor", and "Bad". For example, a "Good" sound clip would be one with some amount of distortion, but the distortion is not annoying.
+      </h3>
+
+      <h3>To give you a better idea about how to rate, reference samples for each of these categories are given in the below table. It is essential that you refer to them before making your choice.</h3>
+
+      <div id="referenceSamples" class="reference-samples" aria-label="MOS reference samples"></div>
+
+      <ul>
+        <li>You may listen to each clip more than once if needed; just click the play button to replay.</li>
+        <li>Your responses will be manually screened to ensure that you made a serious effort to rate the recordings. If your answers are determined to be random or contain inconsistent answers, the task may be rejected and you may not receive payment</li>
+        <li>Please perform these tasks in a quiet place using a pair of good headphones. It is recommended that you set the volume a bit higher than normal for these tasks.</li>
+        <li>If you are having trouble viewing or listening to the sound clips, please try completing the test in Google Chrome.</li>
+        <li>Please make sure that you've finished all the questions before submitting.</li>
+      </ul>
+    </section>
+
+    <section id="studySection">
+      <div class="progress-wrap" aria-live="polite">
+        <div class="progress-row">
+          <span id="pageLabel" class="progress-label">Page 1 of 12</span>
+          <span id="progressText">0 / 60 answered</span>
+        </div>
+        <div class="progressbar" aria-hidden="true"><div id="progressFill"></div></div>
+      </div>
+
+      <h2 id="pageTitle" class="page-title">Samples 1-5</h2>
+      <div id="trialContainer"></div>
+
+      <div class="nav">
+        <button id="backButton" class="secondary" type="button">Back</button>
+        <div id="pageStatus" class="inline-status">Please rate all five samples.</div>
+        <button id="nextButton" type="button">Next</button>
+      </div>
+    </section>
+
+    <section id="submitSection" class="post hidden">
+      <h2>Submit Your Ratings</h2>
+      <p id="submitSummary">60 / 60 samples rated.</p>
+
+      <label for="participant_id">Participant ID</label>
+      <input id="participant_id" class="post-survey" name="participant_id" autocomplete="off">
+
+      <label for="comments">Optional comments</label>
+      <textarea id="comments" class="post-survey" name="comments" rows="4"></textarea>
+
+      <div class="nav">
+        <button id="reviewButton" class="secondary" type="button">Back to review</button>
+        <button id="submitButton" type="button">Submit</button>
+      </div>
+      <p id="submitStatus" class="inline-status"></p>
+      <pre id="backupBox" class="output-box hidden"></pre>
+    </section>
+  </main>
+
+  <div id="cooldownOverlay" class="cooldown hidden" role="dialog" aria-modal="true" aria-labelledby="cooldownTitle">
+    <div class="cooldown-box">
+      <h2 id="cooldownTitle">Short break</h2>
+      <p>Please rest your ears before continuing.</p>
+      <div id="cooldownTimer" class="cooldown-time">12</div>
+      <button id="cooldownContinue" type="button" disabled>Please wait</button>
+    </div>
+  </div>
+
+  <script src="assets/app.js?v=20260813a"></script>
+</body>
+</html>

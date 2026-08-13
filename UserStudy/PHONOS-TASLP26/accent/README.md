@@ -44,12 +44,12 @@ If you prefer different filenames, update the `audio` field in both `trials.json
 
 ## Recommended Response Capture Backend
 
-A small FastAPI backend is included in `server/`. It is more reliable than Google Apps Script for full-study JSON submissions and stores both raw submissions and normalized per-trial rows.
+Use the shared FastAPI backend in `../server/`. It is more reliable than Google Apps Script for full-study JSON submissions and stores both raw submissions and normalized per-trial rows. The same backend is used by the accent and MOS studies.
 
 Quick start:
 
 ```bash
-cd /data/waris/code/anonymousis23.github.io/UserStudy/PHONOS-TASLP26/accent/server
+cd /data/waris/code/anonymousis23.github.io/UserStudy/PHONOS-TASLP26/server
 python3.10 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt

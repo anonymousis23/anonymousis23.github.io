@@ -1,0 +1,61 @@
+qid,display_index,page,cooldown_block,condition,condition_label,source_index,audio
+Q001,1,1,1,seedvc,SeedVC,3,audio/seedvc_03.wav
+Q002,2,1,1,TVTSyn,TVTSyn,3,audio/TVTSyn_03.wav
+Q003,3,1,1,seedvc,SeedVC,14,audio/seedvc_14.wav
+Q004,4,1,1,TVTSyn,TVTSyn,10,audio/TVTSyn_10.wav
+Q005,5,1,1,original,Original speech,10,audio/original_10.wav
+Q006,6,2,1,PHONOS,PHONOS,6,audio/PHONOS_06.wav
+Q007,7,2,1,PHONOS,PHONOS,3,audio/PHONOS_03.wav
+Q008,8,2,1,original,Original speech,15,audio/original_15.wav
+Q009,9,2,1,TVTSyn,TVTSyn,14,audio/TVTSyn_14.wav
+Q010,10,2,1,seedvc,SeedVC,11,audio/seedvc_11.wav
+Q011,11,3,1,TVTSyn,TVTSyn,6,audio/TVTSyn_06.wav
+Q012,12,3,1,seedvc,SeedVC,15,audio/seedvc_15.wav
+Q013,13,3,1,PHONOS,PHONOS,9,audio/PHONOS_09.wav
+Q014,14,3,1,PHONOS,PHONOS,14,audio/PHONOS_14.wav
+Q015,15,3,1,original,Original speech,6,audio/original_06.wav
+Q016,16,4,2,TVTSyn,TVTSyn,1,audio/TVTSyn_01.wav
+Q017,17,4,2,PHONOS,PHONOS,11,audio/PHONOS_11.wav
+Q018,18,4,2,PHONOS,PHONOS,7,audio/PHONOS_07.wav
+Q019,19,4,2,TVTSyn,TVTSyn,13,audio/TVTSyn_13.wav
+Q020,20,4,2,original,Original speech,13,audio/original_13.wav
+Q021,21,5,2,seedvc,SeedVC,4,audio/seedvc_04.wav
+Q022,22,5,2,TVTSyn,TVTSyn,8,audio/TVTSyn_08.wav
+Q023,23,5,2,original,Original speech,2,audio/original_02.wav
+Q024,24,5,2,PHONOS,PHONOS,4,audio/PHONOS_04.wav
+Q025,25,5,2,seedvc,SeedVC,7,audio/seedvc_07.wav
+Q026,26,6,2,PHONOS,PHONOS,5,audio/PHONOS_05.wav
+Q027,27,6,2,seedvc,SeedVC,12,audio/seedvc_12.wav
+Q028,28,6,2,TVTSyn,TVTSyn,15,audio/TVTSyn_15.wav
+Q029,29,6,2,seedvc,SeedVC,10,audio/seedvc_10.wav
+Q030,30,6,2,PHONOS,PHONOS,2,audio/PHONOS_02.wav
+Q031,31,7,3,TVTSyn,TVTSyn,9,audio/TVTSyn_09.wav
+Q032,32,7,3,original,Original speech,9,audio/original_09.wav
+Q033,33,7,3,seedvc,SeedVC,8,audio/seedvc_08.wav
+Q034,34,7,3,original,Original speech,5,audio/original_05.wav
+Q035,35,7,3,seedvc,SeedVC,9,audio/seedvc_09.wav
+Q036,36,8,3,original,Original speech,11,audio/original_11.wav
+Q037,37,8,3,original,Original speech,14,audio/original_14.wav
+Q038,38,8,3,TVTSyn,TVTSyn,2,audio/TVTSyn_02.wav
+Q039,39,8,3,seedvc,SeedVC,6,audio/seedvc_06.wav
+Q040,40,8,3,TVTSyn,TVTSyn,7,audio/TVTSyn_07.wav
+Q041,41,9,3,TVTSyn,TVTSyn,11,audio/TVTSyn_11.wav
+Q042,42,9,3,PHONOS,PHONOS,1,audio/PHONOS_01.wav
+Q043,43,9,3,seedvc,SeedVC,2,audio/seedvc_02.wav
+Q044,44,9,3,PHONOS,PHONOS,13,audio/PHONOS_13.wav
+Q045,45,9,3,TVTSyn,TVTSyn,5,audio/TVTSyn_05.wav
+Q046,46,10,4,original,Original speech,3,audio/original_03.wav
+Q047,47,10,4,TVTSyn,TVTSyn,12,audio/TVTSyn_12.wav
+Q048,48,10,4,TVTSyn,TVTSyn,4,audio/TVTSyn_04.wav
+Q049,49,10,4,PHONOS,PHONOS,15,audio/PHONOS_15.wav
+Q050,50,10,4,original,Original speech,8,audio/original_08.wav
+Q051,51,11,4,original,Original speech,7,audio/original_07.wav
+Q052,52,11,4,seedvc,SeedVC,13,audio/seedvc_13.wav
+Q053,53,11,4,original,Original speech,1,audio/original_01.wav
+Q054,54,11,4,original,Original speech,4,audio/original_04.wav
+Q055,55,11,4,PHONOS,PHONOS,12,audio/PHONOS_12.wav
+Q056,56,12,4,seedvc,SeedVC,5,audio/seedvc_05.wav
+Q057,57,12,4,original,Original speech,12,audio/original_12.wav
+Q058,58,12,4,seedvc,SeedVC,1,audio/seedvc_01.wav
+Q059,59,12,4,PHONOS,PHONOS,8,audio/PHONOS_08.wav
+Q060,60,12,4,PHONOS,PHONOS,10,audio/PHONOS_10.wav

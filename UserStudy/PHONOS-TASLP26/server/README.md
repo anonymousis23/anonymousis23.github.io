@@ -1,13 +1,13 @@
-# PHONOS Accent Study Response API
+# PHONOS-TASLP26 Response API
 
-Small FastAPI backend for collecting perceptual-study responses. It stores each submission as one raw JSON payload and also expands every trial into a CSV-friendly `trial_responses` table.
+Small FastAPI backend for collecting PHONOS perceptual-study responses. The same server can be used by the accent verification studies and the MOS study. It stores each submission as one raw JSON payload and also expands every trial into a CSV-friendly `trial_responses` table.
 
 SQLite is the default and is enough for a small study. PostgreSQL is supported by setting `DATABASE_URL`.
 
 ## Setup
 
 ```bash
-cd /data/waris/code/anonymousis23.github.io/UserStudy/PHONOS-TASLP26/accent/server
+cd /data/waris/code/anonymousis23.github.io/UserStudy/PHONOS-TASLP26/server
 python3.10 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
@@ -32,6 +32,8 @@ Submission endpoint:
 ```text
 http://127.0.0.1:8787/api/submissions
 ```
+
+Set this URL in each study manifest as `response_api_url`. The payload includes `study_id` and `task_type`, so accent and MOS studies can share the same endpoint.
 
 ## Use PostgreSQL Instead of SQLite
 
@@ -74,3 +76,5 @@ With a token:
 ```bash
 curl "http://127.0.0.1:8787/api/export/trial_responses.csv?token=YOUR_TOKEN" -o trial_responses.csv
 ```
+
+MOS rows use `mos_rating`, `mos_label`, and `distortion_label`. Accent rows use `accent_choice` and `confidence`. Raw JSON always contains the full original browser payload.
