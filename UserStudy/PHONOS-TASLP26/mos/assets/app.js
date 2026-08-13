@@ -48,7 +48,7 @@ async function loadConfig() {
   setText('#subtitle', config.subtitle || 'Please listen carefully and rate the audio quality of each clip.');
   renderReferences();
   loadLocalDraft();
-  renderPage();
+  renderPage({ scroll: false });
 }
 
 function mosScale() {
@@ -104,7 +104,17 @@ function updateProgress() {
   if (fill) fill.style.width = `${total ? 100 * done / total : 0}%`;
 }
 
-function renderPage() {
+function scrollToStudyTop() {
+  const target = qs('#studySection');
+  if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function scrollToInstructions() {
+  const target = qs('#instructionsTitle') || qs('.instructions-panel');
+  if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderPage({ scroll = true } = {}) {
   const trials = currentTrials();
   const container = qs('#trialContainer');
   const pageTotal = pageCount();
@@ -117,7 +127,7 @@ function renderPage() {
   setText('#nextButton', state.page === pageTotal - 1 ? 'Review and submit' : 'Next');
   updateProgress();
   updatePageCompletion();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (scroll) scrollToStudyTop();
 }
 
 function renderTrial(t) {
@@ -221,7 +231,7 @@ async function goNext() {
   if (nextPage < pageCount()) {
     await maybeCooldown(nextPage);
     state.page = nextPage;
-    renderPage();
+    renderPage({ scroll: false });
   } else {
     showSubmit();
   }
@@ -350,6 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
   qs('#backButton')?.addEventListener('click', goBack);
   qs('#submitButton')?.addEventListener('click', submitStudy);
   qs('#reviewButton')?.addEventListener('click', reviewStudy);
+  qs('#instructionsButton')?.addEventListener('click', scrollToInstructions);
   loadConfig().catch(err => {
     console.error(err);
     setHtml('#trialContainer', `<div class="notice"><strong>Study could not load</strong><br>${escapeHtml(err.message)}</div>`);

@@ -70,7 +70,9 @@ a { color: var(--accent); font-weight: 750; }
 .progress-label { font-weight: 850; color: #25364a; }
 .progressbar { height: 10px; border-radius: 999px; background: #e8eef5; overflow: hidden; }
 .progressbar > div { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .2s ease; }
-.page-title { margin: 0 0 10px; font-size: 25px; }
+.page-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 10px; }
+.page-title { margin: 0; font-size: 25px; }
+.small-button { padding: 9px 12px; font-size: 14px; white-space: nowrap; }
 .card { background: var(--soft); margin: 14px 0; padding: 16px; box-shadow: none; }
 .card.complete { background: var(--ok-bg); }
 .card-top { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 10px; }
@@ -127,7 +129,7 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .output-box { white-space: pre-wrap; overflow: auto; max-height: 260px; background: #0e1720; color: #e8f0f7; padding: 12px; border-radius: 8px; font-size: 13px; }
 @media (max-width: 860px) {
   main { padding: 18px 12px 70px; }
-  .progress-row, .nav { align-items: stretch; flex-direction: column; }
+  .progress-row, .nav, .page-heading { align-items: stretch; flex-direction: column; }
   .mos-grid { grid-template-columns: 1fr; }
   .mos-option {
     min-height: auto;
