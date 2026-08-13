@@ -16,6 +16,9 @@ const state = {
 
 function qs(sel, root = document) { return root.querySelector(sel); }
 function qsa(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
+function setText(sel, value) { const el = qs(sel); if (el) el.textContent = value; }
+function setHtml(sel, value) { const el = qs(sel); if (el) el.innerHTML = value; }
+function setDisabled(sel, value) { const el = qs(sel); if (el) el.disabled = value; }
 function getParams() {
   const p = new URLSearchParams(window.location.search);
   return {
@@ -40,13 +43,13 @@ async function loadConfig() {
   state.config = config;
   state.trials = config.trials || [];
   document.title = config.title || 'Accent Verification Study';
-  qs('#title').textContent = config.title || 'Accent Verification Study';
-  qs('#subtitle').textContent = config.subtitle || 'Accent verification listening study';
-  qs('#choiceA').textContent = config.choice_labels?.[0] || 'American';
-  qs('#choiceB').textContent = config.choice_labels?.[1] || 'Target accent';
-  if (qs('#totalCount')) qs('#totalCount').textContent = state.trials.length;
-  if (qs('#pageSize')) qs('#pageSize').textContent = PAGE_SIZE;
-  if (qs('#cooldownEvery')) qs('#cooldownEvery').textContent = PAGE_SIZE * COOLDOWN_EVERY_PAGES;
+  setText('#title', config.title || 'Accent Verification Study');
+  setText('#subtitle', config.subtitle || 'Accent verification listening study');
+  setText('#choiceA', config.choice_labels?.[0] || 'American');
+  setText('#choiceB', config.choice_labels?.[1] || 'Target accent');
+  setText('#totalCount', state.trials.length);
+  setText('#pageSize', PAGE_SIZE);
+  setText('#cooldownEvery', PAGE_SIZE * COOLDOWN_EVERY_PAGES);
   renderPage();
 }
 function pageCount() { return Math.ceil(state.trials.length / PAGE_SIZE); }
@@ -62,20 +65,22 @@ function completedCount() { return state.trials.filter(t => isAnswered(t.qid)).l
 function updateProgress() {
   const done = completedCount();
   const total = state.trials.length;
-  qs('#progressText').textContent = `${done} / ${total} answered`;
-  qs('#progressFill').style.width = `${total ? 100 * done / total : 0}%`;
+  setText('#progressText', `${done} / ${total} answered`);
+  const fill = qs('#progressFill');
+  if (fill) fill.style.width = `${total ? 100 * done / total : 0}%`;
 }
 function renderPage() {
   const trials = currentTrials();
   const container = qs('#trialContainer');
   const pageTotal = pageCount();
-  qs('#pageLabel').textContent = `Page ${state.page + 1} of ${pageTotal}`;
-  qs('#pageTitle').textContent = `Samples ${state.page * PAGE_SIZE + 1}-${Math.min((state.page + 1) * PAGE_SIZE, state.trials.length)}`;
+  setText('#pageLabel', `Page ${state.page + 1} of ${pageTotal}`);
+  setText('#pageTitle', `Samples ${state.page * PAGE_SIZE + 1}-${Math.min((state.page + 1) * PAGE_SIZE, state.trials.length)}`);
+  if (!container) return;
   container.innerHTML = trials.map(renderTrial).join('');
   qsa('.accent-choice').forEach(el => el.addEventListener('change', onResponseChange));
   qsa('.confidence-choice').forEach(el => el.addEventListener('change', onResponseChange));
-  qs('#backButton').disabled = state.page === 0;
-  qs('#nextButton').textContent = state.page === pageTotal - 1 ? 'Review and submit' : 'Next';
+  setDisabled('#backButton', state.page === 0);
+  setText('#nextButton', state.page === pageTotal - 1 ? 'Review and submit' : 'Next');
   updateProgress();
   updatePageCompletion();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -119,7 +124,7 @@ function onResponseChange(event) {
 }
 function updatePageCompletion() {
   const missing = currentTrials().filter(t => !isAnswered(t.qid)).map(t => t.qid);
-  qs('#pageStatus').textContent = missing.length ? `Missing: ${missing.join(', ')}` : 'All samples on this page are rated.';
+  setText('#pageStatus', missing.length ? `Missing: ${missing.join(', ')}` : 'All samples on this page are rated.');
 }
 function pageComplete() { return currentTrials().every(t => isAnswered(t.qid)); }
 function saveLocalDraft() {
@@ -145,21 +150,21 @@ function showCooldown(seconds) {
     const btn = qs('#cooldownContinue');
     let left = seconds;
     overlay.classList.remove('hidden');
-    btn.disabled = true;
-    timer.textContent = left;
+    if (btn) btn.disabled = true;
+    if (timer) timer.textContent = left;
     const interval = setInterval(() => {
       left -= 1;
-      timer.textContent = left;
+      if (timer) timer.textContent = left;
       if (left <= 0) {
         clearInterval(interval);
-        btn.disabled = false;
-        btn.textContent = 'Continue';
+        if (btn) btn.disabled = false;
+        if (btn) btn.textContent = 'Continue';
       }
     }, 1000);
     btn.onclick = () => {
       if (left > 0) return;
       overlay.classList.add('hidden');
-      btn.textContent = 'Please wait';
+      if (btn) btn.textContent = 'Please wait';
       resolve();
     };
   });
@@ -190,7 +195,7 @@ function goBack() {
 function showSubmit() {
   qs('#studySection').classList.add('hidden');
   qs('#submitSection').classList.remove('hidden');
-  qs('#submitSummary').textContent = `${completedCount()} / ${state.trials.length} samples rated.`;
+  setText('#submitSummary', `${completedCount()} / ${state.trials.length} samples rated.`);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function collectPayload() {
@@ -255,8 +260,8 @@ async function submitStudy() {
   }
   const btn = qs('#submitButton');
   const status = qs('#submitStatus');
-  btn.disabled = true;
-  status.textContent = 'Preparing response file...';
+  if (btn) btn.disabled = true;
+  setText('#submitStatus', 'Preparing response file...');
   const payload = collectPayload();
   let uploaded = false;
   let uploadError = null;
@@ -270,16 +275,16 @@ async function submitStudy() {
   try { localStorage.removeItem(`phonostudy:${state.config.study_id}:draft`); } catch(e) {}
 
   if (uploaded) {
-    status.textContent = `Saved to server and downloaded backup ${filename}.`;
+    setText('#submitStatus', `Saved to server and downloaded backup ${filename}.`);
     const completionUrl = configuredUrl(state.config.prolific_completion_url, DEFAULT_PROLIFIC_COMPLETION_URL);
     if (completionUrl) window.location.href = completionUrl;
   } else if (uploadError) {
-    status.textContent = `Server upload failed, but downloaded backup ${filename}. Please keep this file.`;
+    setText('#submitStatus', `Server upload failed, but downloaded backup ${filename}. Please keep this file.`);
     alert(`Server upload failed, but your responses were downloaded as ${filename}. Details: ${uploadError.message || uploadError}`);
-    btn.disabled = false;
+    if (btn) btn.disabled = false;
   } else {
-    status.textContent = `Downloaded ${filename}. Please keep this file for upload if requested.`;
-    btn.disabled = false;
+    setText('#submitStatus', `Downloaded ${filename}. Please keep this file for upload if requested.`);
+    if (btn) btn.disabled = false;
   }
 }
 document.addEventListener('DOMContentLoaded', async () => {
