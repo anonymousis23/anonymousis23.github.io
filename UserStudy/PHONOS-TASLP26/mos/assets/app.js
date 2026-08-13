@@ -105,8 +105,11 @@ function updateProgress() {
 }
 
 function scrollToStudyTop() {
-  const target = qs('#studySection');
-  if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const target = qs('.page-heading') || qs('#studySection');
+  if (!target) return;
+  requestAnimationFrame(() => {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 }
 
 function scrollToInstructions() {
@@ -231,7 +234,7 @@ async function goNext() {
   if (nextPage < pageCount()) {
     await maybeCooldown(nextPage);
     state.page = nextPage;
-    renderPage({ scroll: false });
+    renderPage();
   } else {
     showSubmit();
   }
