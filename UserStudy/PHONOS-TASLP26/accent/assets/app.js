@@ -44,9 +44,9 @@ async function loadConfig() {
   qs('#subtitle').textContent = config.subtitle || 'Accent verification listening study';
   qs('#choiceA').textContent = config.choice_labels?.[0] || 'American';
   qs('#choiceB').textContent = config.choice_labels?.[1] || 'Target accent';
-  qs('#totalCount').textContent = state.trials.length;
-  qs('#pageSize').textContent = PAGE_SIZE;
-  qs('#cooldownEvery').textContent = PAGE_SIZE * COOLDOWN_EVERY_PAGES;
+  if (qs('#totalCount')) qs('#totalCount').textContent = state.trials.length;
+  if (qs('#pageSize')) qs('#pageSize').textContent = PAGE_SIZE;
+  if (qs('#cooldownEvery')) qs('#cooldownEvery').textContent = PAGE_SIZE * COOLDOWN_EVERY_PAGES;
   renderPage();
 }
 function pageCount() { return Math.ceil(state.trials.length / PAGE_SIZE); }
@@ -87,7 +87,6 @@ function renderTrial(t) {
   return `<article class="card${complete}" data-qid="${escapeHtml(t.qid)}">
     <div class="card-top">
       <div class="qid">${escapeHtml(t.qid)}</div>
-      <div class="audio-name">${escapeHtml(t.audio)}</div>
     </div>
     <audio controls preload="none"><source src="${escapeHtml(t.audio)}" type="audio/wav"></audio>
     <div class="choice-grid" role="radiogroup" aria-label="Accent choice for ${escapeHtml(t.qid)}">
