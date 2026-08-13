@@ -1,0 +1,61 @@
+qid,display_index,page,set_id,cooldown_block,condition,condition_label,expected_accent,source_index,audio,audio_filename
+Q001,1,1,1,1,seedvc_bri2ame,SeedVC converted: British to American,American,10,audio/Q001__seedvc_bri2ame__src10__placeholder.wav,Q001__seedvc_bri2ame__src10__placeholder.wav
+Q002,2,1,1,1,phonos_bri2ame,PHONOS converted: British to American,American,5,audio/Q002__phonos_bri2ame__src05__placeholder.wav,Q002__phonos_bri2ame__src05__placeholder.wav
+Q003,3,1,1,1,gt_american,Original American samples,American,4,audio/Q003__gt_american__src04__placeholder.wav,Q003__gt_american__src04__placeholder.wav
+Q004,4,1,1,1,gt_american,Original American samples,American,9,audio/Q004__gt_american__src09__placeholder.wav,Q004__gt_american__src09__placeholder.wav
+Q005,5,1,1,1,gt_american,Original American samples,American,10,audio/Q005__gt_american__src10__placeholder.wav,Q005__gt_american__src10__placeholder.wav
+Q006,6,2,2,1,seedvc_ame2bri,SeedVC converted: American to British,British,9,audio/Q006__seedvc_ame2bri__src09__placeholder.wav,Q006__seedvc_ame2bri__src09__placeholder.wav
+Q007,7,2,2,1,seedvc_bri2ame,SeedVC converted: British to American,American,4,audio/Q007__seedvc_bri2ame__src04__placeholder.wav,Q007__seedvc_bri2ame__src04__placeholder.wav
+Q008,8,2,2,1,seedvc_ame2bri,SeedVC converted: American to British,British,1,audio/Q008__seedvc_ame2bri__src01__placeholder.wav,Q008__seedvc_ame2bri__src01__placeholder.wav
+Q009,9,2,2,1,seedvc_bri2ame,SeedVC converted: British to American,American,7,audio/Q009__seedvc_bri2ame__src07__placeholder.wav,Q009__seedvc_bri2ame__src07__placeholder.wav
+Q010,10,2,2,1,seedvc_bri2ame,SeedVC converted: British to American,American,1,audio/Q010__seedvc_bri2ame__src01__placeholder.wav,Q010__seedvc_bri2ame__src01__placeholder.wav
+Q011,11,3,3,1,phonos_ame2bri,PHONOS converted: American to British,British,2,audio/Q011__phonos_ame2bri__src02__placeholder.wav,Q011__phonos_ame2bri__src02__placeholder.wav
+Q012,12,3,3,1,seedvc_ame2bri,SeedVC converted: American to British,British,8,audio/Q012__seedvc_ame2bri__src08__placeholder.wav,Q012__seedvc_ame2bri__src08__placeholder.wav
+Q013,13,3,3,1,gt_british,Original British samples,British,9,audio/Q013__gt_british__src09__placeholder.wav,Q013__gt_british__src09__placeholder.wav
+Q014,14,3,3,1,phonos_ame2bri,PHONOS converted: American to British,British,4,audio/Q014__phonos_ame2bri__src04__placeholder.wav,Q014__phonos_ame2bri__src04__placeholder.wav
+Q015,15,3,3,1,phonos_ame2bri,PHONOS converted: American to British,British,1,audio/Q015__phonos_ame2bri__src01__placeholder.wav,Q015__phonos_ame2bri__src01__placeholder.wav
+Q016,16,4,4,2,phonos_bri2ame,PHONOS converted: British to American,American,2,audio/Q016__phonos_bri2ame__src02__placeholder.wav,Q016__phonos_bri2ame__src02__placeholder.wav
+Q017,17,4,4,2,gt_british,Original British samples,British,1,audio/Q017__gt_british__src01__placeholder.wav,Q017__gt_british__src01__placeholder.wav
+Q018,18,4,4,2,seedvc_ame2bri,SeedVC converted: American to British,British,2,audio/Q018__seedvc_ame2bri__src02__placeholder.wav,Q018__seedvc_ame2bri__src02__placeholder.wav
+Q019,19,4,4,2,gt_american,Original American samples,American,6,audio/Q019__gt_american__src06__placeholder.wav,Q019__gt_american__src06__placeholder.wav
+Q020,20,4,4,2,seedvc_ame2bri,SeedVC converted: American to British,British,7,audio/Q020__seedvc_ame2bri__src07__placeholder.wav,Q020__seedvc_ame2bri__src07__placeholder.wav
+Q021,21,5,5,2,gt_british,Original British samples,British,3,audio/Q021__gt_british__src03__placeholder.wav,Q021__gt_british__src03__placeholder.wav
+Q022,22,5,5,2,seedvc_bri2ame,SeedVC converted: British to American,American,9,audio/Q022__seedvc_bri2ame__src09__placeholder.wav,Q022__seedvc_bri2ame__src09__placeholder.wav
+Q023,23,5,5,2,gt_british,Original British samples,British,7,audio/Q023__gt_british__src07__placeholder.wav,Q023__gt_british__src07__placeholder.wav
+Q024,24,5,5,2,phonos_bri2ame,PHONOS converted: British to American,American,4,audio/Q024__phonos_bri2ame__src04__placeholder.wav,Q024__phonos_bri2ame__src04__placeholder.wav
+Q025,25,5,5,2,seedvc_bri2ame,SeedVC converted: British to American,American,2,audio/Q025__seedvc_bri2ame__src02__placeholder.wav,Q025__seedvc_bri2ame__src02__placeholder.wav
+Q026,26,6,6,2,phonos_bri2ame,PHONOS converted: British to American,American,6,audio/Q026__phonos_bri2ame__src06__placeholder.wav,Q026__phonos_bri2ame__src06__placeholder.wav
+Q027,27,6,6,2,phonos_ame2bri,PHONOS converted: American to British,British,6,audio/Q027__phonos_ame2bri__src06__placeholder.wav,Q027__phonos_ame2bri__src06__placeholder.wav
+Q028,28,6,6,2,gt_american,Original American samples,American,7,audio/Q028__gt_american__src07__placeholder.wav,Q028__gt_american__src07__placeholder.wav
+Q029,29,6,6,2,seedvc_ame2bri,SeedVC converted: American to British,British,5,audio/Q029__seedvc_ame2bri__src05__placeholder.wav,Q029__seedvc_ame2bri__src05__placeholder.wav
+Q030,30,6,6,2,gt_american,Original American samples,American,8,audio/Q030__gt_american__src08__placeholder.wav,Q030__gt_american__src08__placeholder.wav
+Q031,31,7,7,3,gt_british,Original British samples,British,4,audio/Q031__gt_british__src04__placeholder.wav,Q031__gt_british__src04__placeholder.wav
+Q032,32,7,7,3,gt_british,Original British samples,British,2,audio/Q032__gt_british__src02__placeholder.wav,Q032__gt_british__src02__placeholder.wav
+Q033,33,7,7,3,seedvc_ame2bri,SeedVC converted: American to British,British,3,audio/Q033__seedvc_ame2bri__src03__placeholder.wav,Q033__seedvc_ame2bri__src03__placeholder.wav
+Q034,34,7,7,3,gt_british,Original British samples,British,5,audio/Q034__gt_british__src05__placeholder.wav,Q034__gt_british__src05__placeholder.wav
+Q035,35,7,7,3,phonos_ame2bri,PHONOS converted: American to British,British,10,audio/Q035__phonos_ame2bri__src10__placeholder.wav,Q035__phonos_ame2bri__src10__placeholder.wav
+Q036,36,8,8,3,seedvc_bri2ame,SeedVC converted: British to American,American,3,audio/Q036__seedvc_bri2ame__src03__placeholder.wav,Q036__seedvc_bri2ame__src03__placeholder.wav
+Q037,37,8,8,3,gt_american,Original American samples,American,1,audio/Q037__gt_american__src01__placeholder.wav,Q037__gt_american__src01__placeholder.wav
+Q038,38,8,8,3,phonos_ame2bri,PHONOS converted: American to British,British,5,audio/Q038__phonos_ame2bri__src05__placeholder.wav,Q038__phonos_ame2bri__src05__placeholder.wav
+Q039,39,8,8,3,phonos_bri2ame,PHONOS converted: British to American,American,3,audio/Q039__phonos_bri2ame__src03__placeholder.wav,Q039__phonos_bri2ame__src03__placeholder.wav
+Q040,40,8,8,3,phonos_bri2ame,PHONOS converted: British to American,American,7,audio/Q040__phonos_bri2ame__src07__placeholder.wav,Q040__phonos_bri2ame__src07__placeholder.wav
+Q041,41,9,9,3,phonos_ame2bri,PHONOS converted: American to British,British,3,audio/Q041__phonos_ame2bri__src03__placeholder.wav,Q041__phonos_ame2bri__src03__placeholder.wav
+Q042,42,9,9,3,gt_american,Original American samples,American,2,audio/Q042__gt_american__src02__placeholder.wav,Q042__gt_american__src02__placeholder.wav
+Q043,43,9,9,3,phonos_ame2bri,PHONOS converted: American to British,British,8,audio/Q043__phonos_ame2bri__src08__placeholder.wav,Q043__phonos_ame2bri__src08__placeholder.wav
+Q044,44,9,9,3,phonos_bri2ame,PHONOS converted: British to American,American,8,audio/Q044__phonos_bri2ame__src08__placeholder.wav,Q044__phonos_bri2ame__src08__placeholder.wav
+Q045,45,9,9,3,phonos_bri2ame,PHONOS converted: British to American,American,1,audio/Q045__phonos_bri2ame__src01__placeholder.wav,Q045__phonos_bri2ame__src01__placeholder.wav
+Q046,46,10,10,4,seedvc_bri2ame,SeedVC converted: British to American,American,5,audio/Q046__seedvc_bri2ame__src05__placeholder.wav,Q046__seedvc_bri2ame__src05__placeholder.wav
+Q047,47,10,10,4,seedvc_bri2ame,SeedVC converted: British to American,American,8,audio/Q047__seedvc_bri2ame__src08__placeholder.wav,Q047__seedvc_bri2ame__src08__placeholder.wav
+Q048,48,10,10,4,seedvc_ame2bri,SeedVC converted: American to British,British,4,audio/Q048__seedvc_ame2bri__src04__placeholder.wav,Q048__seedvc_ame2bri__src04__placeholder.wav
+Q049,49,10,10,4,gt_american,Original American samples,American,5,audio/Q049__gt_american__src05__placeholder.wav,Q049__gt_american__src05__placeholder.wav
+Q050,50,10,10,4,gt_british,Original British samples,British,6,audio/Q050__gt_british__src06__placeholder.wav,Q050__gt_british__src06__placeholder.wav
+Q051,51,11,11,4,phonos_ame2bri,PHONOS converted: American to British,British,7,audio/Q051__phonos_ame2bri__src07__placeholder.wav,Q051__phonos_ame2bri__src07__placeholder.wav
+Q052,52,11,11,4,gt_american,Original American samples,American,3,audio/Q052__gt_american__src03__placeholder.wav,Q052__gt_american__src03__placeholder.wav
+Q053,53,11,11,4,seedvc_ame2bri,SeedVC converted: American to British,British,6,audio/Q053__seedvc_ame2bri__src06__placeholder.wav,Q053__seedvc_ame2bri__src06__placeholder.wav
+Q054,54,11,11,4,phonos_ame2bri,PHONOS converted: American to British,British,9,audio/Q054__phonos_ame2bri__src09__placeholder.wav,Q054__phonos_ame2bri__src09__placeholder.wav
+Q055,55,11,11,4,phonos_bri2ame,PHONOS converted: British to American,American,10,audio/Q055__phonos_bri2ame__src10__placeholder.wav,Q055__phonos_bri2ame__src10__placeholder.wav
+Q056,56,12,12,4,phonos_bri2ame,PHONOS converted: British to American,American,9,audio/Q056__phonos_bri2ame__src09__placeholder.wav,Q056__phonos_bri2ame__src09__placeholder.wav
+Q057,57,12,12,4,gt_british,Original British samples,British,8,audio/Q057__gt_british__src08__placeholder.wav,Q057__gt_british__src08__placeholder.wav
+Q058,58,12,12,4,seedvc_ame2bri,SeedVC converted: American to British,British,10,audio/Q058__seedvc_ame2bri__src10__placeholder.wav,Q058__seedvc_ame2bri__src10__placeholder.wav
+Q059,59,12,12,4,gt_british,Original British samples,British,10,audio/Q059__gt_british__src10__placeholder.wav,Q059__gt_british__src10__placeholder.wav
+Q060,60,12,12,4,seedvc_bri2ame,SeedVC converted: British to American,American,6,audio/Q060__seedvc_bri2ame__src06__placeholder.wav,Q060__seedvc_bri2ame__src06__placeholder.wav

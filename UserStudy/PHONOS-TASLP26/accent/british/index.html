@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accent Verification Study</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script defer src="../assets/app.js"></script>
+</head>
+<body data-config="trials.json">
+<main>
+<header>
+  <h1 id="title">Accent Verification Study</h1>
+  <p id="subtitle">Listen to one speech sample at a time and judge its accent.</p>
+</header>
+<section class="panel">
+  <p class="notice"><strong>Headphones required.</strong> Please complete this task in a quiet environment. You may replay each clip as needed.</p>
+  <ul>
+    <li>Each question contains one audio sample.</li>
+    <li>Choose whether the speaker sounds <strong id="choiceA">American</strong> or <strong id="choiceB">the target accent</strong>.</li>
+    <li>Then rate your confidence from 1 to 7.</li>
+    <li>Do not judge recording quality, speaker identity, or transcript content. Focus only on accent.</li>
+  </ul>
+  <div class="meta-grid">
+    <div class="meta"><strong>Total samples</strong><span id="totalCount">--</span></div>
+    <div class="meta"><strong>Samples per page</strong><span id="pageSize">--</span></div>
+    <div class="meta"><strong>Break interval</strong><span>after <span id="cooldownEvery">--</span> samples</span></div>
+  </div>
+</section>
+<section id="studySection">
+  <div class="progress-wrap">
+    <div class="progress-row">
+      <div class="progress-label" id="progressText">0 / 0 answered</div>
+      <div class="progress-label" id="pageLabel">Page 1</div>
+    </div>
+    <div class="progressbar"><div id="progressFill"></div></div>
+  </div>
+  <h2 class="page-title" id="pageTitle">Samples</h2>
+  <div id="trialContainer"></div>
+  <div class="nav">
+    <button class="secondary" id="backButton" type="button">Back</button>
+    <div class="inline-status" id="pageStatus"></div>
+    <button id="nextButton" type="button">Next</button>
+  </div>
+</section>
+<section id="submitSection" class="post hidden">
+  <h2>Submit responses</h2>
+  <p id="submitSummary"></p>
+  <label for="participantId">Participant ID, optional</label>
+  <input class="post-survey" id="participantId" name="participant_id" autocomplete="off">
+  <label for="audioSetup">Listening setup</label>
+  <select class="post-survey" id="audioSetup" name="audio_setup">
+    <option value="">Select one</option>
+    <option>Headphones</option>
+    <option>Earbuds</option>
+    <option>Laptop or desktop speakers</option>
+    <option>Other</option>
+  </select>
+  <label for="comments">Comments, optional</label>
+  <textarea class="post-survey" id="comments" name="comments" rows="4"></textarea>
+  <div class="nav">
+    <button class="secondary" id="returnButton" type="button">Back to ratings</button>
+    <div class="inline-status" id="submitStatus"></div>
+    <button id="submitButton" type="button">Download response JSON</button>
+  </div>
+</section>
+</main>
+<div class="cooldown hidden" id="cooldownOverlay" role="dialog" aria-modal="true" aria-labelledby="cooldownTitle">
+  <div class="cooldown-box">
+    <h2 id="cooldownTitle">Short listening break</h2>
+    <p>Please rest your ears before continuing.</p>
+    <div class="cooldown-time" id="cooldownTimer">12</div>
+    <button id="cooldownContinue" type="button" disabled>Please wait</button>
+  </div>
+</div>
+</body>
+</html>
