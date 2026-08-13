@@ -108,7 +108,10 @@ function scrollToStudyTop() {
   const target = qs('.page-heading') || qs('#studySection');
   if (!target) return;
   requestAnimationFrame(() => {
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const sticky = qs('.progress-wrap');
+    const offset = (sticky ? sticky.offsetHeight : 0) + 14;
+    const top = window.scrollY + target.getBoundingClientRect().top - offset;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
   });
 }
 
