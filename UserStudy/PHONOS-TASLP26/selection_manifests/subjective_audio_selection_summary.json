@@ -1,0 +1,79 @@
+{
+  "rng_seed": 260815,
+  "quality_score": "nisqa_mos",
+  "phonos_dedupe_policy": "dedupe by (direction, target_ref_id, source_speaker_id, utterance_id), keep highest nisqa_mos",
+  "candidate_counts": {
+    "originals": {
+      "american": 1200,
+      "british": 1140,
+      "indian": 1076,
+      "spanish": 1169
+    },
+    "seedvc": {
+      "ame2bri": 1200,
+      "ame2ind": 1200,
+      "ame2spn": 1200,
+      "bri2ame": 1140,
+      "ind2ame": 1076,
+      "spn2ame": 1169
+    },
+    "tvtsyn": {
+      "american": 1200,
+      "british": 1140,
+      "indian": 1076,
+      "spanish": 1169
+    },
+    "phonos_after_filter_and_dedupe": {
+      "ame2bri": 5965,
+      "ame2ind": 4764,
+      "ame2spn": 797,
+      "bri2ame": 3155,
+      "ind2ame": 3884,
+      "spn2ame": 3379
+    },
+    "phonos_top_pool_by_direction": {
+      "ame2bri": 40,
+      "ame2ind": 40,
+      "ame2spn": 40,
+      "bri2ame": 40,
+      "ind2ame": 40,
+      "spn2ame": 40
+    }
+  },
+  "selected_counts": {
+    "accent/indian": {
+      "phonos_ind2ame": 10,
+      "seedvc_ame2ind": 10,
+      "gt_indian": 10,
+      "phonos_ame2ind": 10,
+      "seedvc_ind2ame": 10,
+      "gt_american": 10
+    },
+    "accent/british": {
+      "seedvc_bri2ame": 10,
+      "phonos_bri2ame": 10,
+      "gt_american": 10,
+      "seedvc_ame2bri": 10,
+      "phonos_ame2bri": 10,
+      "gt_british": 10
+    },
+    "accent/spanish": {
+      "phonos_ame2spn": 10,
+      "gt_american": 10,
+      "phonos_spn2ame": 10,
+      "seedvc_ame2spn": 10,
+      "gt_spanish": 10,
+      "seedvc_spn2ame": 10
+    },
+    "mos": {
+      "seedvc": 15,
+      "TVTSyn": 15,
+      "original": 15,
+      "PHONOS": 15
+    }
+  },
+  "outputs": {
+    "combined_selection_csv": "/data/waris/code/anonymousis23.github.io/UserStudy/PHONOS-TASLP26/selection_manifests/subjective_audio_selection_all.csv",
+    "selection_dir": "/data/waris/code/anonymousis23.github.io/UserStudy/PHONOS-TASLP26/selection_manifests"
+  }
+}
