@@ -6,6 +6,7 @@ UserStudy/PHONOS-TASLP26/server/*.db
 UserStudy/PHONOS-TASLP26/server/*.sqlite
 UserStudy/PHONOS-TASLP26/server/*.sqlite3
 UserStudy/PHONOS-TASLP26/server/__pycache__/
+UserStudy/PHONOS-TASLP26/server/server.log
 
 # Python cache files
 __pycache__/

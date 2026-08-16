@@ -37,6 +37,8 @@ class Submission(Base):
     task_type = Column(String, index=True, default="")
     target_accent = Column(String, index=True, default="")
     prolific_pid = Column(String, index=True, default="")
+    prolific_study_id = Column(String, index=True, default="")
+    prolific_session_id = Column(String, index=True, default="")
     participant_id = Column(String, index=True, default="")
     page_url = Column(Text, default="")
     user_agent = Column(Text, default="")
@@ -88,6 +90,13 @@ class SubmissionPayload(BaseModel):
 
 def init_db() -> None:
     Base.metadata.create_all(engine)
+    if engine.dialect.name == "sqlite":
+        with engine.begin() as conn:
+            cols = {row[1] for row in conn.exec_driver_sql("PRAGMA table_info(submissions)")}
+            if "prolific_study_id" not in cols:
+                conn.exec_driver_sql("ALTER TABLE submissions ADD COLUMN prolific_study_id VARCHAR DEFAULT ''")
+            if "prolific_session_id" not in cols:
+                conn.exec_driver_sql("ALTER TABLE submissions ADD COLUMN prolific_session_id VARCHAR DEFAULT ''")
 
 
 def get_db() -> Session:
@@ -150,7 +159,9 @@ async def create_submission(payload: SubmissionPayload, request: Request, db: Se
     participant = payload.participant or {}
     post_survey = payload.post_survey or {}
     prolific_pid = str(participant.get("PROLIFIC_PID") or "")
-    participant_id = str(post_survey.get("participant_id") or participant.get("participant") or "")
+    prolific_study_id = str(participant.get("STUDY_ID") or "")
+    prolific_session_id = str(participant.get("SESSION_ID") or "")
+    participant_id = str(prolific_pid or post_survey.get("participant_id") or participant.get("participant") or "")
 
     raw_payload = payload.dict()
     raw_payload["server"] = {
@@ -166,6 +177,8 @@ async def create_submission(payload: SubmissionPayload, request: Request, db: Se
             task_type=payload.task_type or "",
             target_accent=payload.target_accent or "",
             prolific_pid=prolific_pid,
+            prolific_study_id=prolific_study_id,
+            prolific_session_id=prolific_session_id,
             participant_id=participant_id,
             page_url=payload.page_url or "",
             user_agent=payload.user_agent or request.headers.get("user-agent", ""),
@@ -212,6 +225,8 @@ def list_submissions(_: None = Depends(require_admin), db: Session = Depends(get
             "task_type": r.task_type,
             "target_accent": r.target_accent,
             "prolific_pid": r.prolific_pid,
+            "prolific_study_id": r.prolific_study_id,
+            "prolific_session_id": r.prolific_session_id,
             "participant_id": r.participant_id,
             "received_at": r.received_at.isoformat() if r.received_at else "",
         }
@@ -242,6 +257,8 @@ def export_submissions(_: None = Depends(require_admin), db: Session = Depends(g
             "task_type": r.task_type,
             "target_accent": r.target_accent,
             "prolific_pid": r.prolific_pid,
+            "prolific_study_id": r.prolific_study_id,
+            "prolific_session_id": r.prolific_session_id,
             "participant_id": r.participant_id,
             "received_at": r.received_at.isoformat() if r.received_at else "",
             "started_at_ms": r.started_at_ms,
