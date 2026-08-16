@@ -1,0 +1,12 @@
+# PHONOS-TASLP26 response server runtime files
+UserStudy/PHONOS-TASLP26/server/.env
+UserStudy/PHONOS-TASLP26/server/.venv/
+UserStudy/PHONOS-TASLP26/server/responses.db
+UserStudy/PHONOS-TASLP26/server/*.db
+UserStudy/PHONOS-TASLP26/server/*.sqlite
+UserStudy/PHONOS-TASLP26/server/*.sqlite3
+UserStudy/PHONOS-TASLP26/server/__pycache__/
+
+# Python cache files
+__pycache__/
+*.py[cod]

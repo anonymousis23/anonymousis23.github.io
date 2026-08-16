@@ -1672,5 +1672,5 @@
   ],
   "apps_script_webapp_url": "TODO_INDIAN_GOOGLE_APPS_SCRIPT_WEBAPP_URL",
   "prolific_completion_url": "TODO_INDIAN_PROLIFIC_COMPLETION_URL",
-  "response_api_url": "TODO_INDIAN_RESPONSE_API_URL"
+  "response_api_url": "https://juggle-rematch-marry.ngrok-free.dev/api/submissions"
 }

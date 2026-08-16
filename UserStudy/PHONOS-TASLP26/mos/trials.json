@@ -8,7 +8,7 @@
   "page_size": 5,
   "cooldown_every_samples": 15,
   "cooldown_seconds": 12,
-  "response_api_url": "https://abc123.ngrok-free.app/api/submissions",
+  "response_api_url": "https://juggle-rematch-marry.ngrok-free.dev/api/submissions",
   "apps_script_webapp_url": "",
   "prolific_completion_url": "TODO_PROLIFIC_COMPLETION_URL",
   "mos_scale": [
