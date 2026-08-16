@@ -247,8 +247,7 @@ async function submitToResponseApi(payload) {
   const resp = await fetch(endpoint, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(payload),
-    keepalive: true,
+    body: JSON.stringify(payload)
   });
   if (!resp.ok) throw new Error(`Response API returned ${resp.status}`);
   return true;
@@ -259,33 +258,32 @@ async function submitStudy() {
     return;
   }
   const btn = qs('#submitButton');
-  const status = qs('#submitStatus');
   if (btn) btn.disabled = true;
-  setText('#submitStatus', 'Preparing response file...');
+  setText('#submitStatus', 'Submitting...');
   const payload = collectPayload();
-  let uploaded = false;
-  let uploadError = null;
+  const completionUrl = configuredUrl(state.config.prolific_completion_url, DEFAULT_PROLIFIC_COMPLETION_URL);
+
   try {
-    uploaded = await submitToResponseApi(payload);
+    const uploaded = await submitToResponseApi(payload);
+    if (uploaded) {
+      try { localStorage.removeItem(`phonostudy:${state.config.study_id}:draft`); } catch(e) {}
+      if (completionUrl) {
+        setText('#submitStatus', 'Submitted. Redirecting to Prolific...');
+        window.location.href = completionUrl;
+        return;
+      }
+      setText('#submitStatus', 'Submitted successfully, but the Prolific completion URL is not configured. Please contact the study organizer.');
+      if (btn) btn.disabled = false;
+      return;
+    }
+    setText('#submitStatus', 'No response API is configured. Downloading a local backup.');
   } catch (e) {
-    uploadError = e;
+    setText('#submitStatus', `Server upload failed: ${e.message || e}. Downloading a local backup.`);
   }
 
   const filename = downloadJson(payload);
-  try { localStorage.removeItem(`phonostudy:${state.config.study_id}:draft`); } catch(e) {}
-
-  if (uploaded) {
-    setText('#submitStatus', `Saved to server and downloaded backup ${filename}.`);
-    const completionUrl = configuredUrl(state.config.prolific_completion_url, DEFAULT_PROLIFIC_COMPLETION_URL);
-    if (completionUrl) window.location.href = completionUrl;
-  } else if (uploadError) {
-    setText('#submitStatus', `Server upload failed, but downloaded backup ${filename}. Please keep this file.`);
-    alert(`Server upload failed, but your responses were downloaded as ${filename}. Details: ${uploadError.message || uploadError}`);
-    if (btn) btn.disabled = false;
-  } else {
-    setText('#submitStatus', `Downloaded ${filename}. Please keep this file for upload if requested.`);
-    if (btn) btn.disabled = false;
-  }
+  setText('#submitStatus', `Local backup downloaded: ${filename}. Please keep this file and contact the study organizer.`);
+  if (btn) btn.disabled = false;
 }
 document.addEventListener('DOMContentLoaded', async () => {
   try {

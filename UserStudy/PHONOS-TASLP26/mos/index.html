@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PHONOS MOS Listening Test</title>
-  <link rel="stylesheet" href="assets/style.css?v=20260813d">
+  <link rel="stylesheet" href="assets/style.css?v=20260816a">
 </head>
 <body data-config="trials.json">
   <main>
@@ -62,6 +62,15 @@
       <label for="participant_id">Participant ID</label>
       <input id="participant_id" class="post-survey" name="participant_id" autocomplete="off">
 
+      <label for="audioSetup">Listening setup</label>
+      <select id="audioSetup" class="post-survey" name="audio_setup">
+        <option value="">Select one</option>
+        <option>Headphones</option>
+        <option>Earbuds</option>
+        <option>Laptop or desktop speakers</option>
+        <option>Other</option>
+      </select>
+
       <label for="comments">Optional comments</label>
       <textarea id="comments" class="post-survey" name="comments" rows="4"></textarea>
 
@@ -83,6 +92,6 @@
     </div>
   </div>
 
-  <script src="assets/app.js?v=20260813d"></script>
+  <script src="assets/app.js?v=20260816a"></script>
 </body>
 </html>

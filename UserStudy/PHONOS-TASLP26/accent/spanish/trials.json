@@ -1671,6 +1671,6 @@
     }
   ],
   "apps_script_webapp_url": "TODO_SPANISH_GOOGLE_APPS_SCRIPT_WEBAPP_URL",
-  "prolific_completion_url": "TODO_SPANISH_PROLIFIC_COMPLETION_URL",
+  "prolific_completion_url": "https://app.prolific.com/submissions/complete?cc=CL1L8O3X",
   "response_api_url": "https://juggle-rematch-marry.ngrok-free.dev/api/submissions"
 }

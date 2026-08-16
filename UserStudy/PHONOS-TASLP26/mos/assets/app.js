@@ -254,6 +254,7 @@ function goBack() {
 
 function showSubmit() {
   qs('#studySection')?.classList.add('hidden');
+  qs('.instructions-panel')?.classList.add('hidden');
   qs('#submitSection')?.classList.remove('hidden');
   setText('#submitSummary', `${completedCount()} / ${state.trials.length} samples rated.`);
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -312,8 +313,7 @@ async function submitToResponseApi(payload) {
   const resp = await fetch(endpoint, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(payload),
-    keepalive: true,
+    body: JSON.stringify(payload)
   });
   if (!resp.ok) throw new Error(`Response API returned ${resp.status}`);
   return true;
@@ -325,37 +325,45 @@ async function submitStudy() {
     return;
   }
   const payload = collectPayload();
-  setDisabled('#submitButton', true);
-  setText('#submitStatus', 'Submitting...');
-  let apiOk = false;
-  try {
-    apiOk = await submitToResponseApi(payload);
-  } catch (err) {
-    console.error(err);
-    setText('#submitStatus', `API submission failed: ${err.message}. A local backup will download now.`);
-  }
-  const filename = downloadJson(payload);
+  const completion = configuredUrl(state.config.prolific_completion_url, DEFAULT_PROLIFIC_COMPLETION_URL);
   const backup = qs('#backupBox');
   if (backup) {
+    backup.classList.add('hidden');
+    backup.textContent = '';
+  }
+  setDisabled('#submitButton', true);
+  setText('#submitStatus', 'Submitting...');
+
+  try {
+    const apiOk = await submitToResponseApi(payload);
+    if (apiOk) {
+      localStorage.removeItem(`phonostudy:${state.config.study_id}:draft`);
+      if (completion) {
+        setText('#submitStatus', 'Submitted. Redirecting to Prolific...');
+        window.location.href = completion;
+        return;
+      }
+      setText('#submitStatus', 'Submitted successfully, but the Prolific completion URL is not configured. Please contact the study organizer.');
+      setDisabled('#submitButton', false);
+      return;
+    }
+    setText('#submitStatus', 'No response API is configured. Downloading a local backup.');
+  } catch (err) {
+    console.error(err);
+    setText('#submitStatus', `API submission failed: ${err.message}. Downloading a local backup.`);
+  }
+
+  const filename = downloadJson(payload);
+  if (backup) {
     backup.classList.remove('hidden');
-    backup.textContent = `Local backup downloaded: ${filename}\n\nKeep this file if the browser does not redirect automatically.`;
+    backup.textContent = `Local backup downloaded: ${filename}\n\nKeep this file and contact the study organizer.`;
   }
-  if (apiOk) {
-    setText('#submitStatus', 'Submitted. A local backup was also downloaded.');
-    localStorage.removeItem(`phonostudy:${state.config.study_id}:draft`);
-  } else if (!payload.submission_endpoint) {
-    setText('#submitStatus', 'No response API is configured. A local backup was downloaded.');
-  }
-  const completion = configuredUrl(state.config.prolific_completion_url, DEFAULT_PROLIFIC_COMPLETION_URL);
-  if (completion && apiOk) {
-    setTimeout(() => { window.location.href = completion; }, 900);
-  } else {
-    setDisabled('#submitButton', false);
-  }
+  setDisabled('#submitButton', false);
 }
 
 function reviewStudy() {
   qs('#submitSection')?.classList.add('hidden');
+  qs('.instructions-panel')?.classList.remove('hidden');
   qs('#studySection')?.classList.remove('hidden');
   state.page = Math.max(0, pageCount() - 1);
   renderPage();

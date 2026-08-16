@@ -10,7 +10,7 @@
   "cooldown_seconds": 12,
   "response_api_url": "https://juggle-rematch-marry.ngrok-free.dev/api/submissions",
   "apps_script_webapp_url": "",
-  "prolific_completion_url": "TODO_PROLIFIC_COMPLETION_URL",
+  "prolific_completion_url": "https://app.prolific.com/submissions/complete?cc=CFZ6P9D5",
   "mos_scale": [
     {
       "value": 5,
