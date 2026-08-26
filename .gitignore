@@ -8,6 +8,17 @@ UserStudy/PHONOS-TASLP26/server/*.sqlite3
 UserStudy/PHONOS-TASLP26/server/__pycache__/
 UserStudy/PHONOS-TASLP26/server/server.log
 
+UserStudy/PHONOS-TASLP26/accent/PHONOS_accent_audio_review.xlsx
+UserStudy/PHONOS-TASLP26/accent/PHONOS_accent_audio_review_rgo.xlsx
+UserStudy/PHONOS-TASLP26/accent/advisor_review_analysis/
+UserStudy/PHONOS-TASLP26/scripts/analyze_advisor_review.py
+UserStudy/PHONOS-TASLP26/server/backups/
+UserStudy/PHONOS-TASLP26/accent/eval_samples/eval_source_samples.csv
+UserStudy/PHONOS-TASLP26/accent/eval_samples/eval_source_samples.json
+UserStudy/PHONOS-TASLP26/accent/eval_samples/PHONOS_eval_source_samples.xlsx
+UserStudy/PHONOS-TASLP26/accent/eval_samples/selection_summary.json
+UserStudy/PHONOS-TASLP26/scripts/prepare_eval_source_samples.py
+
 # Python cache files
 __pycache__/
 *.py[cod]
