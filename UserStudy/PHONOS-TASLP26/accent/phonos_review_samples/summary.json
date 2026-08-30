@@ -1,0 +1,12 @@
+{
+  "row_count": 110,
+  "selected_synthesis_count": 110,
+  "directions": {
+    "ame2bri": 19,
+    "ame2ind": 20,
+    "ame2spn": 20,
+    "bri2ame": 20,
+    "ind2ame": 16,
+    "spn2ame": 15
+  }
+}
