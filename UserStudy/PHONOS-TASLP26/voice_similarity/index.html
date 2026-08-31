@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voice Similarity Study</title>
+<link rel="stylesheet" href="assets/style.css">
+<script defer src="assets/app.js?v=20260830a"></script>
+</head>
+<body data-config="trials.json">
+<main>
+  <header>
+    <h1 id="title">Voice Similarity Study</h1>
+    <p id="subtitle">Compare converted speech with two reference speakers.</p>
+  </header>
+
+  <section class="panel instructions-panel" id="instructions">
+    <h2>Instructions</h2>
+    <p class="notice"><strong>Headphones required.</strong> Complete the task in a quiet environment. You may replay the clips as needed.</p>
+    <ol>
+      <li>Listen to <strong>Reference A</strong> and <strong>Reference B</strong>. They represent two different voice identities.</li>
+      <li>Listen to <strong>Converted sample X</strong>.</li>
+      <li>Decide whether X sounds more similar to A or B in terms of <strong>voice timbre and speaker identity</strong>.</li>
+      <li>Rate your confidence from 1 to 7.</li>
+    </ol>
+    <p>Focus on the identity of the voice, such as vocal tone and resonance. Ignore accent, wording, recording quality, and speaking style.</p>
+    <div class="confidence-key" aria-label="Confidence scale descriptions">
+      <span><strong>1</strong> Not confident at all</span>
+      <span><strong>3</strong> Somewhat confident</span>
+      <span><strong>5</strong> Quite a bit confident</span>
+      <span><strong>7</strong> Extremely confident</span>
+    </div>
+  </section>
+
+  <section id="studySection">
+    <div class="study-anchor" id="studyTop"></div>
+    <div class="progress-wrap">
+      <div class="progress-row">
+        <div class="progress-label" id="progressText">0 / 0 answered</div>
+        <div class="progress-label" id="pageLabel">Page 1</div>
+      </div>
+      <div class="progressbar"><div id="progressFill"></div></div>
+    </div>
+    <div class="page-heading">
+      <h2 class="page-title" id="pageTitle">Samples</h2>
+      <button class="secondary small-button" id="instructionsButton" type="button">See instructions</button>
+    </div>
+    <div id="trialContainer"></div>
+    <div class="nav">
+      <button class="secondary" id="backButton" type="button">Back</button>
+      <div class="inline-status" id="pageStatus"></div>
+      <button id="nextButton" type="button">Next</button>
+    </div>
+  </section>
+
+  <section id="submitSection" class="post hidden">
+    <h2>Submit responses</h2>
+    <p id="submitSummary"></p>
+    <label for="participantId">Participant ID, optional</label>
+    <input class="post-survey" id="participantId" name="participant_id" autocomplete="off">
+    <label for="audioSetup">Listening setup</label>
+    <select class="post-survey" id="audioSetup" name="audio_setup">
+      <option value="">Select one</option>
+      <option>Headphones</option>
+      <option>Earbuds</option>
+      <option>Laptop or desktop speakers</option>
+      <option>Other</option>
+    </select>
+    <label for="comments">Comments, optional</label>
+    <textarea class="post-survey" id="comments" name="comments" rows="4"></textarea>
+    <div class="nav">
+      <button class="secondary" id="returnButton" type="button">Back to ratings</button>
+      <div class="inline-status" id="submitStatus"></div>
+      <button id="submitButton" type="button">Submit</button>
+    </div>
+  </section>
+</main>
+
+<div class="cooldown hidden" id="cooldownOverlay" role="dialog" aria-modal="true" aria-labelledby="cooldownTitle">
+  <div class="cooldown-box">
+    <h2 id="cooldownTitle">Short listening break</h2>
+    <p>Please rest your ears before continuing.</p>
+    <div class="cooldown-time" id="cooldownTimer">12</div>
+    <button id="cooldownContinue" type="button" disabled>Please wait</button>
+  </div>
+</div>
+</body>
+</html>

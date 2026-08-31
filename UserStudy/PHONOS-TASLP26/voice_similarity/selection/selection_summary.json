@@ -1,0 +1,50 @@
+{
+  "rng_seed": 260830,
+  "trial_count": 60,
+  "method_counts": {
+    "PHONOS": 20,
+    "SeedVC": 20,
+    "TVTSyn": 20
+  },
+  "method_direction_counts": {
+    "PHONOS/ame2bri": 2,
+    "PHONOS/ame2ind": 4,
+    "PHONOS/ame2spn": 2,
+    "PHONOS/bri2ame": 4,
+    "PHONOS/ind2ame": 4,
+    "PHONOS/spn2ame": 4,
+    "SeedVC/ame2bri": 4,
+    "SeedVC/ame2ind": 4,
+    "SeedVC/ame2spn": 3,
+    "SeedVC/bri2ame": 3,
+    "SeedVC/ind2ame": 3,
+    "SeedVC/spn2ame": 3,
+    "TVTSyn/ame2bri": 4,
+    "TVTSyn/ame2ind": 4,
+    "TVTSyn/ame2spn": 3,
+    "TVTSyn/bri2ame": 3,
+    "TVTSyn/ind2ame": 3,
+    "TVTSyn/spn2ame": 3
+  },
+  "correct_choice_counts": {
+    "A": 30,
+    "B": 30
+  },
+  "duration_filter_sec": [
+    4.0,
+    8.0
+  ],
+  "phonos_filters": {
+    "manually_accepted": true,
+    "target_accentcl_hit": true,
+    "nisqa_mos_min": 4.0,
+    "target_speaker_similarity_min": 0.84,
+    "unique_source_utterances": true
+  },
+  "notes": {
+    "seedvc_expected_identity": "target",
+    "phonos_expected_identity": "target",
+    "tvtsyn_expected_identity": "source",
+    "tvtsyn_target_reference": "unconditioned distractor from the nominal target accent"
+  }
+}
