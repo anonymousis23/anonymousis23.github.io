@@ -1,0 +1,101 @@
+{
+  "seed": 260903,
+  "forms": {
+    "A": {
+      "trials": 60,
+      "condition_counts": {
+        "seedvc": 15,
+        "phonos": 15,
+        "tvtsyn_reconstruction": 15,
+        "original": 15
+      },
+      "direction_counts": {
+        "ame2spn": 10,
+        "ind2ame": 10,
+        "ame2bri": 10,
+        "bri2ame": 10,
+        "ame2ind": 10,
+        "spn2ame": 10
+      },
+      "naturalness_counts": {
+        "synthetic": 45,
+        "natural": 15
+      },
+      "unique_source_recordings": 50,
+      "repeated_original_recordings": 0
+    },
+    "B": {
+      "trials": 60,
+      "condition_counts": {
+        "tvtsyn_reconstruction": 15,
+        "seedvc": 15,
+        "original": 15,
+        "phonos": 15
+      },
+      "direction_counts": {
+        "ame2spn": 10,
+        "ind2ame": 10,
+        "ame2bri": 10,
+        "bri2ame": 10,
+        "ame2ind": 10,
+        "spn2ame": 10
+      },
+      "naturalness_counts": {
+        "synthetic": 45,
+        "natural": 15
+      },
+      "unique_source_recordings": 50,
+      "repeated_original_recordings": 0
+    },
+    "C": {
+      "trials": 60,
+      "condition_counts": {
+        "original": 15,
+        "tvtsyn_reconstruction": 15,
+        "phonos": 15,
+        "seedvc": 15
+      },
+      "direction_counts": {
+        "ame2spn": 10,
+        "ind2ame": 10,
+        "ame2bri": 10,
+        "bri2ame": 10,
+        "ame2ind": 10,
+        "spn2ame": 10
+      },
+      "naturalness_counts": {
+        "natural": 15,
+        "synthetic": 45
+      },
+      "unique_source_recordings": 50,
+      "repeated_original_recordings": 0
+    },
+    "D": {
+      "trials": 60,
+      "condition_counts": {
+        "phonos": 15,
+        "original": 15,
+        "seedvc": 15,
+        "tvtsyn_reconstruction": 15
+      },
+      "direction_counts": {
+        "ame2spn": 10,
+        "ind2ame": 10,
+        "ame2bri": 10,
+        "bri2ame": 10,
+        "ame2ind": 10,
+        "spn2ame": 10
+      },
+      "naturalness_counts": {
+        "synthetic": 45,
+        "natural": 15
+      },
+      "unique_source_recordings": 50,
+      "repeated_original_recordings": 0
+    }
+  },
+  "source_groups": 60,
+  "globally_unique_source_recordings": 50,
+  "stimuli_covered_across_forms": 240,
+  "each_group_condition_seen_once_across_forms": true
+}

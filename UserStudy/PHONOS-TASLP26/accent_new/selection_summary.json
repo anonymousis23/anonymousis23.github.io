@@ -1,0 +1,43 @@
+{
+  "rng_seed": 260902,
+  "samples_per_direction": 10,
+  "direction_counts": {
+    "ame2bri": {
+      "shortlisted": 10,
+      "selected": 10
+    },
+    "ame2ind": {
+      "shortlisted": 10,
+      "selected": 10
+    },
+    "ame2spn": {
+      "shortlisted": 15,
+      "selected": 10
+    },
+    "bri2ame": {
+      "shortlisted": 11,
+      "selected": 10
+    },
+    "ind2ame": {
+      "shortlisted": 10,
+      "selected": 10
+    },
+    "spn2ame": {
+      "shortlisted": 10,
+      "selected": 10
+    }
+  },
+  "matched_source_groups": 60,
+  "published_audio_files": 240,
+  "conditions": [
+    "original",
+    "phonos",
+    "seedvc",
+    "tvtsyn_reconstruction"
+  ],
+  "selection_policy": "Use all shortlisted PHONOS rows when exactly 10 are available; otherwise sample 10 without replacement using the fixed RNG seed. Match SeedVC and TVTSyn reconstruction by direction and exact source_wav_path.",
+  "seedvc_target_policy": "Use the target reference already assigned to that source in the full objective evaluation.",
+  "source_workbook": "/data/waris/code/anonymousis23.github.io/UserStudy/PHONOS-TASLP26/accent/PHONOS_Conversions_shortlisted.xlsx",
+  "phonos_review_manifest": "/data/waris/code/anonymousis23.github.io/UserStudy/PHONOS-TASLP26/accent/phonos_review_samples/manifest.csv",
+  "baseline_metric_manifest": "/data/waris/code/PHONOSv2/evaluation/metric_results/full_eval/metric_manifest_full.csv"
+}

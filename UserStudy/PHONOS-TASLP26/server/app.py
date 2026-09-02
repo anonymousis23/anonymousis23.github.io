@@ -36,6 +36,8 @@ class Submission(Base):
     study_id = Column(String, index=True, nullable=False)
     task_type = Column(String, index=True, default="")
     target_accent = Column(String, index=True, default="")
+    form_id = Column(String, index=True, default="")
+    form_assignment_basis = Column(String, default="")
     prolific_pid = Column(String, index=True, default="")
     prolific_study_id = Column(String, index=True, default="")
     prolific_session_id = Column(String, index=True, default="")
@@ -65,6 +67,13 @@ class TrialResponse(Base):
     source_index = Column(Integer, nullable=True)
     accent_choice = Column(String, index=True, default="")
     confidence = Column(Integer, nullable=True)
+    naturalness_choice = Column(String, index=True, default="")
+    naturalness_correct = Column(Integer, nullable=True)
+    primary_accent = Column(String, index=True, default="")
+    primary_accent_correct = Column(Integer, nullable=True)
+    secondary_accent = Column(String, index=True, default="")
+    secondary_influence = Column(Integer, nullable=True)
+    playback_count = Column(Integer, nullable=True)
     similarity_rating = Column(Integer, nullable=True)
     mos_rating = Column(Integer, nullable=True)
     mos_label = Column(String, index=True, default="")
@@ -77,6 +86,8 @@ class SubmissionPayload(BaseModel):
     task_type: str | None = ""
     title: str | None = ""
     target_accent: str | None = ""
+    form_id: str | None = ""
+    form_assignment_basis: str | None = ""
     randomized_order_seed: int | None = None
     page_size: int | None = None
     cooldown_seconds: int | None = None
@@ -98,6 +109,10 @@ def init_db() -> None:
                 conn.exec_driver_sql("ALTER TABLE submissions ADD COLUMN prolific_study_id VARCHAR DEFAULT ''")
             if "prolific_session_id" not in cols:
                 conn.exec_driver_sql("ALTER TABLE submissions ADD COLUMN prolific_session_id VARCHAR DEFAULT ''")
+            if "form_id" not in cols:
+                conn.exec_driver_sql("ALTER TABLE submissions ADD COLUMN form_id VARCHAR DEFAULT ''")
+            if "form_assignment_basis" not in cols:
+                conn.exec_driver_sql("ALTER TABLE submissions ADD COLUMN form_assignment_basis VARCHAR DEFAULT ''")
             trial_cols = {
                 row[1] for row in conn.exec_driver_sql("PRAGMA table_info(trial_responses)")
             }
@@ -105,6 +120,20 @@ def init_db() -> None:
                 conn.exec_driver_sql(
                     "ALTER TABLE trial_responses ADD COLUMN similarity_rating INTEGER"
                 )
+            additions = {
+                "naturalness_choice": "VARCHAR DEFAULT ''",
+                "naturalness_correct": "INTEGER",
+                "primary_accent": "VARCHAR DEFAULT ''",
+                "primary_accent_correct": "INTEGER",
+                "secondary_accent": "VARCHAR DEFAULT ''",
+                "secondary_influence": "INTEGER",
+                "playback_count": "INTEGER",
+            }
+            for name, sql_type in additions.items():
+                if name not in trial_cols:
+                    conn.exec_driver_sql(
+                        f"ALTER TABLE trial_responses ADD COLUMN {name} {sql_type}"
+                    )
 
 
 def get_db() -> Session:
@@ -184,6 +213,8 @@ async def create_submission(payload: SubmissionPayload, request: Request, db: Se
             study_id=payload.study_id,
             task_type=payload.task_type or "",
             target_accent=payload.target_accent or "",
+            form_id=payload.form_id or "",
+            form_assignment_basis=payload.form_assignment_basis or "",
             prolific_pid=prolific_pid,
             prolific_study_id=prolific_study_id,
             prolific_session_id=prolific_session_id,
@@ -212,6 +243,13 @@ async def create_submission(payload: SubmissionPayload, request: Request, db: Se
                 source_index=as_int(row.get("source_index")),
                 accent_choice=str(row.get("accent_choice") or ""),
                 confidence=as_int(row.get("confidence")),
+                naturalness_choice=str(row.get("naturalness_choice") or ""),
+                naturalness_correct=as_int(row.get("naturalness_correct")),
+                primary_accent=str(row.get("primary_accent") or ""),
+                primary_accent_correct=as_int(row.get("primary_accent_correct")),
+                secondary_accent=str(row.get("secondary_accent") or ""),
+                secondary_influence=as_int(row.get("secondary_influence")),
+                playback_count=as_int(row.get("playback_count")),
                 similarity_rating=as_int(row.get("similarity_rating")),
                 mos_rating=as_int(row.get("mos_rating")),
                 mos_label=str(row.get("mos_label") or ""),
@@ -233,6 +271,8 @@ def list_submissions(_: None = Depends(require_admin), db: Session = Depends(get
             "study_id": r.study_id,
             "task_type": r.task_type,
             "target_accent": r.target_accent,
+            "form_id": r.form_id,
+            "form_assignment_basis": r.form_assignment_basis,
             "prolific_pid": r.prolific_pid,
             "prolific_study_id": r.prolific_study_id,
             "prolific_session_id": r.prolific_session_id,
@@ -265,6 +305,8 @@ def export_submissions(_: None = Depends(require_admin), db: Session = Depends(g
             "study_id": r.study_id,
             "task_type": r.task_type,
             "target_accent": r.target_accent,
+            "form_id": r.form_id,
+            "form_assignment_basis": r.form_assignment_basis,
             "prolific_pid": r.prolific_pid,
             "prolific_study_id": r.prolific_study_id,
             "prolific_session_id": r.prolific_session_id,
@@ -298,6 +340,13 @@ def export_trial_responses(_: None = Depends(require_admin), db: Session = Depen
             "source_index": r.source_index,
             "accent_choice": r.accent_choice,
             "confidence": r.confidence,
+            "naturalness_choice": r.naturalness_choice,
+            "naturalness_correct": r.naturalness_correct,
+            "primary_accent": r.primary_accent,
+            "primary_accent_correct": r.primary_accent_correct,
+            "secondary_accent": r.secondary_accent,
+            "secondary_influence": r.secondary_influence,
+            "playback_count": r.playback_count,
             "similarity_rating": r.similarity_rating,
             "mos_rating": r.mos_rating,
             "mos_label": r.mos_label,
