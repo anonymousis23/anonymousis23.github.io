@@ -12,13 +12,12 @@ to 7.
 - Source and converted samples are between 4 and 8 seconds.
 - The expected answer is balanced: A for 30 trials and B for 30 trials.
 - A/B source and target placement is hidden from the participant.
-- SeedVC and PHONOS are expected to match the target speaker.
-- TVTSyn is a reconstruction model and is expected to match the source speaker;
-  its target-accent reference is an unconditioned distractor.
+- SeedVC, TVTSyn, and PHONOS are target-conditioned voice-conversion systems,
+  so all three are expected to match the target speaker.
 
 PHONOS samples are manually accepted conversions that pass target AccentCL
 recall, NISQA-MOS >= 4.0, and target-speaker cosine similarity >= 0.84. SeedVC
-and TVTSyn are reproducibly sampled after duration filtering.
+and TVTSyn conversions are reproducibly sampled after duration filtering.
 
 ## Before launch
 

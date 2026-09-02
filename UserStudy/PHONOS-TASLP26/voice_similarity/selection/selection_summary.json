@@ -44,7 +44,8 @@
   "notes": {
     "seedvc_expected_identity": "target",
     "phonos_expected_identity": "target",
-    "tvtsyn_expected_identity": "source",
-    "tvtsyn_target_reference": "unconditioned distractor from the nominal target accent"
+    "tvtsyn_expected_identity": "target",
+    "tvtsyn_target_reference": "the target reference used to condition voice conversion",
+    "tvtsyn_source": "/data/waris/code/PHONOSv2/evaluation/metric_results/tvtsyn_conversion_full"
   }
 }

@@ -17,6 +17,7 @@ STUDY_ROOT = Path(
 )
 EVAL_ROOT = Path("/data/waris/code/PHONOSv2/evaluation")
 FULL_RESULTS = EVAL_ROOT / "metric_results" / "full_eval"
+TVTSYN_CONVERSION_RESULTS = EVAL_ROOT / "metric_results" / "tvtsyn_conversion_full"
 PHONOS_CANDIDATES = STUDY_ROOT / "selection" / "phonos_similarity_candidates.csv"
 SPEAKER_ROOT = EVAL_ROOT / "speakers"
 RNG_SEED = 260830
@@ -72,9 +73,11 @@ def valid_audio(path: str | Path) -> bool:
     return candidate.is_file() and candidate.stat().st_size > 0
 
 
-def read_baseline_metrics() -> pd.DataFrame:
-    similarity = pd.read_csv(FULL_RESULTS / "similarity_full.csv", keep_default_na=False)
-    nisqa = pd.read_csv(FULL_RESULTS / "nisqa_full.csv", usecols=["item_id", "nisqa_mos"])
+def read_baseline_metrics(method: str) -> pd.DataFrame:
+    results_root = TVTSYN_CONVERSION_RESULTS if method == "tvtsyn" else FULL_RESULTS
+    similarity = pd.read_csv(results_root / "similarity_full.csv", keep_default_na=False)
+    nisqa = pd.read_csv(results_root / "nisqa_full.csv", usecols=["item_id", "nisqa_mos"])
+    similarity = similarity.loc[similarity["method"].eq(method)].copy()
     return similarity.merge(nisqa, on="item_id", how="left", validate="one_to_one")
 
 
@@ -105,7 +108,7 @@ def sample_baseline(method: str, metrics: pd.DataFrame, rng: random.Random) -> l
             output_path = str(row["eval_wav_path"])
             if source_path in used_sources or output_path in used_outputs:
                 continue
-            if method == "seedvc":
+            if method in {"seedvc", "tvtsyn"}:
                 target_path = str(row["target_ref_path"])
                 target_id = str(row["target_ref_id"])
                 if not valid_audio(target_path):
@@ -141,7 +144,9 @@ def sample_baseline(method: str, metrics: pd.DataFrame, rng: random.Random) -> l
                     "source_duration_sec": float(row["source_duration_sec"]),
                     "target_duration_sec": duration(target_path),
                     "synthesis_duration_sec": float(row["synthesis_duration_sec"]),
-                    "selection_policy": "random after 4-8 second source/X filtering",
+                    "selection_policy": (
+                        "random target-conditioned conversion after 4-8 second source/X filtering"
+                    ),
                     "source_item_id": str(row["item_id"]),
                 }
             )
@@ -324,8 +329,8 @@ def write_outputs(rows: list[dict]) -> None:
         "notes": {
             "seedvc_expected_identity": "target",
             "phonos_expected_identity": "target",
-            "tvtsyn_expected_identity": "source",
-            "tvtsyn_target_reference": "unconditioned distractor from the nominal target accent",
+            "tvtsyn_expected_identity": "target",
+            "tvtsyn_target_reference": "the target reference used to condition voice conversion",
         },
     }
     (STUDY_ROOT / "selection" / "selection_summary.json").write_text(
@@ -342,6 +347,8 @@ def validate(rows: list[dict]) -> None:
     assert frame.groupby("expected_choice").size().to_dict() == {"A": 30, "B": 30}
     assert frame["source_duration_sec"].between(4.0, 8.0).all()
     assert frame["synthesis_duration_sec"].between(4.0, 8.0).all()
+    assert frame["expected_role"].eq("target").all()
+    assert frame["target_reference_was_conditioning"].all()
     phonos = frame.loc[frame["condition_label"].eq("PHONOS")]
     assert phonos["nisqa_mos"].ge(4.0).all()
     assert phonos["speaker_similarity"].ge(0.84).all()
@@ -352,9 +359,8 @@ def validate(rows: list[dict]) -> None:
 
 def main() -> None:
     rng = random.Random(RNG_SEED)
-    metrics = read_baseline_metrics()
-    selected = sample_baseline("seedvc", metrics, rng)
-    selected.extend(sample_baseline("tvtsyn", metrics, rng))
+    selected = sample_baseline("seedvc", read_baseline_metrics("seedvc"), rng)
+    selected.extend(sample_baseline("tvtsyn", read_baseline_metrics("tvtsyn"), rng))
     selected.extend(sample_phonos())
     rows = publish_trials(selected, rng)
     validate(rows)
