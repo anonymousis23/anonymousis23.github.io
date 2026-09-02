@@ -2,8 +2,8 @@
 
 This study contains 60 randomized trials: 20 each from PHONOS, SeedVC, and
 TVTSyn. Participants hear reference A, reference B, and converted sample X,
-then select which reference voice is closer to X and report confidence from 1
-to 7.
+then select which reference voice is closer to X and rate the similarity of X
+to that selected reference from 1 to 5.
 
 ## Study design
 
@@ -12,6 +12,8 @@ to 7.
 - Source and converted samples are between 4 and 8 seconds.
 - The expected answer is balanced: A for 30 trials and B for 30 trials.
 - A/B source and target placement is hidden from the participant.
+- The selected-reference similarity scale ranges from 1 (very dissimilar) to
+  5 (very similar).
 - SeedVC, TVTSyn, and PHONOS are target-conditioned voice-conversion systems,
   so all three are expected to match the target speaker.
 

@@ -77,4 +77,4 @@ With a token:
 curl "http://127.0.0.1:8787/api/export/trial_responses.csv?token=YOUR_TOKEN" -o trial_responses.csv
 ```
 
-MOS rows use `mos_rating`, `mos_label`, and `distortion_label`. Accent rows use `accent_choice` and `confidence`. Raw JSON always contains the full original browser payload.
+MOS rows use `mos_rating`, `mos_label`, and `distortion_label`. Accent rows use `accent_choice` and `confidence`. Voice-similarity ABX-SMOS rows use `accent_choice` for the selected A/B reference and `similarity_rating` for the 1-5 selected-reference score. Raw JSON always contains the full original browser payload.

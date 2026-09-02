@@ -21,6 +21,16 @@ from openpyxl.utils import get_column_letter
 DEFAULT_DATABASE = Path(__file__).resolve().parent / "responses.db"
 DEFAULT_OUTPUT = Path("/data/waris/data/PHONOS_TASLP26_admin_audit_20260828")
 STUDIES = {
+    "phonos_taslp26_voice_similarity_abx": {
+        "filename": "PHONOS_TASLP26_Voice_Similarity_participant_audit.xlsx",
+        "title": "PHONOS TASLP26 Voice Similarity ABX-SMOS",
+        "audit_task_type": "Voice similarity ABX + selected-reference SMOS (1-5)",
+        "response_fields": (
+            ("accent_choice", "Selected Reference (A/B)"),
+            ("similarity_rating", "Selected-Reference Similarity (1-5)"),
+            ("response_ts_ms", "Response Timestamp (UTC)"),
+        ),
+    },
     "phonos_taslp26_mos": {
         "filename": "PHONOS_TASLP26_MOS_participant_audit.xlsx",
         "title": "PHONOS TASLP26 MOS",
@@ -398,6 +408,17 @@ def main() -> None:
     }
     for study_id, study in STUDIES.items():
         study_submissions = [row for row in submissions if row["study_id"] == study_id]
+        if not study_submissions:
+            print(f"{study_id}: no submissions; skipped")
+            export_summary["studies"][study_id] = {
+                "workbook": None,
+                "included_participants": 0,
+                "excluded_tests": 0,
+                "responses_per_participant": 60,
+                "included_prolific_ids_unique": 0,
+                "status": "skipped_no_submissions",
+            }
+            continue
         study_trials = [trial for row in study_submissions for trial in trials_by_submission.get(row["id"], [])]
         question_metadata = build_question_metadata(study_trials)
         question_ids = [row["qid"] for row in question_metadata]

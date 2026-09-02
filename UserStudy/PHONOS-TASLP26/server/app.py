@@ -65,6 +65,7 @@ class TrialResponse(Base):
     source_index = Column(Integer, nullable=True)
     accent_choice = Column(String, index=True, default="")
     confidence = Column(Integer, nullable=True)
+    similarity_rating = Column(Integer, nullable=True)
     mos_rating = Column(Integer, nullable=True)
     mos_label = Column(String, index=True, default="")
     distortion_label = Column(Text, default="")
@@ -97,6 +98,13 @@ def init_db() -> None:
                 conn.exec_driver_sql("ALTER TABLE submissions ADD COLUMN prolific_study_id VARCHAR DEFAULT ''")
             if "prolific_session_id" not in cols:
                 conn.exec_driver_sql("ALTER TABLE submissions ADD COLUMN prolific_session_id VARCHAR DEFAULT ''")
+            trial_cols = {
+                row[1] for row in conn.exec_driver_sql("PRAGMA table_info(trial_responses)")
+            }
+            if "similarity_rating" not in trial_cols:
+                conn.exec_driver_sql(
+                    "ALTER TABLE trial_responses ADD COLUMN similarity_rating INTEGER"
+                )
 
 
 def get_db() -> Session:
@@ -204,6 +212,7 @@ async def create_submission(payload: SubmissionPayload, request: Request, db: Se
                 source_index=as_int(row.get("source_index")),
                 accent_choice=str(row.get("accent_choice") or ""),
                 confidence=as_int(row.get("confidence")),
+                similarity_rating=as_int(row.get("similarity_rating")),
                 mos_rating=as_int(row.get("mos_rating")),
                 mos_label=str(row.get("mos_label") or ""),
                 distortion_label=str(row.get("distortion_label") or ""),
@@ -289,6 +298,7 @@ def export_trial_responses(_: None = Depends(require_admin), db: Session = Depen
             "source_index": r.source_index,
             "accent_choice": r.accent_choice,
             "confidence": r.confidence,
+            "similarity_rating": r.similarity_rating,
             "mos_rating": r.mos_rating,
             "mos_label": r.mos_label,
             "distortion_label": r.distortion_label,

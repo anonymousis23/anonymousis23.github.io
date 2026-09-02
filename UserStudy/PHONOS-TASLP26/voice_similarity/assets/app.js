@@ -42,7 +42,7 @@ function currentTrials() {
 }
 function responseComplete(qid) {
   const response = state.responses[qid];
-  return Boolean(response?.abx_choice && response?.confidence);
+  return Boolean(response?.abx_choice && response?.similarity_rating);
 }
 function completedCount() { return state.trials.filter(trial => responseComplete(trial.qid)).length; }
 
@@ -62,7 +62,8 @@ function renderTrial(trial) {
   const response = state.responses[trial.qid] || {};
   const complete = responseComplete(trial.qid) ? ' complete' : '';
   const scaleDescriptions = {
-    1: 'Not confident', 3: 'Somewhat', 5: 'Quite a bit', 7: 'Extremely'
+    1: 'Very dissimilar', 2: 'Dissimilar', 3: 'Moderately similar',
+    4: 'Similar', 5: 'Very similar'
   };
   return `<article class="trial-card${complete}" data-qid="${escapeHtml(trial.qid)}">
     <div class="card-top"><div class="qid">${escapeHtml(trial.qid)}</div></div>
@@ -86,13 +87,13 @@ function renderTrial(trial) {
         ${['A', 'B'].map(choice => `<label class="choice-option"><input class="abx-choice" type="radio" name="${escapeHtml(trial.qid)}_choice" value="${choice}" ${response.abx_choice === choice ? 'checked' : ''}> Voice ${choice}</label>`).join('')}
       </div>
     </fieldset>
-    <fieldset class="confidence-fieldset">
-      <legend>How confident are you?</legend>
-      <div class="confidence-grid">
-        ${[1,2,3,4,5,6,7].map(value => `<label class="confidence-option"><input class="confidence-choice" type="radio" name="${escapeHtml(trial.qid)}_confidence" value="${value}" ${String(response.confidence) === String(value) ? 'checked' : ''}>${value}</label>`).join('')}
+    <fieldset class="similarity-fieldset" ${response.abx_choice ? '' : 'disabled'}>
+      <legend>How similar is Sample X to your selected reference?</legend>
+      <div class="similarity-grid">
+        ${[1,2,3,4,5].map(value => `<label class="similarity-option"><input class="similarity-choice" type="radio" name="${escapeHtml(trial.qid)}_similarity" value="${value}" ${String(response.similarity_rating) === String(value) ? 'checked' : ''}>${value}</label>`).join('')}
       </div>
       <div class="scale-caption">
-        ${[1,2,3,4,5,6,7].map(value => `<span>${scaleDescriptions[value] || ''}</span>`).join('')}
+        ${[1,2,3,4,5].map(value => `<span>${scaleDescriptions[value]}</span>`).join('')}
       </div>
     </fieldset>
   </article>`;
@@ -124,7 +125,7 @@ function recordPlayback(event) {
   state.playback[qid][role] += 1;
 }
 function bindPageEvents() {
-  qsa('.abx-choice, .confidence-choice').forEach(element => element.addEventListener('change', onResponseChange));
+  qsa('.abx-choice, .similarity-choice').forEach(element => element.addEventListener('change', onResponseChange));
   qsa('audio').forEach(audio => audio.addEventListener('play', recordPlayback));
 }
 function renderPage() {
@@ -144,14 +145,20 @@ function renderPage() {
 function onResponseChange(event) {
   const card = event.target.closest('.trial-card');
   const qid = card.dataset.qid;
+  const previousChoice = state.responses[qid]?.abx_choice || '';
   const choice = qs(`input[name="${CSS.escape(qid)}_choice"]:checked`);
-  const confidence = qs(`input[name="${CSS.escape(qid)}_confidence"]:checked`);
+  const similarity = qs(`input[name="${CSS.escape(qid)}_similarity"]:checked`);
+  const choiceChanged = event.target.classList.contains('abx-choice')
+    && previousChoice && previousChoice !== choice?.value;
+  if (choiceChanged && similarity) similarity.checked = false;
   state.responses[qid] = {
     ...(state.responses[qid] || {}),
     abx_choice: choice?.value || '',
-    confidence: confidence?.value || '',
+    similarity_rating: choiceChanged ? '' : (similarity?.value || ''),
     response_ts: Date.now(),
   };
+  const similarityFieldset = qs('.similarity-fieldset', card);
+  if (similarityFieldset) similarityFieldset.disabled = !choice?.value;
   card.classList.toggle('complete', responseComplete(qid));
   updateProgress();
   updatePageCompletion();
@@ -255,7 +262,9 @@ function collectPayload() {
       accent_choice: response.abx_choice || '',
       selected_role: response.abx_choice ? selectedRole : '',
       is_expected_choice: response.abx_choice ? response.abx_choice === trial.expected_choice : false,
-      confidence: response.confidence || '',
+      similarity_rating: response.similarity_rating || '',
+      similarity_scale_min: 1,
+      similarity_scale_max: 5,
       response_ts: response.response_ts || '',
       playback_counts: state.playback[trial.qid] || { A: 0, B: 0, X: 0 },
     };
