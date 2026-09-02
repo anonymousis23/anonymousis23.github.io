@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import io
 import json
 import os
+import re
+import secrets
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -14,17 +17,46 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse, StreamingResponse
 from pydantic import BaseModel, Field
-from sqlalchemy import JSON, Column, DateTime, Float, Integer, String, Text, create_engine, select
+from sqlalchemy import JSON, Column, DateTime, Float, Integer, String, Text, create_engine, func, inspect, select, text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./responses.db")
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
+elif DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+
 ALLOWED_ORIGINS = [x.strip() for x in os.getenv("ALLOWED_ORIGINS", "*").split(",") if x.strip()]
 ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "").strip()
+AUTO_CREATE_SCHEMA = os.getenv(
+    "AUTO_CREATE_SCHEMA", "1" if DATABASE_URL.startswith("sqlite") else "0"
+).lower() in {"1", "true", "yes"}
+DEFAULT_STUDY_IDS = {
+    "phonos_taslp26_accent_british",
+    "phonos_taslp26_accent_indian",
+    "phonos_taslp26_accent_multidimensional",
+    "phonos_taslp26_accent_spanish",
+    "phonos_taslp26_mos",
+    "phonos_taslp26_voice_similarity_abx",
+}
+ALLOWED_STUDY_IDS = {
+    value.strip()
+    for value in os.getenv("ALLOWED_STUDY_IDS", ",".join(sorted(DEFAULT_STUDY_IDS))).split(",")
+    if value.strip()
+}
+STRICT_STUDY_IDS = {
+    "phonos_taslp26_accent_multidimensional",
+    "phonos_taslp26_voice_similarity_abx",
+}
 
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
-engine = create_engine(DATABASE_URL, connect_args=connect_args, future=True)
+engine_options = {"connect_args": connect_args, "future": True, "pool_pre_ping": True}
+if not DATABASE_URL.startswith("sqlite"):
+    engine_options["pool_recycle"] = 300
+engine = create_engine(DATABASE_URL, **engine_options)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
 Base = declarative_base()
 
@@ -46,6 +78,7 @@ class Submission(Base):
     user_agent = Column(Text, default="")
     started_at_ms = Column(Float, nullable=True)
     submitted_at_ms = Column(Float, nullable=True)
+    payload_sha256 = Column(String(64), default="")
     received_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True)
     raw_payload = Column(JSON, nullable=False)
 
@@ -82,6 +115,7 @@ class TrialResponse(Base):
 
 
 class SubmissionPayload(BaseModel):
+    submission_id: str | None = Field(default="", max_length=64)
     study_id: str = Field(..., min_length=1)
     task_type: str | None = ""
     title: str | None = ""
@@ -100,40 +134,44 @@ class SubmissionPayload(BaseModel):
     rows: list[dict[str, Any]] = Field(default_factory=list)
 
 
-def init_db() -> None:
+def migrate_database() -> None:
     Base.metadata.create_all(engine)
-    if engine.dialect.name == "sqlite":
-        with engine.begin() as conn:
-            cols = {row[1] for row in conn.exec_driver_sql("PRAGMA table_info(submissions)")}
-            if "prolific_study_id" not in cols:
-                conn.exec_driver_sql("ALTER TABLE submissions ADD COLUMN prolific_study_id VARCHAR DEFAULT ''")
-            if "prolific_session_id" not in cols:
-                conn.exec_driver_sql("ALTER TABLE submissions ADD COLUMN prolific_session_id VARCHAR DEFAULT ''")
-            if "form_id" not in cols:
-                conn.exec_driver_sql("ALTER TABLE submissions ADD COLUMN form_id VARCHAR DEFAULT ''")
-            if "form_assignment_basis" not in cols:
-                conn.exec_driver_sql("ALTER TABLE submissions ADD COLUMN form_assignment_basis VARCHAR DEFAULT ''")
-            trial_cols = {
-                row[1] for row in conn.exec_driver_sql("PRAGMA table_info(trial_responses)")
+    additions = {
+        "submissions": {
+            "prolific_study_id": "VARCHAR DEFAULT ''",
+            "prolific_session_id": "VARCHAR DEFAULT ''",
+            "form_id": "VARCHAR DEFAULT ''",
+            "form_assignment_basis": "VARCHAR DEFAULT ''",
+            "payload_sha256": "VARCHAR(64) DEFAULT ''",
+        },
+        "trial_responses": {
+            "similarity_rating": "INTEGER",
+            "naturalness_choice": "VARCHAR DEFAULT ''",
+            "naturalness_correct": "INTEGER",
+            "primary_accent": "VARCHAR DEFAULT ''",
+            "primary_accent_correct": "INTEGER",
+            "secondary_accent": "VARCHAR DEFAULT ''",
+            "secondary_influence": "INTEGER",
+            "playback_count": "INTEGER",
+        },
+    }
+    with engine.begin() as connection:
+        for table_name, columns in additions.items():
+            existing = {
+                column["name"] for column in inspect(connection).get_columns(table_name)
             }
-            if "similarity_rating" not in trial_cols:
-                conn.exec_driver_sql(
-                    "ALTER TABLE trial_responses ADD COLUMN similarity_rating INTEGER"
+            for column_name, sql_type in columns.items():
+                if column_name in existing:
+                    continue
+                connection.exec_driver_sql(
+                    f"ALTER TABLE {table_name} ADD COLUMN {column_name} {sql_type}"
                 )
-            additions = {
-                "naturalness_choice": "VARCHAR DEFAULT ''",
-                "naturalness_correct": "INTEGER",
-                "primary_accent": "VARCHAR DEFAULT ''",
-                "primary_accent_correct": "INTEGER",
-                "secondary_accent": "VARCHAR DEFAULT ''",
-                "secondary_influence": "INTEGER",
-                "playback_count": "INTEGER",
-            }
-            for name, sql_type in additions.items():
-                if name not in trial_cols:
-                    conn.exec_driver_sql(
-                        f"ALTER TABLE trial_responses ADD COLUMN {name} {sql_type}"
-                    )
+                existing.add(column_name)
+
+
+def init_db() -> None:
+    if AUTO_CREATE_SCHEMA:
+        migrate_database()
 
 
 def get_db() -> Session:
@@ -146,9 +184,9 @@ def get_db() -> Session:
 
 def require_admin(token: str | None = Query(default=None), x_admin_token: str | None = Header(default=None)) -> None:
     if not ADMIN_TOKEN:
-        return
+        raise HTTPException(status_code=503, detail="Administrative exports are disabled")
     supplied = token or x_admin_token or ""
-    if supplied != ADMIN_TOKEN:
+    if not secrets.compare_digest(supplied, ADMIN_TOKEN):
         raise HTTPException(status_code=403, detail="Invalid admin token")
 
 
@@ -170,6 +208,63 @@ def as_float(value: Any) -> float | None:
         return None
 
 
+def payload_dict(payload: SubmissionPayload) -> dict[str, Any]:
+    if hasattr(payload, "model_dump"):
+        return payload.model_dump()
+    return payload.dict()
+
+
+def payload_sha256(data: dict[str, Any]) -> str:
+    canonical = json.dumps(data, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def normalized_submission_id(value: str | None) -> str:
+    candidate = str(value or "").strip()
+    if not candidate:
+        return uuid4().hex
+    if not re.fullmatch(r"[A-Za-z0-9_-]{16,64}", candidate):
+        raise HTTPException(status_code=422, detail="Invalid submission_id")
+    return candidate
+
+
+def validate_submission(payload: SubmissionPayload) -> None:
+    if payload.study_id not in ALLOWED_STUDY_IDS:
+        raise HTTPException(status_code=422, detail="Unknown study_id")
+    if payload.study_id not in STRICT_STUDY_IDS:
+        return
+    if len(payload.rows) != 60:
+        raise HTTPException(status_code=422, detail="This study requires exactly 60 trial rows")
+
+    qids = [str(row.get("qid") or "") for row in payload.rows]
+    if any(not qid for qid in qids) or len(qids) != len(set(qids)):
+        raise HTTPException(status_code=422, detail="Trial qids must be present and unique")
+
+    if payload.study_id == "phonos_taslp26_accent_multidimensional":
+        if payload.form_id not in {"A", "B", "C", "D"}:
+            raise HTTPException(status_code=422, detail="FORM_ID must be A, B, C, or D")
+        accents = {"american", "british", "indian", "spanish"}
+        for row in payload.rows:
+            naturalness = str(row.get("naturalness_choice") or "")
+            primary = str(row.get("primary_accent") or "")
+            secondary = str(row.get("secondary_accent") or "")
+            influence = as_int(row.get("secondary_influence"))
+            if naturalness not in {"natural", "synthetic"}:
+                raise HTTPException(status_code=422, detail="Invalid naturalness response")
+            if primary not in accents:
+                raise HTTPException(status_code=422, detail="Invalid primary accent")
+            if secondary not in accents | {"none"} or secondary == primary:
+                raise HTTPException(status_code=422, detail="Invalid secondary accent")
+            if secondary != "none" and influence not in {1, 2, 3, 4, 5}:
+                raise HTTPException(status_code=422, detail="Invalid secondary accent influence")
+    elif payload.study_id == "phonos_taslp26_voice_similarity_abx":
+        for row in payload.rows:
+            choice = str(row.get("abx_choice") or row.get("accent_choice") or "")
+            similarity = as_int(row.get("similarity_rating"))
+            if choice not in {"A", "B"} or similarity not in {1, 2, 3, 4, 5}:
+                raise HTTPException(status_code=422, detail="Invalid voice-similarity response")
+
+
 app = FastAPI(title="PHONOS Listening Study Response API")
 app.add_middleware(
     CORSMiddleware,
@@ -186,21 +281,57 @@ def startup() -> None:
 
 
 @app.get("/health")
-def health() -> dict[str, str]:
-    return {"ok": "true", "database": DATABASE_URL.split(":", 1)[0]}
+def health(db: Session = Depends(get_db)) -> dict[str, str]:
+    try:
+        db.execute(text("SELECT 1"))
+    except Exception as error:
+        raise HTTPException(status_code=503, detail="Database unavailable") from error
+    return {"ok": "true", "database": engine.dialect.name}
+
+
+def duplicate_response(db: Session, submission: Submission, digest: str) -> JSONResponse:
+    if submission.payload_sha256 and submission.payload_sha256 != digest:
+        raise HTTPException(status_code=409, detail="submission_id already exists with different data")
+    row_count = db.execute(
+        select(func.count()).select_from(TrialResponse).where(
+            TrialResponse.submission_id == submission.id
+        )
+    ).scalar_one()
+    return JSONResponse(
+        {
+            "ok": True,
+            "submission_id": submission.id,
+            "rows": row_count,
+            "duplicate": True,
+        }
+    )
 
 
 @app.post("/api/submissions")
 async def create_submission(payload: SubmissionPayload, request: Request, db: Session = Depends(get_db)) -> JSONResponse:
-    submission_id = uuid4().hex
+    validate_submission(payload)
+    submission_id = normalized_submission_id(payload.submission_id)
+    payload.submission_id = submission_id
+    client_payload = payload_dict(payload)
+    digest = payload_sha256(client_payload)
+
+    existing = db.get(Submission, submission_id)
+    if existing:
+        return duplicate_response(db, existing, digest)
+
     participant = payload.participant or {}
     post_survey = payload.post_survey or {}
     prolific_pid = str(participant.get("PROLIFIC_PID") or "")
     prolific_study_id = str(participant.get("STUDY_ID") or "")
     prolific_session_id = str(participant.get("SESSION_ID") or "")
-    participant_id = str(prolific_pid or post_survey.get("participant_id") or participant.get("participant") or "")
+    participant_id = str(
+        prolific_pid
+        or post_survey.get("participant_id")
+        or participant.get("participant")
+        or ""
+    )
 
-    raw_payload = payload.dict()
+    raw_payload = dict(client_payload)
     raw_payload["server"] = {
         "submission_id": submission_id,
         "client_host": request.client.host if request.client else "",
@@ -223,6 +354,7 @@ async def create_submission(payload: SubmissionPayload, request: Request, db: Se
             user_agent=payload.user_agent or request.headers.get("user-agent", ""),
             started_at_ms=payload.started_at,
             submitted_at_ms=payload.submitted_at,
+            payload_sha256=digest,
             raw_payload=raw_payload,
         )
     )
@@ -258,8 +390,36 @@ async def create_submission(payload: SubmissionPayload, request: Request, db: Se
             )
         )
 
-    db.commit()
-    return JSONResponse({"ok": True, "submission_id": submission_id, "rows": len(payload.rows)})
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        existing = db.get(Submission, submission_id)
+        if existing:
+            return duplicate_response(db, existing, digest)
+        raise
+
+    return JSONResponse(
+        {"ok": True, "submission_id": submission_id, "rows": len(payload.rows), "duplicate": False}
+    )
+
+
+@app.get("/api/submissions/{submission_id}/status")
+def submission_status(submission_id: str, db: Session = Depends(get_db)) -> dict[str, Any]:
+    submission = db.get(Submission, submission_id)
+    if not submission:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    row_count = db.execute(
+        select(func.count()).select_from(TrialResponse).where(
+            TrialResponse.submission_id == submission_id
+        )
+    ).scalar_one()
+    return {
+        "ok": True,
+        "stored": True,
+        "submission_id": submission_id,
+        "rows": row_count,
+    }
 
 
 @app.get("/api/submissions")

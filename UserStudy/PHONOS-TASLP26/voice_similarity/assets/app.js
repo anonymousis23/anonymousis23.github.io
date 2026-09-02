@@ -123,6 +123,7 @@ function recordPlayback(event) {
   const role = audio.dataset.audioRole;
   state.playback[qid] = state.playback[qid] || { A: 0, B: 0, X: 0 };
   state.playback[qid][role] += 1;
+  saveDraft();
 }
 function bindPageEvents() {
   qsa('.abx-choice, .similarity-choice').forEach(element => element.addEventListener('change', onResponseChange));
@@ -165,12 +166,24 @@ function onResponseChange(event) {
   saveDraft();
 }
 function saveDraft() {
-  try { localStorage.setItem(`phonostudy:${state.config.study_id}:draft`, JSON.stringify(state.responses)); } catch (error) {}
+  try {
+    localStorage.setItem(
+      "phonostudy:" + state.config.study_id + ":draft",
+      JSON.stringify({ responses: state.responses, playback: state.playback })
+    );
+  } catch (error) {}
 }
 function loadDraft() {
   try {
-    const saved = localStorage.getItem(`phonostudy:${state.config.study_id}:draft`);
-    if (saved) state.responses = JSON.parse(saved) || {};
+    const saved = localStorage.getItem("phonostudy:" + state.config.study_id + ":draft");
+    if (!saved) return;
+    const parsed = JSON.parse(saved);
+    if (parsed && parsed.responses) {
+      state.responses = parsed.responses;
+      state.playback = parsed.playback || {};
+    } else {
+      state.responses = parsed || {};
+    }
   } catch (error) {}
 }
 function scrollToStudyTop() {
@@ -267,6 +280,7 @@ function collectPayload() {
       similarity_scale_max: 5,
       response_ts: response.response_ts || '',
       playback_counts: state.playback[trial.qid] || { A: 0, B: 0, X: 0 },
+      playback_count: Object.values(state.playback[trial.qid] || {}).reduce((sum, value) => sum + value, 0),
     };
   });
   return {
@@ -286,50 +300,35 @@ function collectPayload() {
     rows,
   };
 }
-function downloadJson(payload) {
-  const participant = payload.participant.PROLIFIC_PID || payload.participant.participant || 'anonymous';
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const filename = `${payload.study_id}_${participant}_${timestamp}.json`;
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = filename;
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  URL.revokeObjectURL(url);
-  return filename;
-}
 async function submitStudy() {
   if (completedCount() !== state.trials.length) {
-    alert('Some samples are missing responses. Please return to the ratings.');
+    alert("Some samples are missing responses. Please return to the ratings.");
     return;
   }
-  const button = qs('#submitButton');
+  const button = qs("#submitButton");
   button.disabled = true;
-  setText('#submitStatus', 'Submitting...');
   const payload = collectPayload();
   const endpoint = configuredUrl(state.config.response_api_url) || configuredUrl(state.config.apps_script_webapp_url);
   const completionUrl = configuredUrl(state.config.prolific_completion_url);
   try {
-    if (!endpoint) throw new Error('No response API is configured');
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    if (!window.PHONOSSubmission) throw new Error("Reliable submission client did not load");
+    await window.PHONOSSubmission.submit({
+      endpoint,
+      payload,
+      onAttempt: (attempt, total) => setText("#submitStatus", "Submitting (attempt " + attempt + " of " + total + ")..."),
     });
-    if (!response.ok) throw new Error(`Response API returned ${response.status}`);
-    try { localStorage.removeItem(`phonostudy:${state.config.study_id}:draft`); } catch (error) {}
+    try { localStorage.removeItem("phonostudy:" + state.config.study_id + ":draft"); } catch (error) {}
     if (completionUrl) {
-      setText('#submitStatus', 'Submitted. Redirecting to Prolific...');
+      setText("#submitStatus", "Submitted. Redirecting to Prolific...");
       window.location.href = completionUrl;
       return;
     }
-    setText('#submitStatus', 'Submitted successfully. The Prolific completion URL is not configured.');
+    setText("#submitStatus", "Submitted successfully. The Prolific completion URL is not configured.");
   } catch (error) {
-    const filename = downloadJson(payload);
-    setText('#submitStatus', `Submission failed: ${error.message}. Local backup downloaded: ${filename}.`);
+    const recovery = error.pendingPersisted
+      ? " Your completed responses remain saved in this browser. Press Submit to retry."
+      : " Keep this page open and press Submit to retry.";
+    setText("#submitStatus", "Submission has not been confirmed: " + (error.message || error) + "." + recovery);
     button.disabled = false;
   }
 }

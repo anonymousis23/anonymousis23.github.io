@@ -1,0 +1,9 @@
+.env
+.venv/
+__pycache__/
+*.db
+*.sqlite
+*.sqlite3
+backups/
+server.log
+export_audit_workbooks.py

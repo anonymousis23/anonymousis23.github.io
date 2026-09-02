@@ -368,34 +368,23 @@ function collectPayload() {
   };
 }
 
-function downloadBackup(payload) {
-  const id = payload.participant.PROLIFIC_PID || payload.participant.participant || "anonymous";
-  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const filename = `${payload.study_id}_${id}_${stamp}.json`;
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = filename;
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  URL.revokeObjectURL(url);
-  return filename;
-}
-
 async function submitStudy() {
-  if (completedCount() !== state.trials.length) return window.alert("Please complete every sample before submitting.");
+  if (completedCount() !== state.trials.length) {
+    window.alert("Please complete every sample before submitting.");
+    return;
+  }
   const button = qs("#submitButton");
   button.disabled = true;
-  setText("#submitStatus", "Submitting...");
   const payload = collectPayload();
   const endpoint = configuredUrl(state.config.response_api_url);
   const completionUrl = configuredUrl(state.config.prolific_completion_url);
   try {
-    if (!endpoint) throw new Error("Response API is not configured");
-    const response = await fetch(endpoint, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
-    if (!response.ok) throw new Error(`Response API returned ${response.status}`);
+    if (!window.PHONOSSubmission) throw new Error("Reliable submission client did not load");
+    await window.PHONOSSubmission.submit({
+      endpoint,
+      payload,
+      onAttempt: (attempt, total) => setText("#submitStatus", "Submitting (attempt " + attempt + " of " + total + ")..."),
+    });
     try { localStorage.removeItem(draftKey()); } catch (error) {}
     if (completionUrl) {
       setText("#submitStatus", "Submitted. Redirecting to Prolific...");
@@ -404,8 +393,10 @@ async function submitStudy() {
     }
     setText("#submitStatus", "Submitted successfully. The Prolific completion URL is not configured; please contact the study organizer.");
   } catch (error) {
-    const filename = downloadBackup(payload);
-    setText("#submitStatus", `Upload failed. Local backup downloaded: ${filename}. Please contact the study organizer.`);
+    const recovery = error.pendingPersisted
+      ? " Your completed responses remain saved in this browser. Press Submit to retry."
+      : " Keep this page open and press Submit to retry.";
+    setText("#submitStatus", "Submission has not been confirmed: " + (error.message || error) + "." + recovery);
     button.disabled = false;
   }
 }

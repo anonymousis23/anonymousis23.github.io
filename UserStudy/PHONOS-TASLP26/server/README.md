@@ -1,80 +1,128 @@
 # PHONOS-TASLP26 Response API
 
-Small FastAPI backend for collecting PHONOS perceptual-study responses. The same server can be used by the accent verification studies and the MOS study. It stores each submission as one raw JSON payload and also expands every trial into a CSV-friendly `trial_responses` table.
+This FastAPI service stores responses for both current perceptual studies in one Neon PostgreSQL database:
 
-SQLite is the default and is enough for a small study. PostgreSQL is supported by setting `DATABASE_URL`.
+- `phonos_taslp26_accent_multidimensional` (`accent_new`)
+- `phonos_taslp26_voice_similarity_abx` (`voice_similarity`)
 
-## Setup
+Each submission is saved both as the original JSON payload and as 60 queryable rows in `trial_responses`. Browser-generated submission IDs make retries idempotent: retrying the same completed payload returns success without inserting duplicate rows.
+
+## Local Setup
 
 ```bash
 cd /data/waris/code/anonymousis23.github.io/UserStudy/PHONOS-TASLP26/server
-python3.10 -m venv .venv
+python3.12 -m venv .venv
 source .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 cp .env.example .env
+uvicorn app:app --host 127.0.0.1 --port 8787
 ```
 
-## Run Locally
-
-```bash
-uvicorn app:app --host 0.0.0.0 --port 8787
-```
-
-Health check:
+The default `.env` uses SQLite for local development. Check it with:
 
 ```bash
 curl http://127.0.0.1:8787/health
 ```
 
-Submission endpoint:
+Do not use the SQLite configuration on Vercel; its function filesystem is not durable storage.
 
-```text
-http://127.0.0.1:8787/api/submissions
-```
+## Create the Neon Database
 
-Set this URL in each study manifest as `response_api_url`. The payload includes `study_id` and `task_type`, so accent and MOS studies can share the same endpoint.
-
-## Use PostgreSQL Instead of SQLite
-
-Create a database and set this in `.env`:
+1. Create one Neon project and database.
+2. Copy both connection strings from the Neon dashboard:
+   - pooled URL for the deployed API runtime;
+   - direct/unpooled URL for schema migrations.
+3. From this directory, run the migration using the direct URL:
 
 ```bash
-DATABASE_URL=postgresql+psycopg2://USER:PASSWORD@HOST:5432/DBNAME
+source .venv/bin/activate
+export DATABASE_URL_UNPOOLED='postgresql://USER:PASSWORD@DIRECT_HOST/DBNAME?sslmode=require'
+python migrate.py
 ```
 
-Then restart the server. Tables are created automatically.
+Keep connection strings and `ADMIN_TOKEN` out of Git. Runtime requests should use the pooled Neon hostname, which normally contains `-pooler`.
 
-## Expose Publicly
+## Deploy the API to Vercel
 
-Use a tunnel such as ngrok or Cloudflare Tunnel. Example with ngrok:
+Deploy this `server` directory as the Vercel project's root. `app.py` is the FastAPI entrypoint and `.python-version` selects Python 3.12.
+
+Install and authenticate the CLI if needed:
 
 ```bash
-ngrok http 8787
+npm install --global vercel
+vercel login
+cd /data/waris/code/anonymousis23.github.io/UserStudy/PHONOS-TASLP26/server
+vercel link
 ```
 
-Then copy the HTTPS forwarding URL and append `/api/submissions`, for example:
+Add these production environment variables in the Vercel dashboard or with `vercel env add NAME production`:
 
 ```text
-https://YOUR-TUNNEL.ngrok-free.app/api/submissions
+DATABASE_URL=<Neon pooled connection string>
+AUTO_CREATE_SCHEMA=0
+ALLOWED_ORIGINS=https://anonymousis23.github.io
+ALLOWED_STUDY_IDS=phonos_taslp26_accent_multidimensional,phonos_taslp26_voice_similarity_abx
+ADMIN_TOKEN=<long random secret>
 ```
 
-Put that URL in each study's `trials.json` as `response_api_url`.
+Then deploy:
+
+```bash
+vercel --prod
+```
+
+The resulting endpoints are:
+
+```text
+https://YOUR-PROJECT.vercel.app/health
+https://YOUR-PROJECT.vercel.app/api/submissions
+```
+
+## Verify Before Launch
+
+The read-only smoke check does not write participant data:
+
+```bash
+python smoke_deployment.py https://YOUR-PROJECT.vercel.app
+```
+
+The full smoke test writes two clearly tagged test submissions, one for each study, and verifies the first insert, an idempotent retry, and the status endpoint:
+
+```bash
+python smoke_deployment.py https://YOUR-PROJECT.vercel.app --write
+```
+
+After this passes, update both study manifests in one command:
+
+```bash
+python ../scripts/set_managed_response_api.py https://YOUR-PROJECT.vercel.app
+```
+
+Commit and push the two manifest changes so GitHub Pages serves the permanent endpoint. The existing ngrok URLs are intentionally left in place until this step.
+
+## Reliability Behavior
+
+Both study pages load `shared/submission.js`. On submission it:
+
+1. assigns a stable client submission ID;
+2. persists the exact completed payload in browser storage;
+3. retries transient failures with backoff;
+4. requires the API to confirm the same ID;
+5. removes the pending payload only after confirmed storage.
+
+If all attempts fail, the participant remains on the completion page and can press **Submit** again. The same payload and ID are reused, so a response lost after the database commit does not produce a duplicate.
 
 ## Exports
 
-If `ADMIN_TOKEN` is empty in `.env`, export endpoints are open locally. If you set `ADMIN_TOKEN`, pass `?token=YOUR_TOKEN`.
+Administrative endpoints fail closed unless `ADMIN_TOKEN` is configured. Prefer the header form so the token does not appear in URLs or browser history:
 
 ```bash
-curl "http://127.0.0.1:8787/api/export/submissions.csv" -o submissions.csv
-curl "http://127.0.0.1:8787/api/export/trial_responses.csv" -o trial_responses.csv
-curl "http://127.0.0.1:8787/api/export/raw.jsonl" -o raw.jsonl
+export API_URL='https://YOUR-PROJECT.vercel.app'
+export ADMIN_TOKEN='your-secret'
+curl -H "X-Admin-Token: $ADMIN_TOKEN" "$API_URL/api/export/submissions.csv" -o submissions.csv
+curl -H "X-Admin-Token: $ADMIN_TOKEN" "$API_URL/api/export/trial_responses.csv" -o trial_responses.csv
+curl -H "X-Admin-Token: $ADMIN_TOKEN" "$API_URL/api/export/raw.jsonl" -o raw.jsonl
 ```
 
-With a token:
-
-```bash
-curl "http://127.0.0.1:8787/api/export/trial_responses.csv?token=YOUR_TOKEN" -o trial_responses.csv
-```
-
-MOS rows use `mos_rating`, `mos_label`, and `distortion_label`. Accent rows use `accent_choice` and `confidence`. Voice-similarity ABX-SMOS rows use `accent_choice` for the selected A/B reference and `similarity_rating` for the 1-5 selected-reference score. Raw JSON always contains the full original browser payload.
+The API keeps Prolific `PROLIFIC_PID`, `STUDY_ID`, and `SESSION_ID` separate from the internal study ID. Accent responses use `naturalness_choice`, `primary_accent`, `secondary_accent`, and `secondary_influence`. Voice-similarity responses use `accent_choice`/`abx_choice` and `similarity_rating`. Full hidden trial metadata remains available in the raw JSON export.

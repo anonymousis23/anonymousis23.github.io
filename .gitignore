@@ -1,6 +1,14 @@
 # PHONOS-TASLP26 response server runtime files
 UserStudy/PHONOS-TASLP26/server/.env
+UserStudy/PHONOS-TASLP26/server/.env.*
+!UserStudy/PHONOS-TASLP26/server/.env.example
+UserStudy/PHONOS-TASLP26/server/.admin_token
+UserStudy/PHONOS-TASLP26/server/admin_token.txt
+UserStudy/PHONOS-TASLP26/server/vercel.env
+UserStudy/PHONOS-TASLP26/server/neon.env
 UserStudy/PHONOS-TASLP26/server/.venv/
+UserStudy/PHONOS-TASLP26/server/.vercel/
+UserStudy/PHONOS-TASLP26/server/.neon/
 UserStudy/PHONOS-TASLP26/server/responses.db
 UserStudy/PHONOS-TASLP26/server/*.db
 UserStudy/PHONOS-TASLP26/server/*.sqlite
