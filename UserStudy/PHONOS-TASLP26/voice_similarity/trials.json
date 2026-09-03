@@ -9,7 +9,7 @@
   "randomized_order_seed": 260830,
   "response_api_url": "https://phonos-taslp26-response-api.vercel.app/api/submissions",
   "apps_script_webapp_url": "",
-  "prolific_completion_url": "",
+  "prolific_completion_url": "https://app.prolific.com/submissions/complete?cc=CS5I0MU5",
   "trials": [
     {
       "qid": "Q001",
