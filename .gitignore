@@ -30,3 +30,7 @@ UserStudy/PHONOS-TASLP26/scripts/prepare_eval_source_samples.py
 # Python cache files
 __pycache__/
 *.py[cod]
+
+# Private accent-qualification review data and answer key
+UserStudy/PHONOS-TASLP26/accent_new/qualification_candidates/
+UserStudy/PHONOS-TASLP26/server/qualification_*.local.json

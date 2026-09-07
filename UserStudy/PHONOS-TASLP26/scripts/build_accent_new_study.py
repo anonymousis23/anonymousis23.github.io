@@ -216,7 +216,11 @@ def main() -> None:
         "form_ids": list(FORMS),
         "target_usable_participants": 80,
         "response_api_url": "https://phonos-taslp26-response-api.vercel.app/api/submissions",
-        "prolific_completion_url": "",
+        "prolific_completion_urls": {form_id: "" for form_id in FORMS},
+        "qualification": {
+            "required_for_prolific": True,
+            "url": "qualification/",
+        },
         "accent_labels": ["American", "British", "Indian", "Spanish"],
         "secondary_none_value": "none",
         "influence_labels": {

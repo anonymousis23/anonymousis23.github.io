@@ -1,4 +1,5 @@
-.env
+.env*
+qualification_*.local.json
 .venv/
 __pycache__/
 *.db

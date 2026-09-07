@@ -20,7 +20,15 @@ The participant interface is index.html. forms.json contains four counterbalance
 
 Across forms A-D, each source-direction group is presented once in every condition. Repeated linguistic sources are separated by at least 15 trials within a form. Append ?FORM_ID=A, B, C, or D to load a specific form. When FORM_ID is absent or invalid, the landing page asks the visitor to select one of the four forms and then reloads the study with that identifier while preserving any Prolific URL parameters. With 80 usable participants, allocate 20 participants to each form.
 
-Before launch, set prolific_completion_url in forms.json. The internal study ID is phonos_taslp26_accent_multidimensional.
+Before launch, set each `A`-`D` entry in `prolific_completion_urls` in `forms.json`. Each form can use its own Prolific completion URL. The internal study ID is `phonos_taslp26_accent_multidimensional`.
+
+## Qualification
+
+The participant qualification is served from qualification/index.html. It presents all 12 natural recordings on one page and requires one primary-accent choice per recording. The public trial manifest uses opaque IDs and does not contain the answer key. Scoring is performed by the response API, with 12/12 required to proceed.
+
+Prolific participants who open a Form A-D URL without a locally confirmed pass are redirected to qualification with FORM_ID, PROLIFIC_PID, STUDY_ID, and SESSION_ID preserved. Visits without participant identifiers remain available for researcher review. Failed qualification attempts use the screen-out URL configured for that same form.
+
+Before deployment, configure the private server answer key and the Prolific screened-out completion URL as documented in the server README.
 
 ## Regeneration
 

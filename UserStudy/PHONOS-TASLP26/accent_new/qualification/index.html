@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Listening Qualification</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <script defer src="../../shared/submission.js?v=20260902a"></script>
+  <script defer src="assets/app.js?v=20260907a"></script>
+</head>
+<body data-config="trials.json">
+<main>
+  <header>
+    <p class="eyebrow">Listening study</p>
+    <h1 id="title">Listening Qualification</h1>
+    <p id="subtitle">Listen to each natural speech sample and identify its primary accent.</p>
+  </header>
+
+  <section class="form-selector hidden" id="formSelector">
+    <h2>Select your assigned form</h2>
+    <p>Choose the form specified in your study link.</p>
+    <div class="form-grid" id="formButtons"></div>
+  </section>
+
+  <section class="instructions hidden" id="instructions">
+    <p class="notice"><strong>Headphones required.</strong> Complete this task in a quiet environment.</p>
+    <h2>Instructions</h2>
+    <p>You will hear 12 natural English recordings from different speakers. For each recording, select the primary accent you hear: American, British, Indian, or Spanish.</p>
+    <ul>
+      <li>Listen to every recording at least once before answering.</li>
+      <li>You may replay a recording as needed.</li>
+      <li>Answer independently and do not use outside resources.</li>
+    </ul>
+    <p>Your responses will be evaluated after you submit all 12 items.</p>
+  </section>
+
+  <section class="study hidden" id="studySection">
+    <div class="progress-wrap" id="studyTop">
+      <div class="progress-row">
+        <span class="progress-label" id="progressText">0 / 12 answered</span>
+        <button class="text-button" id="instructionsButton" type="button">See instructions</button>
+      </div>
+      <div class="progressbar" aria-hidden="true"><div id="progressFill"></div></div>
+    </div>
+
+    <div class="trial-grid" id="trialContainer"></div>
+
+    <div class="submit-row">
+      <p class="status" id="submitStatus" aria-live="polite">Listen to and answer every sample.</p>
+      <button id="submitButton" type="button" disabled>Submit qualification</button>
+    </div>
+  </section>
+
+  <section class="result hidden" id="resultSection" aria-live="polite">
+    <h2 id="resultTitle"></h2>
+    <p id="resultMessage"></p>
+    <button class="hidden" id="continueButton" type="button">Continue to study</button>
+  </section>
+</main>
+</body>
+</html>

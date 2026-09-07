@@ -35,6 +35,30 @@ function chooseForm(config) {
   return null;
 }
 
+function qualificationParticipantKey(params) {
+  return params.PROLIFIC_PID || params.SESSION_ID || params.participant || "";
+}
+
+function qualificationPassed(params) {
+  const participant = qualificationParticipantKey(params);
+  if (!participant) return false;
+  try {
+    const raw = localStorage.getItem("phonostudy:accent-qualification:" + participant + ":status");
+    const status = raw ? JSON.parse(raw) : null;
+    return Boolean(status && status.passed === true);
+  } catch (error) {
+    return false;
+  }
+}
+
+function redirectToQualification(config, params, formId) {
+  const target = new URL(config.qualification.url, window.location.href);
+  const current = new URLSearchParams(window.location.search);
+  current.forEach((value, key) => target.searchParams.set(key, value));
+  target.searchParams.set("FORM_ID", formId);
+  window.location.replace(target.toString());
+}
+
 function selectForm(formId) {
   const url = new URL(window.location.href);
   url.searchParams.set("FORM_ID", formId);
@@ -51,6 +75,7 @@ function showFormSelector(config) {
 
 function draftKey() { return `phonostudy:${state.config.study_id}:${state.formId}:draft`; }
 function configuredUrl(value) { const url = String(value || "").trim(); return /^https?:\/\//i.test(url) ? url : ""; }
+function formUrl(values) { return configuredUrl(values?.[state.formId]); }
 function pageSize() { return Number(state.config.page_size || 5); }
 function pageCount() { return Math.ceil(state.trials.length / pageSize()); }
 function currentTrials() { const start = state.page * pageSize(); return state.trials.slice(start, start + pageSize()); }
@@ -63,6 +88,15 @@ async function loadConfig() {
   const assignment = chooseForm(state.config);
   if (!assignment) {
     showFormSelector(state.config);
+    return false;
+  }
+  const params = getParams();
+  if (
+    state.config.qualification?.required_for_prolific &&
+    qualificationParticipantKey(params) &&
+    !qualificationPassed(params)
+  ) {
+    redirectToQualification(state.config, params, assignment.id);
     return false;
   }
   state.formId = assignment.id;
@@ -374,7 +408,7 @@ async function submitStudy() {
   button.disabled = true;
   const payload = collectPayload();
   const endpoint = configuredUrl(state.config.response_api_url);
-  const completionUrl = configuredUrl(state.config.prolific_completion_url);
+  const completionUrl = formUrl(state.config.prolific_completion_urls);
   try {
     if (!window.PHONOSSubmission) throw new Error("Reliable submission client did not load");
     await window.PHONOSSubmission.submit({

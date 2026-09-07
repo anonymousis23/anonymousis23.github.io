@@ -38,6 +38,7 @@ DEFAULT_STUDY_IDS = {
     "phonos_taslp26_accent_british",
     "phonos_taslp26_accent_indian",
     "phonos_taslp26_accent_multidimensional",
+    "phonos_taslp26_accent_qualification",
     "phonos_taslp26_accent_spanish",
     "phonos_taslp26_mos",
     "phonos_taslp26_voice_similarity_abx",
@@ -47,10 +48,33 @@ ALLOWED_STUDY_IDS = {
     for value in os.getenv("ALLOWED_STUDY_IDS", ",".join(sorted(DEFAULT_STUDY_IDS))).split(",")
     if value.strip()
 }
+QUALIFICATION_STUDY_ID = "phonos_taslp26_accent_qualification"
+QUALIFICATION_TOTAL = 12
 STRICT_STUDY_IDS = {
     "phonos_taslp26_accent_multidimensional",
+    QUALIFICATION_STUDY_ID,
     "phonos_taslp26_voice_similarity_abx",
 }
+
+
+def load_qualification_answer_key() -> dict[str, str]:
+    raw = os.getenv("QUALIFICATION_ANSWER_KEY", "").strip()
+    if not raw:
+        return {}
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError as error:
+        raise RuntimeError("QUALIFICATION_ANSWER_KEY must be a JSON object") from error
+    accents = {"american", "british", "indian", "spanish"}
+    normalized = {str(key): str(value).lower() for key, value in parsed.items()}
+    if len(normalized) != QUALIFICATION_TOTAL or set(normalized.values()) != accents:
+        raise RuntimeError(
+            "QUALIFICATION_ANSWER_KEY must contain 12 items covering all four accents"
+        )
+    return normalized
+
+
+QUALIFICATION_ANSWER_KEY = load_qualification_answer_key()
 
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 engine_options = {"connect_args": connect_args, "future": True, "pool_pre_ping": True}
@@ -219,6 +243,26 @@ def payload_sha256(data: dict[str, Any]) -> str:
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
+def qualification_result(data: dict[str, Any]) -> dict[str, Any] | None:
+    if data.get("study_id") != QUALIFICATION_STUDY_ID:
+        return None
+    choices = {
+        str(row.get("qid") or ""): str(
+            row.get("accent_choice") or row.get("primary_accent") or ""
+        ).lower()
+        for row in data.get("rows", [])
+    }
+    score = sum(
+        choices.get(qid) == expected
+        for qid, expected in QUALIFICATION_ANSWER_KEY.items()
+    )
+    return {
+        "qualification_score": score,
+        "qualification_total": QUALIFICATION_TOTAL,
+        "qualification_passed": score == QUALIFICATION_TOTAL,
+    }
+
+
 def normalized_submission_id(value: str | None) -> str:
     candidate = str(value or "").strip()
     if not candidate:
@@ -233,23 +277,41 @@ def validate_submission(payload: SubmissionPayload) -> None:
         raise HTTPException(status_code=422, detail="Unknown study_id")
     if payload.study_id not in STRICT_STUDY_IDS:
         return
-    if len(payload.rows) != 60:
-        raise HTTPException(status_code=422, detail="This study requires exactly 60 trial rows")
 
+    accents = {"american", "british", "indian", "spanish"}
     qids = [str(row.get("qid") or "") for row in payload.rows]
     if any(not qid for qid in qids) or len(qids) != len(set(qids)):
         raise HTTPException(status_code=422, detail="Trial qids must be present and unique")
 
+    if payload.study_id == QUALIFICATION_STUDY_ID:
+        if len(payload.rows) != QUALIFICATION_TOTAL:
+            raise HTTPException(status_code=422, detail="Qualification requires exactly 12 trial rows")
+        if payload.form_id not in {"A", "B", "C", "D"}:
+            raise HTTPException(status_code=422, detail="FORM_ID must be A, B, C, or D")
+        if len(QUALIFICATION_ANSWER_KEY) != QUALIFICATION_TOTAL:
+            raise HTTPException(status_code=503, detail="Qualification scoring is not configured")
+        if set(qids) != set(QUALIFICATION_ANSWER_KEY):
+            raise HTTPException(status_code=422, detail="Qualification trial identifiers do not match")
+        for row in payload.rows:
+            choice = str(row.get("accent_choice") or row.get("primary_accent") or "")
+            if choice not in accents:
+                raise HTTPException(status_code=422, detail="Invalid qualification accent response")
+            if (as_int(row.get("playback_count")) or 0) < 1:
+                raise HTTPException(status_code=422, detail="Every qualification recording must be played")
+        return
+
+    if len(payload.rows) != 60:
+        raise HTTPException(status_code=422, detail="This study requires exactly 60 trial rows")
+
     if payload.study_id == "phonos_taslp26_accent_multidimensional":
         if payload.form_id not in {"A", "B", "C", "D"}:
             raise HTTPException(status_code=422, detail="FORM_ID must be A, B, C, or D")
-        accents = {"american", "british", "indian", "spanish"}
         for row in payload.rows:
             naturalness = str(row.get("naturalness_choice") or "")
             primary = str(row.get("primary_accent") or "")
             secondary = str(row.get("secondary_accent") or "")
             influence = as_int(row.get("secondary_influence"))
-            if naturalness not in {"natural", "synthetic"}:
+            if naturalness not in {"natural", "synthetic", "unsure"}:
                 raise HTTPException(status_code=422, detail="Invalid naturalness response")
             if primary not in accents:
                 raise HTTPException(status_code=422, detail="Invalid primary accent")
@@ -297,14 +359,17 @@ def duplicate_response(db: Session, submission: Submission, digest: str) -> JSON
             TrialResponse.submission_id == submission.id
         )
     ).scalar_one()
-    return JSONResponse(
-        {
-            "ok": True,
-            "submission_id": submission.id,
-            "rows": row_count,
-            "duplicate": True,
-        }
-    )
+    response = {
+        "ok": True,
+        "submission_id": submission.id,
+        "rows": row_count,
+        "duplicate": True,
+    }
+    if submission.study_id == QUALIFICATION_STUDY_ID:
+        result = qualification_result(submission.raw_payload or {})
+        if result:
+            response.update(result)
+    return JSONResponse(response)
 
 
 @app.post("/api/submissions")
@@ -331,12 +396,15 @@ async def create_submission(payload: SubmissionPayload, request: Request, db: Se
         or ""
     )
 
+    qualification = qualification_result(client_payload)
     raw_payload = dict(client_payload)
     raw_payload["server"] = {
         "submission_id": submission_id,
         "client_host": request.client.host if request.client else "",
         "received_at": datetime.now(timezone.utc).isoformat(),
     }
+    if qualification:
+        raw_payload["server"].update(qualification)
 
     db.add(
         Submission(
@@ -360,17 +428,24 @@ async def create_submission(payload: SubmissionPayload, request: Request, db: Se
     )
 
     for row in payload.rows:
+        qid = str(row.get("qid") or "")
+        expected_accent = str(row.get("expected_accent") or "")
+        primary_correct = as_int(row.get("primary_accent_correct"))
+        if payload.study_id == QUALIFICATION_STUDY_ID:
+            expected_accent = QUALIFICATION_ANSWER_KEY.get(qid, "")
+            choice = str(row.get("accent_choice") or row.get("primary_accent") or "")
+            primary_correct = int(choice == expected_accent)
         db.add(
             TrialResponse(
                 submission_id=submission_id,
                 study_id=payload.study_id,
                 task_type=payload.task_type or str(row.get("task_type") or ""),
-                qid=str(row.get("qid") or ""),
+                qid=qid,
                 display_index=as_int(row.get("display_index")),
                 page=as_int(row.get("page")),
                 condition=str(row.get("condition") or ""),
                 condition_label=str(row.get("condition_label") or ""),
-                expected_accent=str(row.get("expected_accent") or ""),
+                expected_accent=expected_accent,
                 audio=str(row.get("audio") or ""),
                 source_index=as_int(row.get("source_index")),
                 accent_choice=str(row.get("accent_choice") or ""),
@@ -378,7 +453,7 @@ async def create_submission(payload: SubmissionPayload, request: Request, db: Se
                 naturalness_choice=str(row.get("naturalness_choice") or ""),
                 naturalness_correct=as_int(row.get("naturalness_correct")),
                 primary_accent=str(row.get("primary_accent") or ""),
-                primary_accent_correct=as_int(row.get("primary_accent_correct")),
+                primary_accent_correct=primary_correct,
                 secondary_accent=str(row.get("secondary_accent") or ""),
                 secondary_influence=as_int(row.get("secondary_influence")),
                 playback_count=as_int(row.get("playback_count")),
@@ -399,9 +474,15 @@ async def create_submission(payload: SubmissionPayload, request: Request, db: Se
             return duplicate_response(db, existing, digest)
         raise
 
-    return JSONResponse(
-        {"ok": True, "submission_id": submission_id, "rows": len(payload.rows), "duplicate": False}
-    )
+    response = {
+        "ok": True,
+        "submission_id": submission_id,
+        "rows": len(payload.rows),
+        "duplicate": False,
+    }
+    if qualification:
+        response.update(qualification)
+    return JSONResponse(response)
 
 
 @app.get("/api/submissions/{submission_id}/status")

@@ -1,11 +1,12 @@
 # PHONOS-TASLP26 Response API
 
-This FastAPI service stores responses for both current perceptual studies in one Neon PostgreSQL database:
+This FastAPI service stores responses for the current perceptual studies and accent qualification in one Neon PostgreSQL database:
 
+- `phonos_taslp26_accent_qualification` (`accent_new/qualification`)
 - `phonos_taslp26_accent_multidimensional` (`accent_new`)
 - `phonos_taslp26_voice_similarity_abx` (`voice_similarity`)
 
-Each submission is saved both as the original JSON payload and as 60 queryable rows in `trial_responses`. Browser-generated submission IDs make retries idempotent: retrying the same completed payload returns success without inserting duplicate rows.
+Each submission is saved both as the original JSON payload and as queryable rows in `trial_responses` (12 for qualification and 60 for each full study). Browser-generated submission IDs make retries idempotent: retrying the same completed payload returns success without inserting duplicate rows.
 
 ## Local Setup
 
@@ -62,7 +63,8 @@ Add these production environment variables in the Vercel dashboard or with `verc
 DATABASE_URL=<Neon pooled connection string>
 AUTO_CREATE_SCHEMA=0
 ALLOWED_ORIGINS=https://anonymousis23.github.io
-ALLOWED_STUDY_IDS=phonos_taslp26_accent_multidimensional,phonos_taslp26_voice_similarity_abx
+ALLOWED_STUDY_IDS=phonos_taslp26_accent_multidimensional,phonos_taslp26_accent_qualification,phonos_taslp26_voice_similarity_abx
+QUALIFICATION_ANSWER_KEY=<contents of qualification_answer_key.local.json>
 ADMIN_TOKEN=<long random secret>
 ```
 
@@ -100,6 +102,16 @@ python ../scripts/set_managed_response_api.py https://YOUR-PROJECT.vercel.app
 ```
 
 Commit and push the two manifest changes so GitHub Pages serves the permanent endpoint. The existing ngrok URLs are intentionally left in place until this step.
+
+## Accent Qualification
+
+The qualification page sends 12 opaque trial identifiers to the API. Expected accents are held only in the private QUALIFICATION_ANSWER_KEY environment variable. The API stores the attempt and returns its score and pass/fail decision; a perfect 12/12 score is required.
+
+The local answer key is generated as server/qualification_answer_key.local.json. This file and the labeled candidate-review directory are ignored by Git. Add it as a Vercel production environment variable with:
+
+    vercel env add QUALIFICATION_ANSWER_KEY production < qualification_answer_key.local.json
+
+Before launch, configure the `A`-`D` entries in `accent_new/qualification/trials.json` under `screenout_completion_urls`, and the matching entries in `accent_new/forms.json` under `prolific_completion_urls`. Each form may use distinct Prolific screen-out and completion URLs. Passing participants return to their assigned `FORM_ID`. Prolific visits to a main form are redirected to qualification until that browser has a confirmed pass.
 
 ## Reliability Behavior
 
