@@ -78,7 +78,7 @@ legend { margin-bottom: 9px; padding: 0; font-size: 17px; font-weight: 850; }
   font-size: 14px;
 }
 .choice-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
-.choice-grid.binary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.choice-grid.naturalness { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .choice-grid.secondary-accent { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .choice {
   position: relative;

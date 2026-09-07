@@ -24,11 +24,11 @@
   ],
   "secondary_none_value": "none",
   "influence_labels": {
-    "1": "No noticeable influence",
+    "1": "Not at all",
     "2": "Slight influence",
     "3": "Moderate influence",
     "4": "Strong influence",
-    "5": "Nearly as prominent as the primary accent"
+    "5": "To a very large extent"
   },
   "forms": {
     "A": [

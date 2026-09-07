@@ -123,10 +123,11 @@ function renderTrial(trial) {
     <audio controls preload="none" data-qid="${escapeHtml(trial.qid)}"><source src="${escapeHtml(trial.audio)}" type="audio/wav"></audio>
 
     <fieldset>
-      <legend><span class="step-number">1</span>Does this speech sound natural or synthetic?</legend>
-      <div class="choice-grid binary">
+      <legend><span class="step-number">1</span>Does this speech sound natural, synthetic, or are you unsure?</legend>
+      <div class="choice-grid naturalness">
         ${choice("Natural", "naturalness_choice", trial.qid, "natural", response.naturalness_choice === "natural")}
         ${choice("Synthetic", "naturalness_choice", trial.qid, "synthetic", response.naturalness_choice === "synthetic")}
+        ${choice("Unsure", "naturalness_choice", trial.qid, "unsure", response.naturalness_choice === "unsure")}
       </div>
     </fieldset>
 
@@ -148,7 +149,7 @@ function renderTrial(trial) {
     <fieldset data-stage="influence" class="influence-stage${influenceReady ? "" : " hidden"}">
       <legend><span class="step-number">4</span>How strongly does the secondary accent influence the speech?</legend>
       <div class="influence-panel">
-        <div class="influence-endpoints"><span class="primary-endpoint">Primarily ${escapeHtml(capitalize(response.primary_accent))}</span><span class="secondary-endpoint">Strong ${escapeHtml(capitalize(response.secondary_accent))} influence</span></div>
+        <div class="influence-endpoints"><span class="primary-endpoint">Not at all</span><span class="secondary-endpoint">To a very large extent</span></div>
         <div class="range-wrap"><span>1</span><input class="influence-range" type="range" min="1" max="5" step="1" value="${influenceValue}" aria-label="Secondary accent influence"><span>5</span></div>
         <div class="influence-value">${escapeHtml(influenceText)}</div>
       </div>
@@ -204,10 +205,6 @@ function refreshCard(card) {
   const influence = qs('[data-stage="influence"]', card);
   const showInfluence = response.secondary_accent && response.secondary_accent !== "none";
   influence?.classList.toggle("hidden", !showInfluence);
-  if (showInfluence) {
-    setTextIn(card, ".primary-endpoint", `Primarily ${capitalize(response.primary_accent)}`);
-    setTextIn(card, ".secondary-endpoint", `Strong ${capitalize(response.secondary_accent)} influence`);
-  }
   card.classList.toggle("complete", isAnswered(qid));
   updateProgress();
   updatePageStatus();
