@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Listening Qualification</title>
-  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/style.css?v=20260907b">
   <script defer src="../../shared/submission.js?v=20260902a"></script>
-  <script defer src="assets/app.js?v=20260907a"></script>
+  <script defer src="assets/app.js?v=20260907b"></script>
 </head>
 <body data-config="trials.json">
 <main>
   <header>
-    <p class="eyebrow">Listening study</p>
+    <p class="eyebrow">Qualification test</p>
     <h1 id="title">Listening Qualification</h1>
     <p id="subtitle">Listen to each natural speech sample and identify its primary accent.</p>
   </header>
@@ -23,7 +23,8 @@
   </section>
 
   <section class="instructions hidden" id="instructions">
-    <p class="notice"><strong>Headphones required.</strong> Complete this task in a quiet environment.</p>
+    <p class="notice"><strong>This is a qualification test.</strong> If you qualify, you will be directed automatically to your assigned listening study. If you do not qualify, you will return to Prolific.</p>
+    <p><strong>Headphones required.</strong> Complete this task in a quiet environment.</p>
     <h2>Instructions</h2>
     <p>You will hear 12 natural English recordings from different speakers. For each recording, select the primary accent you hear: American, British, Indian, or Spanish.</p>
     <ul>
@@ -54,7 +55,8 @@
   <section class="result hidden" id="resultSection" aria-live="polite">
     <h2 id="resultTitle"></h2>
     <p id="resultMessage"></p>
-    <button class="hidden" id="continueButton" type="button">Continue to study</button>
+    <p class="result-countdown" id="redirectStatus"></p>
+    <button id="continueButton" type="button">Continue</button>
   </section>
 </main>
 </body>

@@ -9,6 +9,7 @@
     playbackCounts: {},
     startedAt: Date.now(),
     submitting: false,
+    redirectInterval: null,
   };
 
   const qs = (selector, root = document) => root.querySelector(selector);
@@ -117,15 +118,57 @@
     window.location.assign(url.toString());
   }
 
-  function showResult(passed, message) {
+  function redirectFromResult(passed) {
+    if (passed) {
+      redirectToMain();
+      return;
+    }
+    const screenout = formUrl(state.config.screenout_completion_urls);
+    if (screenout) window.location.assign(screenout);
+  }
+
+  function showResult(passed) {
     qs("#instructions").classList.add("hidden");
     qs("#studySection").classList.add("hidden");
     qs("#resultSection").classList.remove("hidden");
-    setText("#resultTitle", passed ? "Qualification complete" : "Qualification not passed");
-    setText("#resultMessage", message);
+    setText("#resultTitle", passed ? "You qualified" : "Qualification not passed");
+
+    const destination = passed
+      ? configuredUrl(state.config.pass_url)
+      : formUrl(state.config.screenout_completion_urls);
+    setText("#resultMessage", passed
+      ? "You passed the qualification test and may continue to the listening study."
+      : destination
+        ? "You did not pass the qualification test. You will now be returned to Prolific."
+        : "You did not pass the qualification test. Please return to Prolific.");
+
     const button = qs("#continueButton");
-    button.classList.toggle("hidden", !passed);
-    if (passed) button.addEventListener("click", redirectToMain, { once: true });
+    button.textContent = passed ? "Continue to study" : "Return to Prolific";
+    button.classList.toggle("hidden", !destination);
+    button.onclick = destination ? () => redirectFromResult(passed) : null;
+
+    if (state.redirectInterval) window.clearInterval(state.redirectInterval);
+    if (!destination) {
+      setText("#redirectStatus", "Automatic redirection is not configured.");
+    } else {
+      let remaining = Math.max(1, Number(state.config.result_redirect_seconds) || 12);
+      const updateCountdown = () => setText(
+        "#redirectStatus",
+        (passed ? "Continuing to the listening study in " : "Returning to Prolific in ") +
+          remaining + " second" + (remaining === 1 ? "." : "s.")
+      );
+      updateCountdown();
+      state.redirectInterval = window.setInterval(() => {
+        remaining -= 1;
+        if (remaining <= 0) {
+          window.clearInterval(state.redirectInterval);
+          state.redirectInterval = null;
+          redirectFromResult(passed);
+          return;
+        }
+        updateCountdown();
+      }, 1000);
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -148,11 +191,11 @@
 
     const previous = readStoredStatus();
     if (previous && previous.passed === true) {
-      redirectToMain();
+      showResult(true);
       return false;
     }
     if (previous && previous.passed === false) {
-      showResult(false, "You did not meet the eligibility criteria for this study. Please return to Prolific.");
+      showResult(false);
       return false;
     }
 
@@ -296,16 +339,7 @@
       storeStatus(status);
       try { localStorage.removeItem(draftKey()); } catch (error) {}
 
-      if (result.qualification_passed) {
-        showResult(true, "Your qualification was successful. Continuing to the listening study...");
-        window.setTimeout(redirectToMain, 900);
-      } else {
-        const screenout = formUrl(state.config.screenout_completion_urls);
-        showResult(false, screenout
-          ? "You did not meet the eligibility criteria for this study. Redirecting to Prolific..."
-          : "You did not meet the eligibility criteria for this study. Please return to Prolific.");
-        if (screenout) window.setTimeout(() => window.location.assign(screenout), 1200);
-      }
+      showResult(result.qualification_passed);
     } catch (error) {
       setText("#submitStatus", "Submission has not been confirmed: " + (error.message || error) +
         ". Your responses remain saved; press Submit to retry.");

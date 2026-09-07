@@ -6,6 +6,7 @@
   "randomized_order_seed": 260907,
   "response_api_url": "https://phonos-taslp26-response-api.vercel.app/api/submissions",
   "pass_url": "../",
+  "result_redirect_seconds": 12,
   "screenout_completion_urls": {
     "A": "",
     "B": "",

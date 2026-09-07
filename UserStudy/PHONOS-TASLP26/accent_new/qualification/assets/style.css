@@ -118,6 +118,7 @@ button.text-button:hover:not(:disabled) { color: #fff; }
 .form-button { min-height: 58px; font-size: 19px; }
 .result { margin: 28px auto; padding: 24px; background: var(--soft); text-align: center; }
 .result h2 { margin-top: 0; }
+.result-countdown { min-height: 27px; color: var(--teal-dark); font-weight: 800; }
 .hidden { display: none !important; }
 
 @media (max-width: 760px) {
