@@ -16,10 +16,10 @@
   "target_usable_participants": 80,
   "response_api_url": "https://phonos-taslp26-response-api.vercel.app/api/submissions",
   "prolific_completion_urls": {
-    "A": "",
-    "B": "",
-    "C": "",
-    "D": ""
+    "A": "https://app.prolific.com/submissions/complete?cc=CMGBN5M5",
+    "B": "https://app.prolific.com/submissions/complete?cc=C13AM0J0",
+    "C": "https://app.prolific.com/submissions/complete?cc=CRSXYDES",
+    "D": "https://app.prolific.com/submissions/complete?cc=CZ49K4Y2"
   },
   "accent_labels": [
     "American",

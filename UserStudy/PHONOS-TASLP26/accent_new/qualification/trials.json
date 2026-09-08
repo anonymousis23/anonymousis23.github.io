@@ -8,10 +8,10 @@
   "pass_url": "../",
   "result_redirect_seconds": 12,
   "screenout_completion_urls": {
-    "A": "",
-    "B": "",
-    "C": "",
-    "D": ""
+    "A": "https://app.prolific.com/submissions/complete?cc=CE6F9XEL",
+    "B": "https://app.prolific.com/submissions/complete?cc=C1AHNGFJ",
+    "C": "https://app.prolific.com/submissions/complete?cc=C19DBQV0",
+    "D": "https://app.prolific.com/submissions/complete?cc=CFG9I8CY"
   },
   "form_ids": [
     "A",
